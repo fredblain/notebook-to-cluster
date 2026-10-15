@@ -1,0 +1,1327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0}
+img,svg{max-width:100%}
+[hidden]{display:none!important}
+kbd{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.82em;font-weight:700;background:#fff;color:#15131a;border:2px solid #15131a;border-bottom-width:4px;border-radius:6px;padding:0 .4em;white-space:nowrap}
+</style>
+<title>Works On My Machine Slides</title>
+<style>
+@font-face{font-family:"Big Shoulders";src:url("fonts/BigShoulders-Bold.ttf") format("truetype");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+
+/* Issue #2 of the Git Good comic series. Layout: a comic book. Chapters are rows of bordered panels on a halftone page; speech bubbles sit above each drawing. One deliberate light "printed page" look. */
+:root{
+  --paper:#eef3f8;
+  --panel:#ffffff;
+  --ink:#15131a;
+  --cyan:#2bb3e8;
+  --magenta:#e83e8c;
+  --yellow:#ffd23f;
+  --green:#2fbf6c;
+  --red:#e5484d;
+  --muted:#5b5f6b;
+  --term:#17151d;
+  --term-fg:#ece9f4;
+  --f-display:"Big Shoulders","Impact","Arial Narrow Bold",sans-serif;
+  --f-body:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:radial-gradient(rgba(43,179,232,.22) 1.2px, transparent 1.4px);
+  background-size:9px 9px;
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:17px;
+  line-height:1.45;
+}
+.page{max-width:1060px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;letter-spacing:.03em;margin:0;text-wrap:balance}
+code{font-family:var(--f-mono);font-size:.88em;background:#fff3c4;border:1.5px solid var(--ink);border-radius:5px;padding:0 .3em;white-space:nowrap}
+
+/* cover */
+.cover{background:var(--panel);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);overflow:hidden}
+.cover-text{padding:28px 28px 24px;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.issue{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--yellow);align-self:flex-start;padding:4px 10px}
+.cover h1{font-size:clamp(3.8rem,11vw,7.2rem);line-height:.9;color:var(--yellow);-webkit-text-stroke:3px var(--ink);text-shadow:5px 5px 0 var(--magenta),9px 9px 0 var(--ink)}
+.cover p{margin:0;font-size:1.12rem;max-width:34ch}
+.cover-art{background:var(--cyan);border-left:4px solid var(--ink);display:flex;align-items:flex-end;justify-content:center;min-height:260px}
+.cover-art svg{width:100%;height:auto;display:block}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.toc a{font-family:var(--f-display);letter-spacing:.04em;font-size:1rem;color:var(--ink);text-decoration:none;background:#fff;border:2px solid var(--ink);padding:2px 8px;box-shadow:2px 2px 0 var(--ink)}
+.toc a:hover,.toc a:focus-visible{background:var(--yellow);outline:none}
+
+/* chapters */
+.chapter{display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
+.ch-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ch-num{font-family:var(--f-display);font-size:1.05rem;letter-spacing:.06em;background:var(--magenta);color:#fff;border:3px solid var(--ink);padding:2px 10px;transform:rotate(-3deg);box-shadow:3px 3px 0 var(--ink)}
+.ch-head h2{font-size:clamp(2rem,5vw,2.9rem);line-height:1;-webkit-text-stroke:1px var(--ink)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.panel{background:var(--panel);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel.wide{grid-column:1/-1}
+.panel.yellow{background:#fff6cf}
+.panel svg.art{width:100%;height:auto;display:block;margin-top:auto}
+.caption{background:var(--yellow);border:2px solid var(--ink);font-weight:700;padding:3px 9px;align-self:flex-start;text-transform:uppercase;font-size:.78rem;letter-spacing:.06em;line-height:1.3}
+.panel p{margin:0}
+.note{font-size:.95rem;color:var(--muted)}
+.note strong{color:var(--ink)}
+
+/* speech bubbles */
+.bubble{background:#fff;border:2.5px solid var(--ink);border-radius:20px;padding:9px 14px;position:relative;line-height:1.35;margin-bottom:12px}
+.bubble::before,.bubble::after{content:"";position:absolute;width:0;height:0;border-style:solid}
+.bubble::before{bottom:-15px;left:30px;border-width:15px 9px 0 9px;border-color:var(--ink) transparent transparent transparent}
+.bubble::after{bottom:-10px;left:32.5px;border-width:10px 6.5px 0 6.5px;border-color:#fff transparent transparent transparent}
+.bubble.r::before{left:auto;right:30px}
+.bubble.r::after{left:auto;right:32.5px}
+.bubble.c::before{left:calc(50% - 9px)}
+.bubble.c::after{left:calc(50% - 6.5px)}
+.bubble.plain{margin-bottom:0}
+.bubble.plain::before,.bubble.plain::after{display:none}
+.who{display:inline-block;font-family:var(--f-display);letter-spacing:.06em;font-size:.85rem;padding:0 6px;border:1.5px solid var(--ink);margin-right:6px;transform:translateY(-1px)}
+.who.snap{background:var(--yellow)}
+.who.sam{background:var(--magenta);color:#fff}
+.bubble.shout{font-weight:700;background:#fff}
+
+/* terminal */
+.term{background:var(--term);color:var(--term-fg);font-family:var(--f-mono);font-size:.82rem;line-height:1.6;border:3px solid var(--ink);border-radius:8px;padding:12px 14px;overflow-x:auto;white-space:pre;margin:0;tab-size:4}
+.term .p{color:var(--yellow);user-select:none}
+.term .c{color:#8d8a99}
+.term .ok{color:#5fe39a}
+.term .bad{color:#ff7b80}
+.term .hl{color:#7fd3f5}
+.term .y{color:#ffe17a}
+
+/* steps & chips */
+.loop{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip{font-family:var(--f-mono);font-weight:700;font-size:.85rem;background:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:4px 12px;box-shadow:2px 2px 0 var(--ink)}
+.chip.y{background:var(--yellow)}
+.chip.c{background:#bfe9fa}
+.chip.m{background:#f9c7de}
+.arrow{font-family:var(--f-display);font-size:1.3rem;line-height:1}
+.zones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+.zones h3{font-size:1.15rem}
+.zones p{font-size:.88rem;color:var(--muted)}
+
+/* tables */
+.oops{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);border:2.5px solid var(--ink);background:#fff}
+.oops > div{padding:9px 12px;border-bottom:2px dashed #c9cdd6;min-width:0}
+.oops > div:nth-last-child(-n+2){border-bottom:0}
+.oops .h{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-size:1.05rem;border-bottom:0}
+.oops code{white-space:normal;word-break:break-word}
+.warn{background:var(--red);color:#fff;border:2.5px solid var(--ink);padding:8px 12px;font-weight:700;box-shadow:3px 3px 0 var(--ink)}
+.warn code{color:var(--ink)}
+.good-bad{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.good-bad ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.good-bad li{font-family:var(--f-mono);font-size:.82rem;background:#fff;border:2px solid var(--ink);padding:4px 8px;min-width:0;overflow-wrap:anywhere}
+.good-bad h3{font-size:1.2rem;margin-bottom:6px}
+.bad-t{color:var(--red)}
+.good-t{color:var(--green)}
+.habits{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+.habits li::marker{color:var(--magenta);font-weight:700}
+
+/* cheat sheet */
+.cheat{background:var(--yellow);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px;display:flex;flex-direction:column;gap:14px}
+.cheat h2{font-size:clamp(2rem,5vw,2.8rem);line-height:1}
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.cheat-group{background:#fff;border:2.5px solid var(--ink);padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cheat-group h3{font-size:1.1rem;color:var(--magenta)}
+.cmd{display:flex;flex-direction:column;gap:1px}
+.cmd code{white-space:normal;word-break:break-word;align-self:flex-start;background:#eef7fc}
+.cmd span{font-size:.88rem;color:var(--muted)}
+.end{text-align:center;font-family:var(--f-display);font-size:1.4rem;letter-spacing:.05em}
+
+@media (max-width:700px){
+  .cover{grid-template-columns:1fr}
+  .cover-art{border-left:0;border-top:4px solid var(--ink);min-height:0}
+  .oops{grid-template-columns:1fr}
+  .oops > div:nth-child(2n+1):not(.h){border-bottom:0;padding-bottom:2px;font-weight:700}
+  .oops .h:nth-child(2){display:none}
+  .good-bad{grid-template-columns:1fr}
+  body{font-size:16px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .flash{animation:flash 2.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+  @keyframes flash{0%,80%,100%{opacity:1;transform:scale(1)}88%{opacity:.6;transform:scale(1.12)}}
+}
+
+/* ---- issue 2 additions ---- */
+.ch-head .part-tag{font-family:var(--f-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-left:auto;align-self:center}
+.toc-part{flex-basis:100%;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.cover p.prev-issue{font-size:.95rem;max-width:none}
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+.xref:hover,.xref:focus-visible{background:var(--yellow);outline:none}
+.tree{background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:8px;padding:12px 14px;font-family:var(--f-mono);font-size:.8rem;line-height:1.6;overflow-x:auto;white-space:pre;margin:0}
+.tree .c{color:#1d7fa8}
+.tree b{color:#c22d72}
+.tree.small{font-size:.76rem}
+.scroll-x{overflow-x:auto}
+table.cmp{border-collapse:collapse;width:100%;min-width:620px;background:#fff;border:2.5px solid var(--ink);font-size:.95rem}
+.cmp th{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-weight:400;text-align:left;padding:8px 10px;font-size:1.05rem}
+.cmp td{padding:9px 10px;border-top:2px dashed #c9cdd6;vertical-align:top}
+.cmp code{white-space:normal;word-break:break-word}
+.beasts td:first-child{width:34%}
+.mark{display:inline-flex;align-items:center;justify-content:center;flex:none;width:1.45em;height:1.45em;border-radius:50%;font-family:var(--f-display);font-size:.95em;line-height:1;border:2px solid var(--ink);color:var(--ink);margin-right:6px;vertical-align:middle}
+.term .mark{border-color:#fff;font-size:.85em}
+.m1{background:var(--yellow)}.m2{background:var(--cyan)}.m3{background:#f9c7de}
+.tb-legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tb-legend li{display:flex;gap:4px;align-items:flex-start}
+.msg{border:2.5px solid var(--ink);border-radius:14px;padding:12px 14px;white-space:pre-wrap;line-height:1.45;box-shadow:3px 3px 0 var(--ink);min-width:0;overflow-wrap:anywhere}
+.msg code{white-space:normal;word-break:break-word}
+.bad-msg{background:#ffe1e2}
+.good-msg{background:#e3f8ec}
+
+.chip{white-space:nowrap}
+@media (min-width:900px){.panel.span2{grid-column:span 2}}
+.habits.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 28px;padding-left:1.3em}
+.panel.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);align-items:center;column-gap:20px}
+.panel.row > .caption{grid-column:1/-1}
+.panel.row svg.art{margin-top:0}
+@media (max-width:640px){.panel.row{grid-template-columns:1fr}}
+
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start}
+.duo p{margin:0}
+.nb{background:#ffffff;color:var(--ink);border:3px solid var(--ink);border-left:8px solid var(--cyan);border-radius:6px;padding:12px 14px;font-family:var(--f-mono);font-size:.8rem;line-height:1.6;overflow-x:auto;white-space:pre;margin:0}
+.nb .in{color:#1d7fa8;font-weight:700}
+.nb .out{color:#c22d72;font-weight:700}
+
+.triage td:first-child{width:16%;white-space:nowrap}
+.verdicts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.verdict{border:2.5px solid var(--ink);padding:9px 12px;box-shadow:3px 3px 0 var(--ink);display:flex;flex-direction:column;gap:2px;font-size:.95rem}
+.verdict strong{font-family:var(--f-display);font-weight:400;letter-spacing:.05em;font-size:1.15rem}
+.verdict.g{background:#d3f5e1}.verdict.y{background:#fff1b8}.verdict.r{background:#ffd9da}
+/* ---- slide deck mode ---- */
+:root{--nav-h:64px}
+html,body{height:100%;overflow:hidden}
+.deck{position:fixed;inset:0;padding:0;margin:0;max-width:none;display:block}
+.slide{position:absolute;inset:0 0 calc(var(--nav-h) + env(safe-area-inset-bottom,0px)) 0;padding-top:env(safe-area-inset-top,0px);overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column}
+.slide-inner{width:100%;max-width:1060px;margin:auto;padding-inline:16px;padding-block:28px 36px}
+.cheat .end{margin:6px 0 0}
+@media (prefers-reduced-motion:no-preference){
+  .slide.in-next .slide-inner{animation:inNext .38s cubic-bezier(.2,.8,.2,1)}
+  .slide.in-prev .slide-inner{animation:inPrev .38s cubic-bezier(.2,.8,.2,1)}
+  @keyframes inNext{from{opacity:0;transform:translateX(48px) rotate(.6deg)}to{opacity:1;transform:none}}
+  @keyframes inPrev{from{opacity:0;transform:translateX(-48px) rotate(-.6deg)}to{opacity:1;transform:none}}
+}
+.nav{position:fixed;left:0;right:0;bottom:0;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding:0 16px env(safe-area-inset-bottom,0px);background:var(--ink);color:#fff;display:flex;align-items:center;gap:14px;z-index:5}
+.nav .bar{position:absolute;left:0;top:0;height:4px;background:var(--yellow);transition:width .3s}
+.nav button{font-family:var(--f-display);font-size:1.15rem;letter-spacing:.05em;background:var(--yellow);color:var(--ink);border:3px solid #fff;padding:4px 14px;cursor:pointer;box-shadow:3px 3px 0 var(--magenta);line-height:1.2}
+.nav button:hover{background:#fff}
+.nav button:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.nav button:disabled{opacity:.35;cursor:default;box-shadow:none}
+.nav .mid{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+.nav .label{font-family:var(--f-display);letter-spacing:.05em;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.nav .label b{color:var(--yellow);font-weight:400;margin-right:8px;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:6px}
+.nav .dots button{width:12px;height:12px;padding:0;border:2px solid #fff;border-radius:50%;background:transparent;box-shadow:none}
+.nav .dots button[aria-current="true"]{background:var(--yellow);border-color:var(--yellow);transform:scale(1.25)}
+.nav .dots button:hover{background:var(--magenta)}
+.hint{font-family:var(--f-mono);font-size:.7rem;color:#a9a6b5;white-space:nowrap}
+@media (max-width:640px){.hint{display:none}.nav{gap:8px}.nav button{padding:4px 9px;font-size:1rem}.dots{gap:4px}.nav .dots button{width:9px;height:9px}}
+.sub{font-size:1.35rem;line-height:1}
+.tree .mk{background:#ffe1e2}
+
+/* ---- offline series navigation ---- */
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+a.xref:hover,a.xref:focus-visible{background:var(--yellow);outline:none}
+.cover p.prev-issue,.cover p.formats{font-size:.95rem;max-width:none;margin:0}
+.series-bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.series-bar .lbl{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.xref.home{background:var(--yellow)}
+.xref.fmt{background:#f9c7de}
+</style>
+</head>
+<body>
+<!-- shared drawings -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#15131a" opacity=".16"/></pattern>
+    <pattern id="dotsW" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#ffffff" opacity=".35"/></pattern>
+
+    <symbol id="sam" viewBox="0 0 100 150">
+      <rect x="36" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <rect x="53" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <path d="M20 122 Q18 80 50 75 Q82 80 80 122 Z" fill="#e83e8c" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M44 80 L43 98 M56 80 L57 98" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="50" cy="46" r="26" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+      <path d="M24 46 Q20 16 50 16 Q82 16 76 46 Q72 31 60 33 Q52 23 40 32 Q30 33 24 46 Z" fill="#15131a"/>
+      <circle cx="41" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="59" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="34" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+      <circle cx="66" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+    </symbol>
+
+    <symbol id="snap" viewBox="0 0 100 110">
+      <path d="M38 82 L36 101 M62 82 L64 101" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <ellipse cx="33" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <ellipse cx="67" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <path d="M14 52 L5 40 M86 52 L95 40" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <circle cx="5" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="95" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="28" y="14" width="22" height="16" rx="4" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="62" y="17" width="14" height="11" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="14" y="26" width="72" height="58" rx="12" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="50" cy="52" r="20" fill="#15131a"/>
+      <circle cx="50" cy="52" r="14" fill="#2bb3e8"/>
+      <circle cx="50" cy="52" r="6" fill="#15131a"/>
+      <circle cx="44" cy="46" r="4" fill="#ffffff"/>
+      <path d="M42 76 Q50 81 58 76" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="burst" viewBox="-50 -50 100 100">
+      <polygon points="50,0 27.7,11.5 35.4,35.4 11.5,27.7 0,50 -11.5,27.7 -35.4,35.4 -27.7,11.5 -50,0 -27.7,-11.5 -35.4,-35.4 -11.5,-27.7 0,-50 11.5,-27.7 35.4,-35.4 27.7,-11.5" stroke="#15131a" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="polaroid" viewBox="0 0 60 70">
+      <rect x="1.5" y="1.5" width="57" height="67" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="7" y="7" width="46" height="40" fill="#bfe9fa" stroke="#15131a" stroke-width="2"/>
+      <path d="M7 47 L22 28 L32 39 L39 31 L53 47 Z" fill="#2fbf6c" stroke="#15131a" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="42" cy="17" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="2"/>
+    </symbol>
+
+    <symbol id="file" viewBox="0 0 40 50">
+      <path d="M2 2 H28 L38 12 V48 H2 Z" fill="#ffffff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M28 2 V12 H38" fill="none" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M9 22 H31 M9 29 H27 M9 36 H31" stroke="#9aa0ad" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="hat" viewBox="0 0 100 40">
+      <path d="M22 34 Q22 4 50 4 Q78 4 78 34 Z" fill="#a07c55" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M34 9 L36 32 M50 4 V33 M66 9 L64 32 M24 22 H76" stroke="#6b5034" stroke-width="2" fill="none"/>
+      <ellipse cx="50" cy="34" rx="36" ry="5.5" fill="#8a6a4a" stroke="#15131a" stroke-width="3"/>
+    </symbol>
+    <symbol id="magnifier" viewBox="0 0 60 60">
+      <path d="M36 36 L54 54" stroke="#15131a" stroke-width="11" stroke-linecap="round"/>
+      <path d="M36 36 L54 54" stroke="#2d3a5a" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="24" cy="24" r="16" fill="#bfe9fa" fill-opacity=".7" stroke="#15131a" stroke-width="4"/>
+      <path d="M15 20 Q17 13 24 12" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="jar" viewBox="0 0 110 130">
+      <path d="M14 22 H96 V112 Q96 126 82 126 H28 Q14 126 14 112 Z" fill="#e9f7ff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M24 34 V100" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <rect x="18" y="5" width="74" height="17" rx="4" fill="#9aa0ad" stroke="#15131a" stroke-width="3"/>
+    </symbol>
+    <symbol id="bug" viewBox="0 0 84 70">
+      <path d="M24 40 L8 32 M22 48 L5 52 M26 56 L12 66 M60 40 L76 32 M62 48 L79 52 M58 56 L72 66" stroke="#15131a" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M37 12 Q32 2 24 4 M47 12 Q52 2 60 4" stroke="#15131a" stroke-width="2.5" fill="none"/>
+      <circle cx="24" cy="4" r="3" fill="#15131a"/><circle cx="60" cy="4" r="3" fill="#15131a"/>
+      <ellipse cx="42" cy="46" rx="22" ry="18" stroke="#15131a" stroke-width="3"/>
+      <path d="M42 30 V63" stroke="#15131a" stroke-width="2" opacity=".5"/>
+      <circle cx="42" cy="22" r="12" stroke="#15131a" stroke-width="3"/>
+      <circle cx="37" cy="20" r="4.2" fill="#ffffff" stroke="#15131a" stroke-width="1.5"/>
+      <circle cx="47" cy="20" r="4.2" fill="#ffffff" stroke="#15131a" stroke-width="1.5"/>
+      <circle cx="38" cy="21" r="1.8" fill="#15131a"/><circle cx="46" cy="21" r="1.8" fill="#15131a"/>
+      <path d="M32 14 L40 17 M52 14 L44 17" stroke="#15131a" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M37 28 L40 26 L42 28 L44 26 L47 28" fill="none" stroke="#15131a" stroke-width="1.8" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="deck" id="deck">
+
+  <!-- COVER -->
+  <div class="slide"><div class="slide-inner"><section class="cover" id="cover">
+    <div class="cover-text">
+      <span class="issue">Issue #2 · Running research code</span>
+      <h1>Works on<br>my machine</h1>
+      <p>Literature review, week 3. You find the perfect paper, and it even links to its code on GitHub. You open it: no notebook, just folders full of <code>.py</code> files. Where do you start? This issue covers finding your way around the repo, building its Python environment, and getting someone else's code to run.</p>
+      <nav class="toc" aria-label="Chapters">
+        <span class="toc-part">Part 1 · Find your way</span>
+        <a href="#mission">1 · Found code!</a>
+        <a href="#map">2 · Repo map</a>
+        <a href="#trace">3 · Reading order</a>
+        <span class="toc-part">Part 2 · Environment</span>
+        <a href="#why-env">4 · Why envs</a>
+        <a href="#tools">5 · Pick a tool</a>
+        <a href="#recipes">6 · Recipes</a>
+        <a href="#check">7 · Install &amp; check</a>
+        <span class="toc-part">Part 3 · Run it</span>
+        <a href="#first-run">8 · Start small</a>
+        <a href="#traceback">9 · Tracebacks</a>
+        <a href="#bestiary">10 · Error bestiary</a>
+        <a href="#debug">11 · Debug kit</a>
+        <a href="#help">12 · Ask for help</a>
+        <span class="toc-part">Part 4 · Your own code</span>
+        <a href="#to-script">13 · Notebook → script</a>
+        <a href="#cheat">Cheat sheet</a>
+      </nav>
+      <div class="series-bar"><span class="lbl">Series</span><a class="xref home" href="index.html">⌂ Home</a><a class="xref" href="hello-terminal-slides.html">Issue #0 · Hello, Terminal</a><a class="xref" href="windows-and-wsl-slides.html">Appendix · Windows &amp; WSL</a><a class="xref" href="git-good-slides.html">Issue #1 · Git Good</a><a class="xref" href="share-the-gpu-slides.html">Issue #3 · Share the GPU</a><a class="xref fmt" href="works-on-my-machine.html">▤ Read as one page</a></div>
+    </div>
+    <div class="cover-art">
+      <svg viewBox="0 0 420 300" role="img" aria-label="Sam with a laptop and Snap in a detective hat holding a magnifying glass">
+        <rect width="420" height="300" fill="url(#dotsW)"/>
+        <use href="#burst" x="150" y="36" width="230" height="230" fill="#ffd23f"/>
+        <g transform="rotate(-14 70 60)"><use href="#file" x="44" y="30" width="44" height="55"/></g>
+        <g transform="rotate(10 360 60)"><use href="#file" x="336" y="28" width="40" height="50"/></g>
+        <text x="200" y="52" font-family="Big Shoulders, Impact, sans-serif" font-size="46" fill="#e83e8c" stroke="#15131a" stroke-width="2">?</text>
+        <g transform="translate(60 92) scale(1.3)">
+          <use href="#sam" width="100" height="150"/>
+          <path d="M41 60 Q50 69 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <rect x="58" y="214" width="96" height="58" rx="5" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+        <rect x="66" y="221" width="80" height="44" fill="#17151d"/>
+        <text x="71" y="236" font-family="JetBrains Mono, monospace" font-size="9" fill="#5fe39a">$ python</text>
+        <text x="71" y="250" font-family="JetBrains Mono, monospace" font-size="9" fill="#5fe39a">  train.py</text>
+        <g transform="translate(218 136) scale(1.4)">
+          <use href="#snap" width="100" height="110"/>
+          <use href="#hat" width="100" height="40" y="-22"/>
+        </g>
+        <use href="#magnifier" x="330" y="150" width="70" height="70"/>
+        <rect x="0" y="292" width="420" height="8" fill="#15131a"/>
+      </svg>
+    </div>
+  </section></div></div>
+
+  <!-- 1 MISSION -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="mission">
+    <div class="ch-head"><span class="ch-num">Chapter 1</span><h2>Found a paper with code!</h2><span class="part-tag">Part 1 · Find your way</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Literature review, week 3</span>
+        <div class="bubble"><span class="who sam">Sam</span>This paper is perfect for my thesis, and it has code! …But there's no notebook. Where do I even start?</div>
+        <svg class="art" viewBox="0 0 300 180" role="img" aria-label="Sam next to a paper whose footnote links to its code on GitHub">
+          <rect width="300" height="180" fill="url(#dots)"/>
+          <g transform="rotate(-6 60 150)"><rect x="12" y="132" width="100" height="40" fill="#ffffff" stroke="#15131a" stroke-width="2.5"/></g>
+          <g transform="translate(16 20) scale(.9)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M42 64 Q50 58 58 64" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g transform="rotate(3 215 90)">
+            <rect x="146" y="8" width="140" height="166" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+            <text x="156" y="28" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="11" fill="#15131a">FancyModel: Better</text>
+            <text x="156" y="41" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="11" fill="#15131a">Results With Less</text>
+            <g fill="#c9cdd6"><rect x="156" y="52" width="120" height="5"/><rect x="156" y="62" width="112" height="5"/><rect x="156" y="72" width="120" height="5"/><rect x="156" y="82" width="96" height="5"/><rect x="156" y="98" width="120" height="5"/><rect x="156" y="108" width="104" height="5"/><rect x="156" y="118" width="116" height="5"/></g>
+            <rect x="152" y="134" width="128" height="32" fill="#ffd23f" opacity=".85"/>
+            <text x="156" y="147" font-family="JetBrains Mono, monospace" font-size="8" fill="#15131a">¹Code: github.com/</text>
+            <text x="156" y="159" font-family="JetBrains Mono, monospace" font-size="8" font-weight="700" fill="#15131a">some-lab/fancy-model</text>
+          </g>
+          <text x="128" y="26" font-family="Big Shoulders, Impact, sans-serif" font-size="30" fill="#e83e8c" stroke="#15131a" stroke-width="1.2">?!</text>
+        </svg>
+      </div>
+      <div class="panel">
+        <span class="caption">Notebook vs repo</span>
+        <div class="bubble r"><span class="who snap">Snap</span>Same ideas, different packaging! A notebook is cells you run in the browser. A repo splits the code over <code>.py</code> files, and you run them from the terminal.</div>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="A Jupyter-style notebook with three cells turns into a folder of three Python files">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <rect x="12" y="14" width="112" height="124" rx="6" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+          <path d="M12 32 H124" stroke="#15131a" stroke-width="2.5"/>
+          <g fill="#e5484d"><circle cx="24" cy="23" r="3"/></g><circle cx="34" cy="23" r="3" fill="#ffd23f"/><circle cx="44" cy="23" r="3" fill="#2fbf6c"/>
+          <g font-family="JetBrains Mono, monospace" font-size="8" fill="#1d8fbe"><text x="18" y="52">[1]</text><text x="18" y="82">[2]</text><text x="18" y="112">[3]</text></g>
+          <g fill="#eef7fc" stroke="#15131a" stroke-width="2"><rect x="38" y="42" width="78" height="20" rx="3"/><rect x="38" y="72" width="78" height="20" rx="3"/><rect x="38" y="102" width="78" height="20" rx="3"/></g>
+          <text x="68" y="134" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" fill="#5b5f6b">analysis.ipynb</text>
+          <path d="M132 76 H166" stroke="#15131a" stroke-width="4"/><path d="M162 66 L176 76 L162 86Z" fill="#15131a"/>
+          <use href="#file" x="186" y="14" width="34" height="42"/>
+          <use href="#file" x="232" y="34" width="34" height="42"/>
+          <use href="#file" x="194" y="84" width="34" height="42"/>
+          <g font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#15131a">
+            <text x="182" y="68">data.py</text><text x="226" y="88">model.py</text><text x="188" y="138">train.py</text>
+          </g>
+        </svg>
+      </div>
+      <div class="panel">
+        <span class="caption">Before you clone</span>
+        <div class="bubble"><span class="who snap">Snap</span>Is this repo worth an afternoon? You can tell a lot from its GitHub page in five minutes, without installing anything.</div>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="A traffic light next to a magnifying glass">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <rect x="116" y="8" width="68" height="134" rx="12" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+          <circle cx="150" cy="34" r="15" fill="#e5484d" stroke="#15131a" stroke-width="3"/>
+          <circle cx="150" cy="75" r="15" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+          <circle cx="150" cy="116" r="15" fill="#2fbf6c" stroke="#15131a" stroke-width="3"/>
+          <use href="#magnifier" x="196" y="58" width="78" height="78"/>
+          <use href="#file" x="34" y="44" width="52" height="65"/>
+        </svg>
+      </div>
+      <div class="panel wide">
+        <span class="caption">Triage checklist: is this repo worth your time?</span>
+        <div class="scroll-x">
+        <table class="cmp triage">
+          <thead><tr><th>Check</th><th>Green light</th><th>Red flag</th></tr></thead>
+          <tbody>
+            <tr><td><strong>README</strong></td><td>Explains how to install and run, with an example command</td><td>Empty, a title only, or “code coming soon”</td></tr>
+            <tr><td><strong>Activity</strong></td><td>Commits after the paper came out; questions in Issues get answers</td><td>Last commit years ago; Issues full of unanswered “doesn't run” reports</td></tr>
+            <tr><td><strong>Dependencies</strong></td><td><code>requirements.txt</code>, <code>pyproject.toml</code> or <code>environment.yml</code>, with versions</td><td>No dependency file at all: you'll have to guess every package</td></tr>
+            <tr><td><strong>Data</strong></td><td>Download script or link, or a public benchmark dataset</td><td>“Available on request”, or human-subject data that needs ethics approval or a data use agreement</td></tr>
+            <tr><td><strong>Trained models</strong></td><td>Pretrained weights or checkpoints provided (e.g. on Hugging Face)</td><td>You'd have to train everything from scratch</td></tr>
+            <tr><td><strong>Hardware</strong></td><td>Runs on a single GPU, or even a laptop CPU for a small demo</td><td>The paper used 8 GPUs for 3 days</td></tr>
+            <tr><td><strong>License</strong></td><td>MIT, Apache, BSD, GPL… (a <code>LICENSE</code> file)</td><td>No license: legally, you may read the code but not reuse it</td></tr>
+            <tr><td><strong>Matches the paper</strong></td><td>README links the paper; a release or tag marks the paper's version</td><td>The code clearly does something different from what the paper describes</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="verdicts">
+          <div class="verdict g"><strong>Mostly green</strong>Clone it and try to run it (this issue).</div>
+          <div class="verdict y"><strong>Some red</strong>Still worth reading to understand the method. Plan extra time before you rely on it.</div>
+          <div class="verdict r"><strong>Mostly red</strong>Note it in your literature review (“code released but not runnable”) and move on. That's a finding too.</div>
+        </div>
+        <p class="note">Tip: the Issues tab is also a preview of the errors you're about to hit, and often of their fixes.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Worth it? Get a copy</span>
+        <div class="bubble"><span class="who snap">Snap</span>Mostly green lights? Clone it. Your mission: can I run it, and do I get roughly the numbers in the paper?</div>
+<pre class="term"><span class="p">$ </span>git clone https://github.com/some-lab/fancy-model.git
+<span class="p">$ </span>cd fancy-model
+<span class="p">$ </span>git log --oneline | head -5   <span class="c"># is anyone still working on it?</span></pre>
+        <p class="note">The green <strong>Code ▸ Download ZIP</strong> button works too, but you get no history and can't pull updates. <a class="xref" href="git-good-slides.html#remotes">Git Good · Ch. 8: clone ↗</a></p>
+      </div>
+      <div class="panel span2 yellow">
+        <span class="caption">Two habits from minute one</span>
+        <div class="duo">
+<pre class="term"><span class="c"># 1. note exactly which version you started from</span>
+<span class="p">$ </span>git rev-parse --short HEAD
+<span class="hl">3f2a9c1</span>
+<span class="c"># 2. keep your own changes on a branch</span>
+<span class="p">$ </span>git switch -c my-experiments</pre>
+          <p>Put the paper, the repo link and the commit ID in your literature-review notes. If you end up using the code in your thesis, that ID goes in your methods section. The branch keeps the authors' original code one <code>git switch main</code> away. <a class="xref" href="git-good-slides.html#branches">Git Good · Ch. 6: branches ↗</a></p>
+        </div>
+      </div>
+      <div class="panel wide">
+        <span class="caption">Jupyter → repo dictionary</span>
+        <div class="scroll-x">
+        <table class="cmp">
+          <thead><tr><th>In a notebook you…</th><th>In a repo you…</th></tr></thead>
+          <tbody>
+            <tr><td>download one <code>.ipynb</code> file</td><td>clone the whole folder with <code>git clone</code> (Chapter 1)</td></tr>
+            <tr><td>write code in cells</td><td>find it in functions and classes spread over <code>.py</code> files (Chapters 2–3)</td></tr>
+            <tr><td>pick a kernel</td><td>create and activate an environment (Part 2)</td></tr>
+            <tr><td>type <code>!pip install x</code> in a cell when something's missing</td><td>install everything once, from <code>requirements.txt</code>, into that environment (Chapter 6)</td></tr>
+            <tr><td>click <strong>Run All</strong></td><td>run one command in the terminal, like <code>python -m fancy_model.train</code> (Chapter 8)</td></tr>
+            <tr><td>change a value in a cell and re-run</td><td>change a config file or pass a flag like <code>--epochs 1</code></td></tr>
+            <tr><td>rely on variables left over from earlier cells</td><td>can't: every run starts fresh from the top, which is exactly why results are repeatable</td></tr>
+            <tr><td>see a red error box under a cell</td><td>see the same traceback in the terminal (Chapter 9)</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 2 MAP -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="map">
+    <div class="ch-head"><span class="ch-num">Chapter 2</span><h2>The map of a research repo</h2><span class="part-tag">Part 1 · Find your way</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <span class="caption">Every repo is different, but most look a lot like this</span>
+<pre class="tree">fancy-model/
+├── <b>README.md</b>            <span class="c">← START HERE: what it does, how to install, how to run</span>
+├── <b>requirements.txt</b>     <span class="c">← the packages it needs (or pyproject.toml / environment.yml)</span>
+├── configs/
+│   └── base.yaml        <span class="c">← hyperparameters, file paths, random seed</span>
+├── data/                <span class="c">← often EMPTY in the repo: the README says how to download</span>
+├── scripts/
+│   ├── download_data.sh
+│   └── <b>train.sh</b>         <span class="c">← the exact commands the authors ran (gold!)</span>
+├── src/fancy_model/     <span class="c">← the actual code, as a Python package</span>
+│   ├── data.py          <span class="c">← loading &amp; preprocessing</span>
+│   ├── model.py         <span class="c">← the architecture</span>
+│   ├── train.py         <span class="c">← training loop</span>
+│   └── evaluate.py      <span class="c">← computes the numbers in the paper</span>
+├── notebooks/           <span class="c">← demos &amp; exploration: tempting, but often out of date</span>
+├── tests/               <span class="c">← small checks that the code works</span>
+└── LICENSE              <span class="c">← what you are allowed to do with it</span></pre>
+      </div>
+      <div class="panel">
+        <div class="bubble"><span class="who snap">Snap</span>Before reading any code, walk around the outside. Ten minutes here saves you a day later.</div>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="A folded treasure map with a dashed path from a start point to an X marked README">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <polygon points="40,20 110,32 180,18 250,30 256,132 186,120 116,134 46,122" fill="#e9f7ff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M110 32 L116 134 M180 18 L186 120" stroke="#9aa0ad" stroke-width="2"/>
+          <path d="M66 104 C90 60 130 110 150 74 S200 40 222 62" fill="none" stroke="#e83e8c" stroke-width="3.5" stroke-dasharray="6 6" stroke-linecap="round"/>
+          <circle cx="66" cy="104" r="6" fill="#2fbf6c" stroke="#15131a" stroke-width="2"/>
+          <path d="M214 54 L230 70 M230 54 L214 70" stroke="#e5484d" stroke-width="5" stroke-linecap="round"/>
+          <text x="196" y="94" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#15131a">README</text>
+          <use href="#magnifier" x="230" y="70" width="64" height="64"/>
+        </svg>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Look around from the terminal</span>
+<pre class="term"><span class="p">$ </span>ls -a                  <span class="c"># incl. hidden files</span>
+<span class="p">$ </span>tree -L 2              <span class="c"># folder overview</span>
+<span class="p">$ </span>find . -name "*.py" | wc -l
+<span class="p">$ </span>less README.md         <span class="c"># q to quit</span></pre>
+        <p class="note">No <code>tree</code>? <code>brew install tree</code> on macOS, <code>sudo apt install tree</code> on Ubuntu.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 3 TRACE -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="trace">
+    <div class="ch-head"><span class="ch-num">Chapter 3</span><h2>Reading order: follow one thread</h2><span class="part-tag">Part 1 · Find your way</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>Don't read every file top to bottom. Follow the path one experiment takes: from the command you run, to the number in the paper.</div>
+        <div class="scroll-x">
+        <svg class="art" viewBox="0 0 640 200" role="img" aria-label="Reading path: README, requirements.txt, scripts/train.sh, train.py, then configs/base.yaml, data.py, model.py, and finally the Table 2 number" style="min-width:520px">
+          <rect width="640" height="200" fill="url(#dots)"/>
+          <path d="M140 57 H175 M295 57 H330 M450 57 H485 M545 74 V128 M485 145 H450 M330 145 H295 M175 145 H140" stroke="#e83e8c" stroke-width="4" stroke-dasharray="7 5" fill="none"/>
+          <g fill="#e83e8c"><path d="M170 50 L180 57 L170 64Z"/><path d="M325 50 L335 57 L325 64Z"/><path d="M480 50 L490 57 L480 64Z"/><path d="M538 122 L545 132 L552 122Z"/><path d="M455 138 L445 145 L455 152Z"/><path d="M300 138 L290 145 L300 152Z"/><path d="M145 138 L135 145 L145 152Z"/></g>
+          <g stroke="#15131a" stroke-width="3">
+            <rect x="20" y="40" width="120" height="34" rx="6" fill="#ffffff"/>
+            <rect x="175" y="40" width="120" height="34" rx="6" fill="#ffffff"/>
+            <rect x="330" y="40" width="120" height="34" rx="6" fill="#bfe9fa"/>
+            <rect x="485" y="40" width="120" height="34" rx="6" fill="#bfe9fa"/>
+            <rect x="485" y="128" width="120" height="34" rx="6" fill="#ffffff"/>
+            <rect x="330" y="128" width="120" height="34" rx="6" fill="#f9c7de"/>
+            <rect x="175" y="128" width="120" height="34" rx="6" fill="#f9c7de"/>
+            <rect x="20" y="128" width="120" height="34" rx="6" fill="#ffd23f"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" text-anchor="middle" fill="#15131a">
+            <text x="80" y="62">README.md</text>
+            <text x="235" y="62">requirements</text>
+            <text x="390" y="62">train.sh</text>
+            <text x="545" y="62">train.py</text>
+            <text x="545" y="150">base.yaml</text>
+            <text x="390" y="150">data.py</text>
+            <text x="235" y="150">model.py</text>
+            <text x="80" y="150">Table 2 ✓</text>
+          </g>
+          <g font-family="Bricolage Grotesque, sans-serif" font-size="12" text-anchor="middle" fill="#5b5f6b">
+            <text x="80" y="28">what &amp; how</text>
+            <text x="235" y="28">what it needs</text>
+            <text x="390" y="28">how they ran it</text>
+            <text x="545" y="28">the front door</text>
+            <text x="545" y="182">settings</text>
+            <text x="390" y="182">what goes in</text>
+            <text x="235" y="182">what happens</text>
+            <text x="80" y="182">what comes out</text>
+          </g>
+        </svg>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="caption">Find the front door</span>
+        <p>The script you run usually has an <code>if __name__ == "__main__":</code> block and parses command-line arguments.</p>
+<pre class="term"><span class="p">$ </span>grep -rn "__main__" --include="*.py" .
+<span class="p">$ </span>grep -rln "argparse\|hydra\|click" --include="*.py" .</pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Jump to a definition</span>
+<pre class="term"><span class="p">$ </span>grep -rn "def compute_loss" src/
+<span class="hl">src/fancy_model/train.py:52:</span>def compute_loss(...)
+<span class="p">$ </span>grep -rn "class FancyModel" .
+<span class="p">$ </span>grep -rn "batch_size" configs/ src/</pre>
+        <p class="note">Faster alternative: <code>rg</code> (ripgrep). In Vim, <code>:vimgrep</code> or ctags lets you jump straight to the definition under the cursor.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Keep a case file</span>
+<pre class="tree small"><b># notes.md — fancy-model</b>
+- entry: scripts/train.sh → src/fancy_model/train.py
+- config: configs/base.yaml (lr, batch_size, seed)
+- data: expects data/raw/*.jsonl (download_data.sh)
+- Table 2 = evaluate.py --split test
+- ??? what is `alpha` in compute_loss</pre>
+        <p class="note">Writing down the path, and your open questions, is the most useful thing to bring to a supervisor meeting.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 4 WHY ENV -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="why-env">
+    <div class="ch-head"><span class="ch-num">Chapter 4</span><h2>Why environments?</h2><span class="part-tag">Part 2 · Environment</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Without environments</span>
+        <div class="bubble"><span class="who sam">Sam</span>In Jupyter I just type <code>!pip install</code> in a cell when something's missing. Easy.</div>
+        <svg class="art" viewBox="0 0 300 170" role="img" aria-label="Project A wants numpy 1.23 and project B wants numpy 2.0, both fighting over one global Python">
+          <rect width="300" height="170" fill="url(#dots)"/>
+          <rect x="80" y="44" width="140" height="110" rx="10" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+          <text x="150" y="64" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="17" fill="#15131a">GLOBAL PYTHON</text>
+          <use href="#burst" x="110" y="76" width="80" height="80" fill="#ffd23f"/>
+          <text x="150" y="122" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#15131a">numpy ??</text>
+          <use href="#file" x="14" y="80" width="40" height="50"/>
+          <use href="#file" x="246" y="80" width="40" height="50"/>
+          <g font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#15131a" text-anchor="middle">
+            <text x="34" y="146">proj A</text><text x="34" y="160" fill="#1d8fbe">numpy 1.23</text>
+            <text x="266" y="146">proj B</text><text x="266" y="160" fill="#b52d6c">numpy 2.0</text>
+          </g>
+          <path d="M56 104 H84 M244 104 H216" stroke="#15131a" stroke-width="4"/>
+          <path d="M78 96 L90 104 L78 112Z M222 96 L210 104 L222 112Z" fill="#15131a"/>
+          <text x="150" y="30" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="22" fill="#e5484d" stroke="#15131a" stroke-width="1">TUG OF WAR!</text>
+        </svg>
+      </div>
+      <div class="panel">
+        <span class="caption">With environments</span>
+        <div class="bubble r"><span class="who snap">Snap</span>That installs into whatever Python your kernel uses, often one shared by <em>all</em> your projects. An environment is a separate box of packages per project: box A has numpy 1.23, box B numpy 2.0. No fights.</div>
+        <svg class="art" viewBox="0 0 300 170" role="img" aria-label="Two separate jars, one per project, each holding its own versions of torch and numpy">
+          <rect width="300" height="170" fill="url(#dots)"/>
+          <use href="#jar" x="30" y="16" width="110" height="130"/>
+          <use href="#jar" x="160" y="16" width="110" height="130"/>
+          <g stroke="#15131a" stroke-width="2.5">
+            <circle cx="70" cy="110" r="20" fill="#2bb3e8"/><circle cx="104" cy="90" r="18" fill="#bfe9fa"/>
+            <circle cx="200" cy="110" r="20" fill="#e83e8c"/><circle cx="234" cy="90" r="18" fill="#f9c7de"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="700" text-anchor="middle" fill="#15131a">
+            <text x="70" y="108">torch</text><text x="70" y="118">1.13</text>
+            <text x="104" y="88">numpy</text><text x="104" y="98">1.23</text>
+            <text x="200" y="108" fill="#ffffff">torch</text><text x="200" y="118" fill="#ffffff">2.4</text>
+            <text x="234" y="88">numpy</text><text x="234" y="98">2.0</text>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" text-anchor="middle" fill="#15131a">
+            <text x="85" y="162">proj A/.venv</text><text x="215" y="162">proj B/.venv</text>
+          </g>
+        </svg>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">House rules</span>
+        <ol class="habits">
+          <li><strong>One project, one environment.</strong> Not one giant env for your whole degree.</li>
+          <li><strong>Never <code>sudo pip install</code>.</strong> That changes the Python your operating system relies on.</li>
+          <li><strong>Environments are disposable.</strong> Broken? Delete the folder and rebuild it from the requirements file.</li>
+          <li><strong>Don't commit the env folder.</strong> Add <code>.venv/</code> to <code>.gitignore</code>. <a class="xref" href="git-good-slides.html#ignore">Git Good · Ch. 9 ↗</a></li>
+        </ol>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 5 TOOLS -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="tools">
+    <div class="ch-head"><span class="ch-num">Chapter 5</span><h2>Pick your tool</h2><span class="part-tag">Part 2 · Environment</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>Golden rule: <strong>use what the repo uses.</strong> The files in the root folder tell you which tool that is.</div>
+        <div class="scroll-x">
+        <table class="cmp">
+          <thead><tr><th>Tool</th><th>The repo has…</th><th>Good for</th><th>Watch out</th></tr></thead>
+          <tbody>
+            <tr><td><span class="chip c">venv + pip</span></td><td><code>requirements.txt</code></td><td>Built into Python, nothing extra to install. The safe default.</td><td>Uses whatever Python version you already have.</td></tr>
+            <tr><td><span class="chip y">uv</span></td><td><code>pyproject.toml</code>, <code>uv.lock</code> (or just <code>requirements.txt</code>)</td><td>Very fast drop-in for venv + pip, and it can download the exact Python version the repo needs.</td><td>Newer tool; one extra install (<code>brew install uv</code>).</td></tr>
+            <tr><td><span class="chip m">conda</span></td><td><code>environment.yml</code></td><td>Non-Python dependencies: CUDA toolkit, C libraries, some scientific packages.</td><td>Slower and heavier. Mixing conda and pip installs can get messy.</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="caption">Check the Python version first</span>
+        <div class="bubble"><span class="who sam">Sam</span>The README says “tested with Python 3.10.” I have 3.13. Does that matter?</div>
+        <div class="bubble r plain-tail"><span class="who snap">Snap</span>Often, yes! Old pinned packages may not exist for a newer Python. Match the version the authors used.</div>
+<pre class="term"><span class="p">$ </span>python3 --version
+<span class="ok">Python 3.13.1</span>
+<span class="c"># uv and conda can both install 3.10 just for this project</span></pre>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Hints in the repo</span>
+<pre class="tree small"><b>requirements.txt</b>
+torch==1.13.1      <span class="c">← exact pin: authors used this</span>
+numpy&gt;=1.21,&lt;1.24  <span class="c">← a range</span>
+transformers       <span class="c">← no pin: latest (risky!)</span>
+-e .               <span class="c">← also install this repo</span></pre>
+        <p class="note">Unpinned packages are the #1 reason old research code breaks: today's “latest” is not what the authors had.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 6 RECIPES -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="recipes">
+    <div class="ch-head"><span class="ch-num">Chapter 6</span><h2>Three recipes</h2><span class="part-tag">Part 2 · Environment</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption"><span class="chip c">venv + pip</span></span>
+<pre class="term"><span class="c"># inside the repo folder</span>
+<span class="p">$ </span>python3 -m venv .venv
+<span class="p">$ </span>source .venv/bin/activate
+<span class="y">(.venv) </span><span class="p">$ </span>python -m pip install --upgrade pip
+<span class="y">(.venv) </span><span class="p">$ </span>pip install -r requirements.txt
+<span class="c"># done for the day</span>
+<span class="y">(.venv) </span><span class="p">$ </span>deactivate</pre>
+        <p class="note">Windows (PowerShell): <code>.venv\Scripts\activate</code>. See <a class="xref" href="windows-and-wsl-slides.html#commands">Appendix · Windows</a></p>
+      </div>
+      <div class="panel">
+        <span class="caption"><span class="chip y">uv</span></span>
+<pre class="term"><span class="c"># repo has requirements.txt</span>
+<span class="p">$ </span>uv venv --python 3.10
+<span class="p">$ </span>source .venv/bin/activate
+<span class="y">(.venv) </span><span class="p">$ </span>uv pip install -r requirements.txt
+
+<span class="c"># repo has pyproject.toml + uv.lock</span>
+<span class="p">$ </span>uv sync
+<span class="p">$ </span>uv run python -m fancy_model.train</pre>
+        <p class="note"><code>uv run</code> uses the project's environment without you activating it.</p>
+      </div>
+      <div class="panel">
+        <span class="caption"><span class="chip m">conda</span></span>
+<pre class="term"><span class="c"># repo has environment.yml</span>
+<span class="p">$ </span>conda env create -f environment.yml
+<span class="p">$ </span>conda activate fancy-model
+<span class="y">(fancy-model) </span><span class="p">$ </span>conda env list
+
+<span class="c"># no environment.yml? make one by hand</span>
+<span class="p">$ </span>conda create -n fancy python=3.10
+<span class="p">$ </span>conda activate fancy
+<span class="y">(fancy) </span><span class="p">$ </span>pip install -r requirements.txt</pre>
+        <p class="note">Install conda packages first, pip packages last. Don't activate a venv inside a conda env.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 7 CHECK -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="check">
+    <div class="ch-head"><span class="ch-num">Chapter 7</span><h2>Install &amp; check</h2><span class="part-tag">Part 2 · Environment</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Am I in the right box?</span>
+        <div class="bubble"><span class="who snap">Snap</span>No <code>(.venv)</code> at the start of your prompt? Then <code>pip install</code> puts packages in the wrong place.</div>
+<pre class="term"><span class="y">(.venv) </span><span class="p">$ </span>which python
+<span class="ok">/Users/ada/fancy-model/.venv/bin/python</span>   ✓
+<span class="y">(.venv) </span><span class="p">$ </span>python -c "import torch; print(torch.__version__)"
+<span class="ok">1.13.1</span>
+<span class="y">(.venv) </span><span class="p">$ </span>pip list | grep -i numpy</pre>
+        <p class="note">If <code>which python</code> points to <code>/usr/bin/python</code> or another project's folder, activate the right environment first.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Install the repo itself</span>
+        <p>If there's a <code>pyproject.toml</code> or <code>setup.py</code>, the repo is a package. Install it in <em>editable</em> mode:</p>
+<pre class="term"><span class="y">(.venv) </span><span class="p">$ </span>pip install -e .</pre>
+        <p class="note"><code>-e</code> means your edits to the source take effect immediately, with no reinstall. After this, <code>import fancy_model</code> works from any folder.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Freeze what worked</span>
+<pre class="term"><span class="y">(.venv) </span><span class="p">$ </span>pip freeze &gt; requirements-lock.txt
+<span class="p">$ </span>git add requirements-lock.txt
+<span class="p">$ </span>git commit -m "Record working package versions"</pre>
+        <p class="note">Future you (and your examiner) can rebuild exactly this environment. <a class="xref" href="git-good-slides.html#first">Git Good · Ch. 4 ↗</a></p>
+      </div>
+      <div class="panel wide">
+        <span class="caption">Miss your notebooks? Use the repo from Jupyter</span>
+        <div class="bubble c"><span class="who snap">Snap</span>Once the repo is installed, you can explore it in a notebook. Just make sure the notebook uses <em>this</em> environment as its kernel.</div>
+        <div class="duo">
+          <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+<pre class="term"><span class="y">(.venv) </span><span class="p">$ </span>pip install jupyterlab ipykernel
+<span class="y">(.venv) </span><span class="p">$ </span>python -m ipykernel install --user \
+    --name fancy-model
+<span class="y">(.venv) </span><span class="p">$ </span>jupyter lab</pre>
+            <p class="note">In Jupyter, pick the <strong>fancy-model</strong> kernel. Wrong kernel = <code>ModuleNotFoundError</code>, even though you installed everything.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+<pre class="nb"><span class="in">In [1]:</span> from fancy_model.data import load_split
+        from fancy_model.model import FancyModel
+        ds = load_split("data/raw", "train")
+        len(ds), ds[0].keys()
+<span class="out">Out[1]:</span> (12000, dict_keys(['text', 'label']))</pre>
+            <p class="note">Great for poking at the data and the model. Keep the real experiments as terminal commands, so they run the same way every time.</p>
+          </div>
+        </div>
+      </div>
+      <div class="panel wide yellow">
+        <span class="caption">If the install itself fails</span>
+        <div class="oops">
+          <div class="h">You see</div><div class="h">Try</div>
+          <div><code>No matching distribution found for torch==1.8.0</code></div><div>That version doesn't exist for your Python version or computer. Use the Python version from the README, or relax the pin a little.</div>
+          <div><code>Failed building wheel for …</code> / compiler errors</div><div>A package needs C/C++ build tools. Look for a newer version with prebuilt files, install it via conda, or on macOS run <code>xcode-select --install</code>.</div>
+          <div><code>ResolutionImpossible</code> / conflicting dependencies</div><div>Two pins can't both be satisfied. Install the most important package (often torch) first, then the rest, and relax the pins the authors didn't really need.</div>
+        </div>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 8 FIRST RUN -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="first-run">
+    <div class="ch-head"><span class="ch-num">Chapter 8</span><h2>Start small</h2><span class="part-tag">Part 3 · Run it</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>Don't launch the 3-day training run first. Climb the stairs: each step fails fast and cheaply.</div>
+        <div class="scroll-x">
+        <svg class="art" viewBox="0 0 640 210" role="img" aria-label="Four stairs: help flag, tests or demo, tiny run, full run. Sam is on the second step climbing toward a flag on the top step" style="min-width:520px">
+          <rect width="640" height="210" fill="url(#dots)"/>
+          <g stroke="#15131a" stroke-width="3">
+            <rect x="20" y="160" width="150" height="44" fill="#bfe9fa"/>
+            <rect x="170" y="122" width="150" height="82" fill="#ffd23f"/>
+            <rect x="320" y="84" width="150" height="120" fill="#f9c7de"/>
+            <rect x="470" y="46" width="150" height="158" fill="#b9efcf"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-weight="700" font-size="14" text-anchor="middle" fill="#15131a">
+            <text x="95" y="188">--help</text>
+            <text x="245" y="150">tests / demo</text>
+            <text x="395" y="112">tiny run</text>
+            <text x="545" y="74">full run</text>
+          </g>
+          <g font-family="Bricolage Grotesque, sans-serif" font-size="12" text-anchor="middle" fill="#15131a">
+            <text x="245" y="168">does it import?</text>
+            <text x="395" y="130">1 epoch, 200 examples,</text>
+            <text x="395" y="145">CPU, a few minutes</text>
+            <text x="545" y="92">on the GPU cluster,</text>
+            <text x="545" y="107">once everything works</text>
+          </g>
+          <g transform="translate(210 40) scale(.55)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M41 60 Q50 67 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <path d="M600 46 V4" stroke="#15131a" stroke-width="3"/>
+          <path d="M600 6 L566 16 L600 26 Z" fill="#e83e8c" stroke="#15131a" stroke-width="2"/>
+          <text x="510" y="22" font-family="Big Shoulders, Impact, sans-serif" font-size="16" fill="#15131a">TABLE 2</text>
+        </svg>
+        </div>
+        <p class="note">The last step, running the full experiment on a shared GPU cluster, is covered in <a class="xref" href="share-the-gpu-slides.html">Issue #3 · Share the GPU</a>.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Steps 1 &amp; 2</span>
+<pre class="term"><span class="y">(.venv) </span><span class="p">$ </span>python -m fancy_model.train --help
+<span class="y">(.venv) </span><span class="p">$ </span>pytest -q tests/        <span class="c"># if there are tests</span></pre>
+        <p class="note"><code>--help</code> lists every option the script accepts. If even this crashes, it's an install problem, not a data or model problem.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Step 3 · tiny run</span>
+<pre class="term"><span class="y">(.venv) </span><span class="p">$ </span>python -m fancy_model.train \
+    --config configs/base.yaml \
+    --epochs 1 --max_examples 200 \
+    --device cpu --seed 42</pre>
+        <p class="note">Flag names differ per repo; take them from <code>--help</code> or the config file. Run commands from the repo root, because relative paths like <code>data/raw</code> depend on where you are.</p>
+      </div>
+      <div class="panel">
+        <div class="bubble"><span class="who sam">Sam</span>My number is 81.6 and the paper says 81.9. Did I fail?</div>
+        <div class="bubble r plain-tail"><span class="who snap">Snap</span>Small differences are normal: random seeds, hardware, library versions. Report them honestly, and check if the paper averages several seeds.</div>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 9 TRACEBACK -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="traceback">
+    <div class="ch-head"><span class="ch-num">Chapter 9</span><h2>Read the traceback bottom-up</h2><span class="part-tag">Part 3 · Run it</span></div>
+    <div class="strip">
+      <div class="panel">
+        <div class="bubble"><span class="who sam">Sam</span>It just printed a giant wall of text. I'm closing the terminal.</div>
+        <div class="bubble r plain-tail"><span class="who snap">Snap</span>Wait! That wall is a confession. Python tells you <em>what</em> went wrong and <em>where</em>. It's the same red box you see under a broken Jupyter cell. Read it like a mystery: start from the ending.</div>
+        <svg class="art" viewBox="0 0 300 120" role="img" aria-label="Snap in a detective hat examining text with a magnifying glass">
+          <rect width="300" height="120" fill="url(#dots)"/>
+          <g fill="#e5484d" opacity=".85"><rect x="20" y="20" width="120" height="7"/><rect x="20" y="34" width="150" height="7"/><rect x="20" y="48" width="100" height="7"/><rect x="20" y="62" width="140" height="7"/><rect x="20" y="86" width="160" height="9" fill="#15131a"/></g>
+          <use href="#magnifier" x="120" y="60" width="56" height="56"/>
+          <g transform="translate(200 24) scale(.8)">
+            <use href="#snap" width="100" height="110"/>
+            <use href="#hat" width="100" height="40" y="-22"/>
+          </g>
+        </svg>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Anatomy of a traceback</span>
+<pre class="term tb"><span class="mark m3">3</span>Traceback (most recent call last):
+  File "/Users/ada/fancy-model/src/fancy_model/train.py", line 88, in &lt;module&gt;
+    main(args)
+  File "/Users/ada/fancy-model/src/fancy_model/train.py", line 41, in main
+    train_ds = load_split(cfg.data_dir, "train")
+<span class="mark m2">2</span>  File "<span class="y">/Users/ada/fancy-model/src/fancy_model/data.py</span>", line <span class="y">17</span>, in load_split
+    with open(os.path.join(path, f"{split}.jsonl")) as f:
+<span class="mark m1">1</span><span class="bad">FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/train.jsonl'</span></pre>
+        <ol class="tb-legend">
+          <li><span class="mark m1">1</span><strong>Last line first.</strong> The error type (<code>FileNotFoundError</code>) and the message. Often this alone solves it.</li>
+          <li><span class="mark m2">2</span><strong>Go up to the last line in the repo's own code</strong>, not in a library under <code>site-packages/</code>. Open that file at that line number.</li>
+          <li><span class="mark m3">3</span><strong>The top</strong> shows how you got there, from your command down to the crash.</li>
+        </ol>
+        <p class="note"><strong>Verdict here:</strong> the data was never downloaded (run <code>scripts/download_data.sh</code>), or the script was started from the wrong folder (check with <code>pwd</code>).</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 10 BESTIARY -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="bestiary">
+    <div class="ch-head"><span class="ch-num">Chapter 10</span><h2>The error bestiary</h2><span class="part-tag">Part 3 · Run it</span></div>
+    <div class="strip">
+      <div class="panel">
+        <div class="bubble"><span class="who snap">Snap</span>Good news: research code fails in the same few ways, over and over. Learn to recognise them.</div>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="Three cartoon bugs labelled ModuleNotFound, FileNotFound and CUDA out of memory">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <use href="#bug" x="14" y="34" width="84" height="70" fill="#e83e8c"/>
+          <use href="#bug" x="108" y="18" width="84" height="70" fill="#2bb3e8"/>
+          <use href="#bug" x="202" y="34" width="84" height="70" fill="#2fbf6c"/>
+          <g font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" text-anchor="middle" fill="#15131a">
+            <text x="56" y="122">ModuleNot</text><text x="56" y="134">Found</text>
+            <text x="150" y="106">FileNot</text><text x="150" y="118">Found</text>
+            <text x="244" y="122">CUDA out</text><text x="244" y="134">of memory</text>
+          </g>
+        </svg>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Field guide</span>
+        <div class="scroll-x">
+        <table class="cmp beasts">
+          <thead><tr><th>You see</th><th>It usually means</th><th>Try</th></tr></thead>
+          <tbody>
+            <tr><td><code>ModuleNotFoundError: No module named 'torch'</code></td><td>Environment not activated, or the package isn't installed in it.</td><td><code>which python</code> → activate the env → <code>pip install -r requirements.txt</code></td></tr>
+            <tr><td><code>ModuleNotFoundError: No module named 'fancy_model'</code></td><td>The repo's own package isn't installed, or you're in the wrong folder.</td><td><code>pip install -e .</code>, or run from the repo root with <code>python -m fancy_model.train</code></td></tr>
+            <tr><td><code>ImportError: cannot import name 'X' from 'Y'</code></td><td>Your version of library Y is newer (or older) than the authors' version.</td><td><code>pip show Y</code>, then install the pinned version: <code>pip install "Y==1.2.3"</code></td></tr>
+            <tr><td><code>AttributeError: module 'numpy' has no attribute 'float'</code></td><td>Old code meets new NumPy (<code>np.float</code> was removed in 1.24).</td><td><code>pip install "numpy&lt;1.24"</code>, or replace <code>np.float</code> with <code>float</code></td></tr>
+            <tr><td><code>FileNotFoundError</code></td><td>Data not downloaded, or relative paths and the wrong working directory.</td><td><code>pwd</code>; read the README data section; run from the repo root</td></tr>
+            <tr><td><code>CUDA out of memory</code></td><td>The batch doesn't fit on your GPU.</td><td>Smaller <code>--batch_size</code>, shorter inputs, or a bigger GPU on the cluster</td></tr>
+            <tr><td><code>Torch not compiled with CUDA enabled</code> / no GPU found</td><td>The code assumes an NVIDIA GPU, and your laptop doesn't have one.</td><td><code>--device cpu</code> (or <code>mps</code> on Apple Silicon) for the tiny run; use the cluster for the real run</td></tr>
+            <tr><td><code>Killed</code> (and nothing else)</td><td>The operating system ran out of RAM and stopped the process.</td><td>Fewer examples, smaller batches, or a machine with more memory</td></tr>
+            <tr><td><code>KeyError: 'lr'</code></td><td>The config file and the code disagree about names.</td><td><code>grep -rn "lr" configs/ src/</code> to see which name each one uses</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 11 DEBUG -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="debug">
+    <div class="ch-head"><span class="ch-num">Chapter 11</span><h2>The debugging kit</h2><span class="part-tag">Part 3 · Run it</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Look inside: <code>breakpoint()</code></span>
+<pre class="term"><span class="c"># add one line in data.py, just before the crash</span>
+def load_split(path, split):
+    <span class="y">breakpoint()</span>          <span class="c"># code pauses here</span>
+    ...
+
+<span class="p">(Pdb) </span>p path
+<span class="ok">'data/raw'</span>
+<span class="p">(Pdb) </span>p os.getcwd()
+<span class="ok">'/Users/ada/fancy-model/scripts'</span>  <span class="bad">← aha!</span>
+<span class="p">(Pdb) </span>q</pre>
+        <p class="note">pdb commands: <code>p x</code> print, <code>n</code> next line, <code>s</code> step into, <code>c</code> continue, <code>q</code> quit. Remove the <code>breakpoint()</code> line when you're done.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Jump in after a crash</span>
+<pre class="term"><span class="y">(.venv) </span><span class="p">$ </span>python -m pdb -c continue \
+    -m fancy_model.train --epochs 1</pre>
+        <p class="note">Runs normally, and when it crashes, you land in pdb exactly at the failing line with all variables available. No need to edit the code.</p>
+        <span class="caption">Print the shapes</span>
+<pre class="term">print(type(batch), batch["input_ids"].shape)
+<span class="ok">&lt;class 'dict'&gt; torch.Size([32, 128])</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Git is your lab notebook</span>
+        <div class="bubble"><span class="who snap">Snap</span>Change one thing at a time. When something works, commit it, so you know exactly which change fixed it.</div>
+<pre class="term"><span class="p">$ </span>git diff                     <span class="c"># what did I touch?</span>
+<span class="p">$ </span>git commit -am "Pin numpy&lt;1.24 to fix np.float error"
+<span class="p">$ </span>git restore src/model.py     <span class="c"># undo a failed attempt</span></pre>
+        <p class="note"><a class="xref" href="git-good-slides.html#back">Git Good · Ch. 5: diff &amp; restore ↗</a></p>
+      </div>
+      <div class="panel wide yellow">
+        <span class="caption">Search like a pro</span>
+        <ol class="habits cols">
+          <li>Copy the <strong>last line</strong> of the error, minus your own paths, into a search engine.</li>
+          <li>Check the repo's <strong>GitHub Issues</strong>, including closed ones. Someone probably hit it before you.</li>
+          <li>Read the paper's <strong>appendix</strong>: hyperparameters and hardware often live there.</li>
+        </ol>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 12 HELP -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="help">
+    <div class="ch-head"><span class="ch-num">Chapter 12</span><h2>Asking for help (the right way)</h2><span class="part-tag">Part 3 · Run it</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Hard to help with</span>
+        <div class="msg bad-msg">hey the code doesn't work, can you help?</div>
+        <p class="note">Whoever reads this (your supervisor, a TA, or the authors in a GitHub issue) now has to ask five questions before they can even start.</p>
+        <svg class="art" viewBox="0 0 300 120" role="img" aria-label="A confused face with question marks">
+          <rect width="300" height="120" fill="url(#dots)"/>
+          <circle cx="150" cy="62" r="40" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+          <circle cx="136" cy="56" r="4" fill="#15131a"/><circle cx="164" cy="56" r="4" fill="#15131a"/>
+          <path d="M136 80 Q150 74 164 82" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+          <g font-family="Big Shoulders, Impact, sans-serif" font-size="30" fill="#e83e8c" stroke="#15131a" stroke-width="1"><text x="70" y="50">?</text><text x="210" y="44">?</text><text x="226" y="96">?</text></g>
+        </svg>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Easy to help with</span>
+        <div class="msg good-msg">
+<b>Subject: fancy-model, FileNotFoundError when training</b>
+
+Hi! For my literature review I'm trying to run the code of the fancy-model paper and check its Table 2.
+
+<b>What I ran</b> (from the repo root, env activated):
+<code>python -m fancy_model.train --config configs/base.yaml --epochs 1</code>
+
+<b>What happened:</b> full traceback below ↓ (last line: FileNotFoundError: 'data/raw/train.jsonl')
+
+<b>Setup:</b> macOS 14, Python 3.10.14, repo commit 3f2a9c1, requirements-lock.txt attached
+
+<b>What I tried:</b> ran download_data.sh (it printed 403 Forbidden); checked the repo's GitHub Issues (#12 is similar, no answer yet).
+
+<b>My question:</b> is there another place to get the data?</div>
+      </div>
+      <div class="panel wide row">
+        <span class="caption">Case closed</span>
+        <div class="bubble"><span class="who sam">Sam</span>It runs! 81.6 vs the paper's 81.9, and I wrote down exactly how. That's a solid paragraph for my literature review, and now I can try it on my own data.</div>
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="Sam and Snap high-five">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <use href="#burst" x="105" y="-14" width="90" height="90" fill="#ffd23f"/>
+          <g transform="translate(40 4) scale(.88)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M41 60 Q50 69 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+            <path d="M76 90 L108 50" stroke="#e83e8c" stroke-width="10" stroke-linecap="round"/>
+            <circle cx="110" cy="46" r="8" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+          </g>
+          <g transform="translate(160 30)">
+            <use href="#snap" width="100" height="110"/>
+            <use href="#hat" width="100" height="40" y="-22"/>
+          </g>
+          <text x="150" y="36" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="18" fill="#15131a">SOLVED!</text>
+        </svg>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 13 TO SCRIPT -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="to-script">
+    <div class="ch-head"><span class="ch-num">Chapter 13</span><h2>From notebook to script</h2><span class="part-tag">Part 4 · Your own code</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Next step: your own experiments</span>
+        <div class="bubble"><span class="who sam">Sam</span>My notebook works fine. Why would I turn it into a script?</div>
+        <div class="bubble r plain-tail"><span class="who snap">Snap</span>Because a batch job on a cluster has no browser and nobody clicking “Run”. It runs <code>python train.py</code>, top to bottom, once. And a script is easier to test, review in Git and reuse.</div>
+      </div>
+      <div class="panel">
+        <span class="caption">The hidden-state trap</span>
+        <svg class="art" viewBox="0 0 300 160" role="img" aria-label="Notebook cells numbered 7, 2 and 12 out of order, with a ghost variable left over from a deleted cell">
+          <rect width="300" height="160" fill="url(#dots)"/>
+          <g font-family="JetBrains Mono, monospace" font-size="10">
+            <text x="14" y="34" fill="#1d8fbe">[7]</text><text x="14" y="74" fill="#1d8fbe">[2]</text><text x="14" y="114" fill="#1d8fbe">[12]</text>
+          </g>
+          <g fill="#eef7fc" stroke="#15131a" stroke-width="2"><rect x="46" y="18" width="150" height="26" rx="3"/><rect x="46" y="58" width="150" height="26" rx="3"/><rect x="46" y="98" width="150" height="26" rx="3"/></g>
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#15131a">
+            <text x="54" y="35">df = clean(df)</text><text x="54" y="75">df = load()</text><text x="54" y="115">train(df, lr)</text>
+          </g>
+          <path d="M226 64 Q226 40 248 40 Q270 40 270 64 V102 L263 96 L256 102 L249 96 L242 102 L235 96 L226 102 Z" fill="#ffffff" stroke="#15131a" stroke-width="2.5"/>
+          <circle cx="241" cy="60" r="3" fill="#15131a"/><circle cx="255" cy="60" r="3" fill="#15131a"/>
+          <text x="248" y="124" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#b52d6c">lr = 0.01</text>
+          <text x="248" y="140" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="10" fill="#5b5f6b">from a deleted cell</text>
+        </svg>
+        <p class="note">Cells run in any order, and a deleted cell's variables live on until you restart. A notebook can “work” only because of something you ran an hour ago.</p>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">The honest test</span>
+        <p>In Jupyter: <strong>Kernel → Restart Kernel and Run All Cells</strong>.</p>
+        <ol class="habits">
+          <li>It crashes? A cell depends on something that no longer exists.</li>
+          <li>Different numbers? The order of running mattered.</li>
+          <li>Same result, top to bottom? Ready to export.</li>
+        </ol>
+      </div>
+      <div class="panel wide">
+        <span class="caption">Step 1 · Export</span>
+        <div class="duo">
+<pre class="term"><span class="p">$ </span>jupyter nbconvert --to script analysis.ipynb
+<span class="ok">[NbConvertApp] Writing … to analysis.py</span></pre>
+          <div class="warn">Lines that start with <code>!</code> or <code>%</code> (<code>!pip install …</code>, <code>%matplotlib inline</code>) become <code>get_ipython()</code> calls that fail in plain Python. Delete them, and install packages in your environment instead (Chapter 6).</div>
+        </div>
+      </div>
+      <div class="panel wide">
+        <span class="caption">Step 2 · From cells to functions</span>
+        <div class="duo">
+          <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+            <h3 class="sub">Before: the raw export</h3>
+<pre class="tree small"><b># In[2]:</b>
+df = pd.read_csv(<span class="mk">"C:/Users/sam/Downloads/raw.csv"</span>)  <span class="mark m1">1</span>
+df = df.dropna()
+
+<b># In[3]:</b>
+X, y = df.drop(columns="label"), df["label"]
+X_tr, X_te, y_tr, y_te = train_test_split(X, y)  <span class="mark m2">2</span>
+
+<b># In[5]:</b>                                       <span class="mark m3">3</span>
+model = LogisticRegression(C=0.5).fit(X_tr, y_tr)
+model.score(X_te, y_te)                         <span class="mark m1">4</span></pre>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+            <h3 class="sub">After: train.py</h3>
+<pre class="tree small">import argparse
+from pathlib import Path
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+
+def load_data(path):
+    return pd.read_csv(path).dropna()
+
+def train(X, y, C):
+    return LogisticRegression(C=C).fit(X, y)
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--data", type=Path, default=Path("data/raw.csv"))
+    p.add_argument("--C", type=float, default=0.5)
+    p.add_argument("--seed", type=int, default=42)
+    args = p.parse_args()
+
+    df = load_data(args.data)
+    X, y = df.drop(columns="label"), df["label"]
+    X_tr, X_te, y_tr, y_te = train_test_split(
+        X, y, random_state=args.seed)
+    model = train(X_tr, y_tr, args.C)
+    print(f"accuracy: {model.score(X_te, y_te):.3f}")
+
+if __name__ == "__main__":                      <span class="mark m2">5</span>
+    main()</pre>
+          </div>
+        </div>
+        <ol class="tb-legend">
+          <li><span class="mark m1">1</span><span><strong>Hard-coded path</strong> → a <code>--data</code> argument with a relative default. <a class="xref" href="windows-and-wsl-slides.html#paths">Appendix · Paths</a></span></li>
+          <li><span class="mark m2">2</span><span><strong>No random seed</strong> → <code>--seed</code>, so every run splits the data the same way.</span></li>
+          <li><span class="mark m3">3</span><span><strong>Where's <code>In[4]</code>?</strong> A deleted cell. If anything still depended on it, the honest test would have told you.</span></li>
+          <li><span class="mark m1">4</span><span><strong>A bare last line</strong> only displays in a notebook. A script must <code>print()</code> or save it.</span></li>
+          <li><span class="mark m2">5</span><span><strong><code>if __name__ == "__main__":</code></strong> runs <code>main()</code> when you call the script, but not when a notebook imports its functions (Step 3).</span></li>
+        </ol>
+<pre class="term"><span class="p">$ </span>python train.py --C 0.1 --seed 1
+<span class="ok">accuracy: 0.843</span></pre>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Step 3 · Keep the notebook, import the code</span>
+<pre class="nb"><span class="in">In [1]:</span> %load_ext autoreload
+        %autoreload 2
+        from train import load_data, train
+        df = load_data("data/raw.csv")
+        df.head()</pre>
+        <p class="note">The notebook stays your place to explore and plot; the logic lives in <code>train.py</code>. <code>%autoreload 2</code> picks up your edits to <code>train.py</code> without restarting the kernel. Run the notebook from the project folder so <code>import train</code> finds the file.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Plots in scripts</span>
+<pre class="tree small">plt.plot(losses)
+plt.savefig("results/loss.png", dpi=150)
+plt.close()</pre>
+        <p class="note">Batch jobs have no screen: <code>plt.show()</code> displays nothing. Save figures to files instead.</p>
+      </div>
+      <div class="panel wide yellow">
+        <span class="caption">Ready for the cluster?</span>
+        <ol class="habits cols">
+          <li>Restart &amp; Run All gives the same result.</li>
+          <li><code>python train.py</code> runs from the project folder.</li>
+          <li>No <code>!</code> or <code>%</code> lines left in the script.</li>
+          <li>No hard-coded paths; settings are arguments or a config file.</li>
+          <li>A fixed random seed.</li>
+          <li>Results and figures are saved to files.</li>
+          <li>Dependencies recorded in <code>requirements.txt</code> (Chapter 7).</li>
+          <li>Committed and pushed. <a class="xref" href="git-good-slides.html#notebooks">Issue #1 · Ch. 10</a></li>
+        </ol>
+        <p class="note">All yes? Then the script is ready to run as a batch job. <a class="xref" href="share-the-gpu-slides.html#slurm">Issue #3 · Slurm</a></p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- CHEAT SHEET -->
+  <div class="slide"><div class="slide-inner"><section class="cheat" id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat-grid">
+      <div class="cheat-group">
+        <h3>Explore</h3>
+        <div class="cmd"><code>git clone &lt;url&gt;</code><span>get the code</span></div>
+        <div class="cmd"><code>tree -L 2</code><span>folder overview</span></div>
+        <div class="cmd"><code>grep -rn "def train" .</code><span>find where something is defined</span></div>
+        <div class="cmd"><code>git rev-parse --short HEAD</code><span>which version am I on?</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>venv + pip</h3>
+        <div class="cmd"><code>python3 -m venv .venv</code><span>create</span></div>
+        <div class="cmd"><code>source .venv/bin/activate</code><span>enter</span></div>
+        <div class="cmd"><code>pip install -r requirements.txt</code><span>install dependencies</span></div>
+        <div class="cmd"><code>pip install -e .</code><span>install the repo itself</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>uv / conda</h3>
+        <div class="cmd"><code>uv venv --python 3.10</code><span>create with a specific Python</span></div>
+        <div class="cmd"><code>uv sync</code><span>install from pyproject + uv.lock</span></div>
+        <div class="cmd"><code>conda env create -f environment.yml</code><span>create from the repo's file</span></div>
+        <div class="cmd"><code>conda activate &lt;name&gt;</code><span>enter</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Check</h3>
+        <div class="cmd"><code>which python</code><span>is the env active?</span></div>
+        <div class="cmd"><code>pip show &lt;pkg&gt;</code><span>installed version</span></div>
+        <div class="cmd"><code>pip freeze &gt; requirements-lock.txt</code><span>record what worked</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Run</h3>
+        <div class="cmd"><code>python -m pkg.train --help</code><span>see the options</span></div>
+        <div class="cmd"><code>pytest -q tests/</code><span>quick sanity check</span></div>
+        <div class="cmd"><code>pwd</code><span>am I in the repo root?</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Debug</h3>
+        <div class="cmd"><code>breakpoint()</code><span>pause inside the code</span></div>
+        <div class="cmd"><code>python -m pdb -c continue …</code><span>stop where it crashes</span></div>
+        <div class="cmd"><code>git commit -am "Fix …"</code><span>one fix, one commit</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Notebook → script</h3>
+        <div class="cmd"><code>Restart Kernel and Run All Cells</code><span>the honest test</span></div>
+        <div class="cmd"><code>jupyter nbconvert --to script nb.ipynb</code><span>export to .py</span></div>
+        <div class="cmd"><code>if __name__ == "__main__":</code><span>run as script, import in notebook</span></div>
+        <div class="cmd"><code>%autoreload 2</code><span>notebook picks up .py edits</span></div>
+      </div>
+    </div>
+    <p class="end">Case closed. Now it works on <em>your</em> machine too.</p>
+  </section></div></div>
+</main>
+<nav class="nav" aria-label="Slide navigation">
+  <span class="bar" id="bar"></span>
+  <button id="prev" type="button" aria-label="Previous slide">◀ Back</button>
+  <div class="mid">
+    <div class="label" id="label" aria-live="polite"></div>
+    <div class="dots" id="dots"></div>
+  </div>
+  <span class="hint">← → · h l · j k</span>
+  <button id="next" type="button" aria-label="Next slide">Next ▶</button>
+</nav>
+<script>
+(function(){
+  const slides=[...document.querySelectorAll('.slide')];
+  const ids=slides.map(s=>s.querySelector('section').id);
+  const labels=slides.map((s,i)=>{
+    const h=s.querySelector('.ch-head h2, .cheat h2');
+    return i===0?'Works on my machine':(h?h.textContent.trim():'Slide '+(i+1));
+  });
+  const dots=document.getElementById('dots'), label=document.getElementById('label');
+  const prev=document.getElementById('prev'), next=document.getElementById('next'), bar=document.getElementById('bar');
+  slides.forEach((s,i)=>{
+    const b=document.createElement('button');b.type='button';
+    b.title=labels[i];b.setAttribute('aria-label','Go to '+labels[i]);
+    b.addEventListener('click',()=>go(i));dots.appendChild(b);
+  });
+  let cur=-1;
+  function go(i,fromHash){
+    i=Math.max(0,Math.min(slides.length-1,i));
+    if(i===cur)return;
+    const dir=i>cur?'in-next':'in-prev';
+    slides.forEach((s,k)=>{s.hidden=k!==i;s.classList.remove('in-next','in-prev');});
+    const el=slides[i];
+    if(cur!==-1){void el.offsetWidth;el.classList.add(dir);}
+    el.scrollTop=0;
+    cur=i;
+    label.textContent='';
+    const b=document.createElement('b');b.textContent=(i+1)+' / '+slides.length;
+    label.append(b,labels[i]);
+    [...dots.children].forEach((d,k)=>d.setAttribute('aria-current',k===i?'true':'false'));
+    prev.disabled=i===0; next.disabled=i===slides.length-1;
+    bar.style.width=((i+1)/slides.length*100)+'%';
+    if(!fromHash&&ids[i]){try{history.replaceState(null,'','#'+ids[i]);}catch(e){}}
+  }
+  function fromHash(){
+    const i=ids.indexOf(location.hash.slice(1));
+    go(i>=0?i:(cur<0?0:cur),true);
+  }
+  prev.addEventListener('click',()=>go(cur-1));
+  next.addEventListener('click',()=>go(cur+1));
+  window.addEventListener('hashchange',fromHash);
+  document.querySelectorAll('.toc a').forEach(a=>a.addEventListener('click',e=>{
+    const i=ids.indexOf(a.getAttribute('href').slice(1));
+    if(i>=0){e.preventDefault();go(i);}
+  }));
+  document.addEventListener('keydown',e=>{
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
+    if(['ArrowRight','PageDown','l','j'].includes(e.key)){e.preventDefault();go(cur+1);}
+    else if(['ArrowLeft','PageUp','h','k'].includes(e.key)){e.preventDefault();go(cur-1);}
+    else if(e.key==='Home'){e.preventDefault();go(0);}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1);}
+  });
+  let sx=0,sy=0,st=null;
+  document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=e.target;},{passive:true});
+  document.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(st&&st.closest&&st.closest('.term,[style*="overflow-x"],.nav'))return;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)go(cur+(dx<0?1:-1));
+  },{passive:true});
+  fromHash();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0}
+img,svg{max-width:100%}
+[hidden]{display:none!important}
+kbd{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.82em;font-weight:700;background:#fff;color:#15131a;border:2px solid #15131a;border-bottom-width:4px;border-radius:6px;padding:0 .4em;white-space:nowrap}
+</style>
+<title>Share the GPU Slides</title>
+<style>
+@font-face{font-family:"Big Shoulders";src:url("fonts/BigShoulders-Bold.ttf") format("truetype");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+
+/* Issue #2 of the Git Good comic series. Layout: a comic book. Chapters are rows of bordered panels on a halftone page; speech bubbles sit above each drawing. One deliberate light "printed page" look. */
+:root{
+  --paper:#eef3f8;
+  --panel:#ffffff;
+  --ink:#15131a;
+  --cyan:#2bb3e8;
+  --magenta:#e83e8c;
+  --yellow:#ffd23f;
+  --green:#2fbf6c;
+  --red:#e5484d;
+  --muted:#5b5f6b;
+  --term:#17151d;
+  --term-fg:#ece9f4;
+  --f-display:"Big Shoulders","Impact","Arial Narrow Bold",sans-serif;
+  --f-body:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:radial-gradient(rgba(43,179,232,.22) 1.2px, transparent 1.4px);
+  background-size:9px 9px;
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:17px;
+  line-height:1.45;
+}
+.page{max-width:1060px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;letter-spacing:.03em;margin:0;text-wrap:balance}
+code{font-family:var(--f-mono);font-size:.88em;background:#fff3c4;border:1.5px solid var(--ink);border-radius:5px;padding:0 .3em;white-space:nowrap}
+
+/* cover */
+.cover{background:var(--panel);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);overflow:hidden}
+.cover-text{padding:28px 28px 24px;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.issue{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--yellow);align-self:flex-start;padding:4px 10px}
+.cover h1{font-size:clamp(3.8rem,11vw,7.2rem);line-height:.9;color:var(--yellow);-webkit-text-stroke:3px var(--ink);text-shadow:5px 5px 0 var(--magenta),9px 9px 0 var(--ink)}
+.cover p{margin:0;font-size:1.12rem;max-width:34ch}
+.cover-art{background:var(--cyan);border-left:4px solid var(--ink);display:flex;align-items:flex-end;justify-content:center;min-height:260px}
+.cover-art svg{width:100%;height:auto;display:block}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.toc a{font-family:var(--f-display);letter-spacing:.04em;font-size:1rem;color:var(--ink);text-decoration:none;background:#fff;border:2px solid var(--ink);padding:2px 8px;box-shadow:2px 2px 0 var(--ink)}
+.toc a:hover,.toc a:focus-visible{background:var(--yellow);outline:none}
+
+/* chapters */
+.chapter{display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
+.ch-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ch-num{font-family:var(--f-display);font-size:1.05rem;letter-spacing:.06em;background:var(--magenta);color:#fff;border:3px solid var(--ink);padding:2px 10px;transform:rotate(-3deg);box-shadow:3px 3px 0 var(--ink)}
+.ch-head h2{font-size:clamp(2rem,5vw,2.9rem);line-height:1;-webkit-text-stroke:1px var(--ink)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.panel{background:var(--panel);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel.wide{grid-column:1/-1}
+.panel.yellow{background:#fff6cf}
+.panel svg.art{width:100%;height:auto;display:block;margin-top:auto}
+.caption{background:var(--yellow);border:2px solid var(--ink);font-weight:700;padding:3px 9px;align-self:flex-start;text-transform:uppercase;font-size:.78rem;letter-spacing:.06em;line-height:1.3}
+.panel p{margin:0}
+.note{font-size:.95rem;color:var(--muted)}
+.note strong{color:var(--ink)}
+
+/* speech bubbles */
+.bubble{background:#fff;border:2.5px solid var(--ink);border-radius:20px;padding:9px 14px;position:relative;line-height:1.35;margin-bottom:12px}
+.bubble::before,.bubble::after{content:"";position:absolute;width:0;height:0;border-style:solid}
+.bubble::before{bottom:-15px;left:30px;border-width:15px 9px 0 9px;border-color:var(--ink) transparent transparent transparent}
+.bubble::after{bottom:-10px;left:32.5px;border-width:10px 6.5px 0 6.5px;border-color:#fff transparent transparent transparent}
+.bubble.r::before{left:auto;right:30px}
+.bubble.r::after{left:auto;right:32.5px}
+.bubble.c::before{left:calc(50% - 9px)}
+.bubble.c::after{left:calc(50% - 6.5px)}
+.bubble.plain{margin-bottom:0}
+.bubble.plain::before,.bubble.plain::after{display:none}
+.who{display:inline-block;font-family:var(--f-display);letter-spacing:.06em;font-size:.85rem;padding:0 6px;border:1.5px solid var(--ink);margin-right:6px;transform:translateY(-1px)}
+.who.snap{background:var(--yellow)}
+.who.sam{background:var(--magenta);color:#fff}
+.bubble.shout{font-weight:700;background:#fff}
+
+/* terminal */
+.term{background:var(--term);color:var(--term-fg);font-family:var(--f-mono);font-size:.82rem;line-height:1.6;border:3px solid var(--ink);border-radius:8px;padding:12px 14px;overflow-x:auto;white-space:pre;margin:0;tab-size:4}
+.term .p{color:var(--yellow);user-select:none}
+.term .c{color:#8d8a99}
+.term .ok{color:#5fe39a}
+.term .bad{color:#ff7b80}
+.term .hl{color:#7fd3f5}
+.term .y{color:#ffe17a}
+
+/* steps & chips */
+.loop{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip{font-family:var(--f-mono);font-weight:700;font-size:.85rem;background:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:4px 12px;box-shadow:2px 2px 0 var(--ink)}
+.chip.y{background:var(--yellow)}
+.chip.c{background:#bfe9fa}
+.chip.m{background:#f9c7de}
+.arrow{font-family:var(--f-display);font-size:1.3rem;line-height:1}
+.zones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+.zones h3{font-size:1.15rem}
+.zones p{font-size:.88rem;color:var(--muted)}
+
+/* tables */
+.oops{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);border:2.5px solid var(--ink);background:#fff}
+.oops > div{padding:9px 12px;border-bottom:2px dashed #c9cdd6;min-width:0}
+.oops > div:nth-last-child(-n+2){border-bottom:0}
+.oops .h{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-size:1.05rem;border-bottom:0}
+.oops code{white-space:normal;word-break:break-word}
+.warn{background:var(--red);color:#fff;border:2.5px solid var(--ink);padding:8px 12px;font-weight:700;box-shadow:3px 3px 0 var(--ink)}
+.warn code{color:var(--ink)}
+.good-bad{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.good-bad ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.good-bad li{font-family:var(--f-mono);font-size:.82rem;background:#fff;border:2px solid var(--ink);padding:4px 8px;min-width:0;overflow-wrap:anywhere}
+.good-bad h3{font-size:1.2rem;margin-bottom:6px}
+.bad-t{color:var(--red)}
+.good-t{color:var(--green)}
+.habits{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+.habits li::marker{color:var(--magenta);font-weight:700}
+
+/* cheat sheet */
+.cheat{background:var(--yellow);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px;display:flex;flex-direction:column;gap:14px}
+.cheat h2{font-size:clamp(2rem,5vw,2.8rem);line-height:1}
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.cheat-group{background:#fff;border:2.5px solid var(--ink);padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cheat-group h3{font-size:1.1rem;color:var(--magenta)}
+.cmd{display:flex;flex-direction:column;gap:1px}
+.cmd code{white-space:normal;word-break:break-word;align-self:flex-start;background:#eef7fc}
+.cmd span{font-size:.88rem;color:var(--muted)}
+.end{text-align:center;font-family:var(--f-display);font-size:1.4rem;letter-spacing:.05em}
+
+@media (max-width:700px){
+  .cover{grid-template-columns:1fr}
+  .cover-art{border-left:0;border-top:4px solid var(--ink);min-height:0}
+  .oops{grid-template-columns:1fr}
+  .oops > div:nth-child(2n+1):not(.h){border-bottom:0;padding-bottom:2px;font-weight:700}
+  .oops .h:nth-child(2){display:none}
+  .good-bad{grid-template-columns:1fr}
+  body{font-size:16px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .flash{animation:flash 2.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+  @keyframes flash{0%,80%,100%{opacity:1;transform:scale(1)}88%{opacity:.6;transform:scale(1.12)}}
+}
+
+/* ---- issue 2 additions ---- */
+.ch-head .part-tag{font-family:var(--f-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-left:auto;align-self:center}
+.toc-part{flex-basis:100%;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.cover p.prev-issue{font-size:.95rem;max-width:none}
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+.xref:hover,.xref:focus-visible{background:var(--yellow);outline:none}
+.tree{background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:8px;padding:12px 14px;font-family:var(--f-mono);font-size:.8rem;line-height:1.6;overflow-x:auto;white-space:pre;margin:0}
+.tree .c{color:#1d7fa8}
+.tree b{color:#c22d72}
+.tree.small{font-size:.76rem}
+.scroll-x{overflow-x:auto}
+table.cmp{border-collapse:collapse;width:100%;min-width:620px;background:#fff;border:2.5px solid var(--ink);font-size:.95rem}
+.cmp th{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-weight:400;text-align:left;padding:8px 10px;font-size:1.05rem}
+.cmp td{padding:9px 10px;border-top:2px dashed #c9cdd6;vertical-align:top}
+.cmp code{white-space:normal;word-break:break-word}
+.beasts td:first-child{width:34%}
+.mark{display:inline-flex;align-items:center;justify-content:center;flex:none;width:1.45em;height:1.45em;border-radius:50%;font-family:var(--f-display);font-size:.95em;line-height:1;border:2px solid var(--ink);color:var(--ink);margin-right:6px;vertical-align:middle}
+.term .mark{border-color:#fff;font-size:.85em}
+.m1{background:var(--yellow)}.m2{background:var(--cyan)}.m3{background:#f9c7de}
+.tb-legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tb-legend li{display:flex;gap:4px;align-items:flex-start}
+.msg{border:2.5px solid var(--ink);border-radius:14px;padding:12px 14px;white-space:pre-wrap;line-height:1.45;box-shadow:3px 3px 0 var(--ink);min-width:0;overflow-wrap:anywhere}
+.msg code{white-space:normal;word-break:break-word}
+.bad-msg{background:#ffe1e2}
+.good-msg{background:#e3f8ec}
+
+.chip{white-space:nowrap}
+@media (min-width:900px){.panel.span2{grid-column:span 2}}
+.habits.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 28px;padding-left:1.3em}
+.panel.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);align-items:center;column-gap:20px}
+.panel.row > .caption{grid-column:1/-1}
+.panel.row svg.art{margin-top:0}
+@media (max-width:640px){.panel.row{grid-template-columns:1fr}}
+
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start}
+.duo p{margin:0}
+.nb{background:#ffffff;color:var(--ink);border:3px solid var(--ink);border-left:8px solid var(--cyan);border-radius:6px;padding:12px 14px;font-family:var(--f-mono);font-size:.8rem;line-height:1.6;overflow-x:auto;white-space:pre;margin:0}
+.nb .in{color:#1d7fa8;font-weight:700}
+.nb .out{color:#c22d72;font-weight:700}
+
+.triage td:first-child{width:16%;white-space:nowrap}
+.verdicts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.verdict{border:2.5px solid var(--ink);padding:9px 12px;box-shadow:3px 3px 0 var(--ink);display:flex;flex-direction:column;gap:2px;font-size:.95rem}
+.verdict strong{font-family:var(--f-display);font-weight:400;letter-spacing:.05em;font-size:1.15rem}
+.verdict.g{background:#d3f5e1}.verdict.y{background:#fff1b8}.verdict.r{background:#ffd9da}
+/* ---- issue 3 additions ---- */
+.term .pc{color:#7fd3f5;user-select:none}
+.term.htop{font-size:.78rem}
+.htop .g{color:#5fe39a}.htop .bl{color:#7fd3f5}.htop .rr{color:#ff7b80}
+.htop .hdr{background:#2bb3e8;color:#17151d}
+.htop .fk{background:#2bb3e8;color:#17151d;margin-left:6px}
+.dodont{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.dodont > div{border:3px solid var(--ink);padding:12px 14px;box-shadow:4px 4px 0 var(--ink);min-width:0}
+.dodont .do{background:#d3f5e1}.dodont .dont{background:#ffd9da}
+.dodont h3{font-size:1.6rem;margin-bottom:6px}
+.dodont ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:7px}
+.dodont .do li::marker{content:"✓  ";color:#1f9452;font-weight:700}
+.dodont .dont li::marker{content:"✗  ";color:#c8323a;font-weight:700}
+.tb-legend li > span:last-child{min-width:0}
+/* ---- issue 3 fixes ---- */
+.cmp th code{background:transparent;border-color:var(--yellow);color:var(--yellow)}
+.panel.top svg.art{margin-top:0}
+.warn code{white-space:normal;overflow-wrap:anywhere}
+/* ---- slide deck mode ---- */
+:root{--nav-h:64px}
+html,body{height:100%;overflow:hidden}
+.deck{position:fixed;inset:0;padding:0;margin:0;max-width:none;display:block}
+.slide{position:absolute;inset:0 0 calc(var(--nav-h) + env(safe-area-inset-bottom,0px)) 0;padding-top:env(safe-area-inset-top,0px);overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column}
+.slide-inner{width:100%;max-width:1060px;margin:auto;padding-inline:16px;padding-block:28px 36px}
+.cheat .end{margin:6px 0 0}
+@media (prefers-reduced-motion:no-preference){
+  .slide.in-next .slide-inner{animation:inNext .38s cubic-bezier(.2,.8,.2,1)}
+  .slide.in-prev .slide-inner{animation:inPrev .38s cubic-bezier(.2,.8,.2,1)}
+  @keyframes inNext{from{opacity:0;transform:translateX(48px) rotate(.6deg)}to{opacity:1;transform:none}}
+  @keyframes inPrev{from{opacity:0;transform:translateX(-48px) rotate(-.6deg)}to{opacity:1;transform:none}}
+}
+.nav{position:fixed;left:0;right:0;bottom:0;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding:0 16px env(safe-area-inset-bottom,0px);background:var(--ink);color:#fff;display:flex;align-items:center;gap:14px;z-index:5}
+.nav .bar{position:absolute;left:0;top:0;height:4px;background:var(--yellow);transition:width .3s}
+.nav button{font-family:var(--f-display);font-size:1.15rem;letter-spacing:.05em;background:var(--yellow);color:var(--ink);border:3px solid #fff;padding:4px 14px;cursor:pointer;box-shadow:3px 3px 0 var(--magenta);line-height:1.2}
+.nav button:hover{background:#fff}
+.nav button:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.nav button:disabled{opacity:.35;cursor:default;box-shadow:none}
+.nav .mid{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+.nav .label{font-family:var(--f-display);letter-spacing:.05em;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.nav .label b{color:var(--yellow);font-weight:400;margin-right:8px;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:6px}
+.nav .dots button{width:12px;height:12px;padding:0;border:2px solid #fff;border-radius:50%;background:transparent;box-shadow:none}
+.nav .dots button[aria-current="true"]{background:var(--yellow);border-color:var(--yellow);transform:scale(1.25)}
+.nav .dots button:hover{background:var(--magenta)}
+.hint{font-family:var(--f-mono);font-size:.7rem;color:#a9a6b5;white-space:nowrap}
+@media (max-width:640px){.hint{display:none}.nav{gap:8px}.nav button{padding:4px 9px;font-size:1rem}.dots{gap:4px}.nav .dots button{width:9px;height:9px}}
+
+/* ---- offline series navigation ---- */
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+a.xref:hover,a.xref:focus-visible{background:var(--yellow);outline:none}
+.cover p.prev-issue,.cover p.formats{font-size:.95rem;max-width:none;margin:0}
+.series-bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.series-bar .lbl{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.xref.home{background:var(--yellow)}
+.xref.fmt{background:#f9c7de}
+</style>
+</head>
+<body>
+<!-- shared drawings -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#15131a" opacity=".16"/></pattern>
+    <pattern id="dotsW" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#ffffff" opacity=".35"/></pattern>
+
+    <symbol id="sam" viewBox="0 0 100 150">
+      <rect x="36" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <rect x="53" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <path d="M20 122 Q18 80 50 75 Q82 80 80 122 Z" fill="#e83e8c" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M44 80 L43 98 M56 80 L57 98" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="50" cy="46" r="26" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+      <path d="M24 46 Q20 16 50 16 Q82 16 76 46 Q72 31 60 33 Q52 23 40 32 Q30 33 24 46 Z" fill="#15131a"/>
+      <circle cx="41" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="59" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="34" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+      <circle cx="66" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+    </symbol>
+
+    <symbol id="snap" viewBox="0 0 100 110">
+      <path d="M38 82 L36 101 M62 82 L64 101" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <ellipse cx="33" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <ellipse cx="67" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <path d="M14 52 L5 40 M86 52 L95 40" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <circle cx="5" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="95" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="28" y="14" width="22" height="16" rx="4" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="62" y="17" width="14" height="11" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="14" y="26" width="72" height="58" rx="12" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="50" cy="52" r="20" fill="#15131a"/>
+      <circle cx="50" cy="52" r="14" fill="#2bb3e8"/>
+      <circle cx="50" cy="52" r="6" fill="#15131a"/>
+      <circle cx="44" cy="46" r="4" fill="#ffffff"/>
+      <path d="M42 76 Q50 81 58 76" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="burst" viewBox="-50 -50 100 100">
+      <polygon points="50,0 27.7,11.5 35.4,35.4 11.5,27.7 0,50 -11.5,27.7 -35.4,35.4 -27.7,11.5 -50,0 -27.7,-11.5 -35.4,-35.4 -11.5,-27.7 0,-50 11.5,-27.7 35.4,-35.4 27.7,-11.5" stroke="#15131a" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="polaroid" viewBox="0 0 60 70">
+      <rect x="1.5" y="1.5" width="57" height="67" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="7" y="7" width="46" height="40" fill="#bfe9fa" stroke="#15131a" stroke-width="2"/>
+      <path d="M7 47 L22 28 L32 39 L39 31 L53 47 Z" fill="#2fbf6c" stroke="#15131a" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="42" cy="17" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="2"/>
+    </symbol>
+
+    <symbol id="file" viewBox="0 0 40 50">
+      <path d="M2 2 H28 L38 12 V48 H2 Z" fill="#ffffff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M28 2 V12 H38" fill="none" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M9 22 H31 M9 29 H27 M9 36 H31" stroke="#9aa0ad" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="hat" viewBox="0 0 100 40">
+      <path d="M22 34 Q22 4 50 4 Q78 4 78 34 Z" fill="#a07c55" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M34 9 L36 32 M50 4 V33 M66 9 L64 32 M24 22 H76" stroke="#6b5034" stroke-width="2" fill="none"/>
+      <ellipse cx="50" cy="34" rx="36" ry="5.5" fill="#8a6a4a" stroke="#15131a" stroke-width="3"/>
+    </symbol>
+    <symbol id="magnifier" viewBox="0 0 60 60">
+      <path d="M36 36 L54 54" stroke="#15131a" stroke-width="11" stroke-linecap="round"/>
+      <path d="M36 36 L54 54" stroke="#2d3a5a" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="24" cy="24" r="16" fill="#bfe9fa" fill-opacity=".7" stroke="#15131a" stroke-width="4"/>
+      <path d="M15 20 Q17 13 24 12" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="jar" viewBox="0 0 110 130">
+      <path d="M14 22 H96 V112 Q96 126 82 126 H28 Q14 126 14 112 Z" fill="#e9f7ff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M24 34 V100" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <rect x="18" y="5" width="74" height="17" rx="4" fill="#9aa0ad" stroke="#15131a" stroke-width="3"/>
+    </symbol>
+    <symbol id="bug" viewBox="0 0 84 70">
+      <path d="M24 40 L8 32 M22 48 L5 52 M26 56 L12 66 M60 40 L76 32 M62 48 L79 52 M58 56 L72 66" stroke="#15131a" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M37 12 Q32 2 24 4 M47 12 Q52 2 60 4" stroke="#15131a" stroke-width="2.5" fill="none"/>
+      <circle cx="24" cy="4" r="3" fill="#15131a"/><circle cx="60" cy="4" r="3" fill="#15131a"/>
+      <ellipse cx="42" cy="46" rx="22" ry="18" stroke="#15131a" stroke-width="3"/>
+      <path d="M42 30 V63" stroke="#15131a" stroke-width="2" opacity=".5"/>
+      <circle cx="42" cy="22" r="12" stroke="#15131a" stroke-width="3"/>
+      <circle cx="37" cy="20" r="4.2" fill="#ffffff" stroke="#15131a" stroke-width="1.5"/>
+      <circle cx="47" cy="20" r="4.2" fill="#ffffff" stroke="#15131a" stroke-width="1.5"/>
+      <circle cx="38" cy="21" r="1.8" fill="#15131a"/><circle cx="46" cy="21" r="1.8" fill="#15131a"/>
+      <path d="M32 14 L40 17 M52 14 L44 17" stroke="#15131a" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M37 28 L40 26 L42 28 L44 26 L47 28" fill="none" stroke="#15131a" stroke-width="1.8" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="rack" viewBox="0 0 100 250">
+      <rect x="4" y="4" width="92" height="242" rx="8" fill="#2d3a5a" stroke="#15131a" stroke-width="4"/>
+      <g fill="#17151d" stroke="#15131a" stroke-width="2.5">
+        <rect x="14" y="18" width="72" height="36"/><rect x="14" y="64" width="72" height="36"/><rect x="14" y="110" width="72" height="36"/><rect x="14" y="156" width="72" height="36"/><rect x="14" y="202" width="72" height="30"/>
+      </g>
+      <g fill="#5fe39a"><circle cx="74" cy="36" r="4"/><circle cx="74" cy="82" r="4"/><circle cx="74" cy="128" r="4"/><circle cx="74" cy="174" r="4"/></g>
+      <g fill="#ffd23f"><circle cx="62" cy="36" r="4"/><circle cx="62" cy="128" r="4"/></g>
+      <g stroke="#5b5f6b" stroke-width="3"><path d="M22 30 H46 M22 40 H46 M22 76 H46 M22 86 H46 M22 122 H46 M22 132 H46 M22 168 H46 M22 178 H46"/></g>
+    </symbol>
+    <symbol id="key" viewBox="0 0 110 56">
+      <circle cx="28" cy="28" r="22" fill="#ffd23f" stroke="#15131a" stroke-width="4"/>
+      <circle cx="22" cy="28" r="7" fill="#fff6cf" stroke="#15131a" stroke-width="3"/>
+      <path d="M50 22 H104 V34 H96 V44 H86 V34 H78 V42 H68 V34 H50 Z" fill="#ffd23f" stroke="#15131a" stroke-width="4" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="deck" id="deck">
+
+  <!-- COVER -->
+  <div class="slide"><div class="slide-inner"><section class="cover" id="cover">
+    <div class="cover-text">
+      <span class="issue">Issue #3 · Shared GPU servers</span>
+      <h1>Share<br>the GPU</h1>
+      <p>Your laptop says training will take nine days. A shared GPU server can do it overnight, but you share it with everyone else on it. This issue covers getting in with SSH keys, running jobs with Slurm, watching them, and leaving the server as clean as you found it. The running example is GPU4EDU, a teaching cluster; the same ideas apply to any Slurm cluster.</p>
+      <nav class="toc" aria-label="Chapters">
+        <span class="toc-part">Part 1 · Get in</span>
+        <a href="#meet">1 · Meet the cluster</a>
+        <a href="#keys">2 · SSH keys</a>
+        <a href="#sync">3 · Git sync</a>
+        <span class="toc-part">Part 2 · Run</span>
+        <a href="#slurm">4 · Slurm</a>
+        <a href="#screen">5 · screen</a>
+        <a href="#make">6 · Makefile</a>
+        <span class="toc-part">Part 3 · Watch</span>
+        <a href="#htop">7 · htop</a>
+        <a href="#smi">8 · nvidia-smi</a>
+        <a href="#queue">9 · Queue &amp; logs</a>
+        <a href="#carbon">10 · Bonus: CO₂</a>
+        <span class="toc-part">Part 4 · Be a good neighbour</span>
+        <a href="#clean">11 · Clean up</a>
+        <a href="#rules">12 · House rules</a>
+        <a href="#bestiary">13 · Error bestiary</a>
+        <a href="#cheat">Cheat sheet</a>
+      </nav>
+      <div class="series-bar"><span class="lbl">Series</span><a class="xref home" href="index.html">⌂ Home</a><a class="xref" href="hello-terminal-slides.html">Issue #0 · Hello, Terminal</a><a class="xref" href="windows-and-wsl-slides.html">Appendix · Windows &amp; WSL</a><a class="xref" href="git-good-slides.html">Issue #1 · Git Good</a><a class="xref" href="works-on-my-machine-slides.html">Issue #2 · Works on my machine</a><a class="xref fmt" href="share-the-gpu.html">▤ Read as one page</a></div>
+    </div>
+    <div class="cover-art">
+      <svg viewBox="0 0 420 300" role="img" aria-label="Sam with a laptop next to Snap, who carries a GPU card toward a server rack">
+        <rect width="420" height="300" fill="url(#dotsW)"/>
+        <use href="#burst" x="120" y="20" width="220" height="220" fill="#ffd23f"/>
+        <use href="#rack" x="300" y="40" width="100" height="250"/>
+        <g transform="translate(36 100) scale(1.25)">
+          <use href="#sam" width="100" height="150"/>
+          <path d="M41 60 Q50 69 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <use href="#snap" x="170" y="150" width="120" height="132"/>
+        <g transform="rotate(-12 226 132)">
+          <rect x="176" y="112" width="110" height="40" rx="4" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+          <rect x="186" y="120" width="30" height="24" fill="#17151d" stroke="#15131a" stroke-width="2"/>
+          <circle cx="242" cy="132" r="11" fill="#9aa0ad" stroke="#15131a" stroke-width="2.5"/>
+          <path d="M242 121 V143 M231 132 H253" stroke="#15131a" stroke-width="2"/>
+          <path d="M184 152 v8 M196 152 v8 M208 152 v8 M220 152 v8 M232 152 v8 M244 152 v8 M256 152 v8" stroke="#ffd23f" stroke-width="3"/>
+          <text x="264" y="137" font-family="JetBrains Mono, monospace" font-weight="700" font-size="9" fill="#ffd23f">A40</text>
+        </g>
+        <rect x="0" y="292" width="420" height="8" fill="#15131a"/>
+      </svg>
+    </div>
+  </section></div></div>
+
+  <!-- 1 MEET -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="meet">
+    <div class="ch-head"><span class="ch-num">Chapter 1</span><h2>Meet the cluster</h2><span class="part-tag">Part 1 · Get in</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Thesis, week 6</span>
+        <div class="bubble"><span class="who sam">Sam</span>My laptop says one training run takes nine days. My deadline says no.</div>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="Sam next to a laptop showing a progress bar with an estimate of nine days">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <g transform="translate(20 4) scale(.9)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M42 64 Q50 58 58 64" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+            <path d="M80 26 q5 8 0 11 q-5 -3 0 -11z" fill="#2bb3e8" stroke="#15131a" stroke-width="1.5"/>
+          </g>
+          <rect x="140" y="30" width="140" height="90" rx="6" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+          <rect x="150" y="40" width="120" height="70" fill="#17151d"/>
+          <rect x="160" y="62" width="100" height="12" fill="#2d3a5a" stroke="#ece9f4" stroke-width="1.5"/>
+          <rect x="161" y="63" width="6" height="10" fill="#5fe39a"/>
+          <text x="160" y="56" font-family="JetBrains Mono, monospace" font-size="9" fill="#ece9f4">epoch 1/50</text>
+          <text x="160" y="92" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#ff7b80">ETA 9 days 4 h</text>
+          <path d="M126 128 H294 L284 140 H136 Z" fill="#9aa0ad" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="panel span2">
+        <span class="caption">How the pieces fit</span>
+        <div class="scroll-x">
+        <svg class="art" viewBox="0 0 640 230" role="img" aria-label="Your laptop connects with ssh to the login node aurometalsaurus. From there, Slurm sends jobs to compute nodes with A40 GPUs. Many students share the login node and the queue." style="min-width:520px">
+          <rect width="640" height="230" fill="url(#dots)"/>
+          <!-- laptop -->
+          <rect x="20" y="70" width="110" height="70" rx="5" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+          <rect x="29" y="79" width="92" height="52" fill="#fff3c4" stroke="#15131a" stroke-width="2"/>
+          <text x="75" y="110" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#15131a">~ ❯</text>
+          <path d="M8 140 H142 L134 152 H16 Z" fill="#9aa0ad" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+          <text x="75" y="56" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="20" fill="#15131a">YOUR LAPTOP</text>
+          <text x="75" y="176" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">write code, commit</text>
+          <!-- ssh arrow -->
+          <path d="M146 105 H218" stroke="#15131a" stroke-width="4" stroke-dasharray="8 6"/>
+          <path d="M214 95 L230 105 L214 115 Z" fill="#15131a"/>
+          <text x="186" y="94" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="14" fill="#e83e8c">ssh</text>
+          <!-- login node -->
+          <rect x="236" y="62" width="150" height="88" rx="8" fill="#bfe9fa" stroke="#15131a" stroke-width="3"/>
+          <text x="311" y="88" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="12" fill="#15131a">aurometalsaurus</text>
+          <text x="311" y="108" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#15131a">login node</text>
+          <text x="311" y="126" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="11" fill="#15131a">files · git · queue</text>
+          <text x="311" y="141" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="11" font-weight="700" fill="#b52d6c">no GPU here</text>
+          <text x="311" y="50" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="20" fill="#15131a">YOU LAND HERE</text>
+          <!-- others -->
+          <g fill="#f2c29b" stroke="#15131a" stroke-width="2">
+            <circle cx="262" cy="184" r="8"/><circle cx="290" cy="184" r="8"/><circle cx="318" cy="184" r="8"/><circle cx="346" cy="184" r="8"/>
+          </g>
+          <g fill="#e83e8c" stroke="#15131a" stroke-width="2"><path d="M252 206 q10 -16 20 0z"/><path d="M280 206 q10 -16 20 0z" fill="#2bb3e8"/><path d="M308 206 q10 -16 20 0z" fill="#2fbf6c"/><path d="M336 206 q10 -16 20 0z" fill="#ffd23f"/></g>
+          <text x="311" y="224" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">…and every other user</text>
+          <!-- slurm arrow -->
+          <path d="M390 105 H448" stroke="#15131a" stroke-width="4"/>
+          <path d="M444 95 L460 105 L444 115 Z" fill="#15131a"/>
+          <rect x="392" y="68" width="62" height="24" rx="4" fill="#ffd23f" stroke="#15131a" stroke-width="2.5"/>
+          <text x="423" y="85" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="12" fill="#15131a">Slurm</text>
+          <!-- compute -->
+          <use href="#rack" x="466" y="34" width="70" height="170"/>
+          <use href="#rack" x="546" y="34" width="70" height="170"/>
+          <text x="541" y="26" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="20" fill="#15131a">COMPUTE NODES</text>
+          <text x="541" y="222" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">NVIDIA A40 GPUs</text>
+        </svg>
+        </div>
+        <p class="note">On GPU4EDU, the example in this issue, you log in to <code>aurometalsaurus.uvt.nl</code> with your u-number. That machine holds your files and the queue, but it has no GPU. To use a GPU you ask <strong>Slurm</strong>, the scheduler, which runs your work on a compute node when one is free.</p>
+      </div>
+      <div class="panel">
+        <div class="bubble"><span class="who snap">Snap</span>Think of a shared kitchen. The login node is the hallway: drop your bags, read the recipe. The GPUs are the stoves, and Slurm is the reservation list.</div>
+        <svg class="art" viewBox="0 0 300 120" role="img" aria-label="Three stoves with a clipboard reservation list">
+          <rect width="300" height="120" fill="url(#dots)"/>
+          <g stroke="#15131a" stroke-width="3">
+            <rect x="20" y="50" width="60" height="56" fill="#ffffff"/><rect x="90" y="50" width="60" height="56" fill="#ffffff"/><rect x="160" y="50" width="60" height="56" fill="#ffffff"/>
+          </g>
+          <g fill="none" stroke="#e5484d" stroke-width="3"><circle cx="50" cy="64" r="8"/><circle cx="120" cy="64" r="8"/></g>
+          <circle cx="190" cy="64" r="8" fill="none" stroke="#9aa0ad" stroke-width="3"/>
+          <g font-family="Bricolage Grotesque, sans-serif" font-size="10" text-anchor="middle" fill="#15131a"><text x="50" y="96">busy</text><text x="120" y="96">busy</text><text x="190" y="96">free</text></g>
+          <rect x="236" y="20" width="50" height="86" rx="4" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+          <rect x="250" y="14" width="22" height="12" rx="3" fill="#9aa0ad" stroke="#15131a" stroke-width="2"/>
+          <path d="M244 44 H278 M244 58 H278 M244 72 H270 M244 86 H274" stroke="#15131a" stroke-width="2.5"/>
+        </svg>
+      </div>
+      <div class="panel span2 yellow">
+        <span class="caption">Two prompts in this issue</span>
+<pre class="term"><span class="p">~ ❯ </span>ssh gpu4edu        <span class="c"># on your laptop</span>
+<span class="pc">gpu4edu:~$ </span>squeue --me   <span class="c"># on the cluster</span></pre>
+        <p>A <strong>yellow</strong> prompt means “type this on your laptop”. A <strong>blue</strong> prompt means “type this on the cluster”. Mixing them up is the most common beginner mistake.</p>
+        <p class="note">Terminal still new? <a class="xref" href="hello-terminal-slides.html">Issue #0 · Hello, Terminal</a></p>
+      </div>
+       <div class="panel wide">
+        <span class="caption">Your server may differ</span>
+        <div class="bubble c"><span class="who snap">Snap</span>Every cluster works the same way underneath, but the details change. Before you start somewhere new, look these up in its documentation.</div>
+        <div class="scroll-x">
+        <table class="cmp">
+          <thead><tr><th>Check</th><th>On GPU4EDU (our example)</th><th>How to find out elsewhere</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Address and username</strong></td><td><code>aurometalsaurus.uvt.nl</code>, your u-number</td><td>The server's documentation or welcome email</td></tr>
+            <tr><td><strong>How your SSH key gets installed</strong></td><td>Shared via SURF, installed by IT services</td><td>Documentation; some servers let you run <code>ssh-copy-id</code> yourself</td></tr>
+            <tr><td><strong>Partitions and limits</strong></td><td>Partition <code>GPU</code></td><td><code>sinfo</code>; <code>scontrol show partition</code></td></tr>
+            <tr><td><strong>Software</strong></td><td>conda in <code>/usr/local/anaconda3</code></td><td><code>which conda</code>; on many clusters <code>module avail</code></td></tr>
+            <tr><td><strong>Tools</strong></td><td><code>screen</code> yes, <code>tmux</code> no; <code>sacct</code> switched off</td><td><code>which tmux htop screen</code></td></tr>
+            <tr><td><strong>Disk space</strong></td><td>Your home folder</td><td>Documentation: quotas, and whether there is a separate scratch disk</td></tr>
+            <tr><td><strong>Rules and help</strong></td><td>GPU4EDU page and Google Chat</td><td>Documentation, support email or chat</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+   </div>
+  </section></div></div>
+
+  <!-- 2 KEYS -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="keys">
+    <div class="ch-head"><span class="ch-num">Chapter 2</span><h2>SSH keys: why and how</h2><span class="part-tag">Part 1 · Get in</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Why bother?</span>
+        <div class="bubble"><span class="who sam">Sam</span>Why can't I just log in with a password, like everywhere else?</div>
+        <ol class="habits">
+          <li><strong>Safer.</strong> A key is far too long to guess, unlike most passwords.</li>
+          <li><strong>Faster.</strong> No password every time you connect, copy a file or pull code.</li>
+          <li><strong>Needed for tools.</strong> <code>rsync</code>, <code>scp</code>, Git and scripts can connect without stopping to ask.</li>
+          <li><strong>Per device.</strong> One key per laptop. Lose a laptop, and only that key needs to be revoked.</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <span class="caption">A key comes in a pair</span>
+        <svg class="art" viewBox="0 0 300 170" role="img" aria-label="A private key stays on the laptop; the matching public padlock is shared via SURF and installed on the server by IT services">
+          <rect width="300" height="170" fill="url(#dots)"/>
+          <use href="#key" x="20" y="30" width="110" height="56"/>
+          <rect x="16" y="98" width="120" height="50" rx="6" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+          <text x="76" y="118" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#15131a">id_ed25519</text>
+          <text x="76" y="136" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="11" fill="#b52d6c">private: never share</text>
+          <g transform="translate(196 22)">
+            <path d="M14 34 V22 Q14 2 36 2 Q58 2 58 22 V34" fill="none" stroke="#15131a" stroke-width="7"/>
+            <path d="M14 34 V22 Q14 2 36 2 Q58 2 58 22 V34" fill="none" stroke="#9aa0ad" stroke-width="3"/>
+            <rect x="0" y="32" width="72" height="54" rx="8" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+            <circle cx="36" cy="54" r="7" fill="#15131a"/><path d="M36 58 V72" stroke="#15131a" stroke-width="5" stroke-linecap="round"/>
+          </g>
+          <rect x="164" y="98" width="128" height="50" rx="6" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+          <text x="228" y="118" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#15131a">id_ed25519.pub</text>
+          <text x="228" y="136" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="11" fill="#1f9452">public: share via SURF</text>
+        </svg>
+        <p class="note">The <strong>public</strong> key is like a padlock you hand out: IT services install it on the server for you. Only your <strong>private</strong> key opens it, and that one never leaves your laptop.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Step 1 · Make the pair (laptop)</span>
+<pre class="term"><span class="p">~ ❯ </span>ssh-keygen -t ed25519 -C "u123456 macbook"
+Enter file in which to save the key
+(/Users/sam/.ssh/id_ed25519): <span class="y">⏎</span>
+Enter passphrase: <span class="y">••••••••</span>
+<span class="ok">Your public key has been saved in
+/Users/sam/.ssh/id_ed25519.pub</span></pre>
+        <p class="note">Press Enter for the default location. A passphrase protects the key if your laptop is stolen. macOS can remember it in the Keychain, so you type it once. If the GPU4EDU instructions ask for a different key type, use that one.</p>
+      </div>
+      <div class="panel wide">
+        <span class="caption">Step 2 · Get the padlock installed</span>
+        <div class="duo">
+          <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+            <p>Some servers let you install your key yourself with <code>ssh-copy-id</code>. On <strong>GPU4EDU</strong> you can't: <strong>IT services</strong> do that, after you share your <em>public</em> key with them through <strong>SURF</strong>.</p>
+<pre class="term"><span class="p">~ ❯ </span>cat ~/.ssh/id_ed25519.pub
+<span class="ok">ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI… u123456 macbook</span>
+<span class="p">~ ❯ </span>pbcopy &lt; ~/.ssh/id_ed25519.pub   <span class="c"># macOS: copy it</span></pre>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+            <ol class="habits">
+              <li>Copy the whole line, from <code>ssh-ed25519</code> to the comment at the end.</li>
+              <li>Share it via SURF, following the GPU4EDU SSH instructions (GPU4EDU page → Tutorial → Account).</li>
+              <li>Wait until your key has been installed, then continue with step 3.</li>
+            </ol>
+            <div class="warn">Pasted text starts with <code>-----BEGIN OPENSSH PRIVATE KEY-----</code>? Stop: that's your <em>private</em> key. Share only the <code>.pub</code> file.</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel wide">
+        <span class="caption">Step 3 · A nickname for the server</span>
+        <div class="duo">
+<pre class="tree small"><b># ~/.ssh/config  (on your laptop)</b>
+Host gpu4edu
+    HostName aurometalsaurus.uvt.nl
+    User u123456
+    IdentityFile ~/.ssh/id_ed25519
+    ServerAliveInterval 60
+    AddKeysToAgent yes
+    UseKeychain yes      <span class="c">← macOS only</span></pre>
+          <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+<pre class="term"><span class="p">~ ❯ </span>ssh gpu4edu
+<span class="pc">gpu4edu:~$ </span><span class="ok">✓ no password!</span>
+<span class="p">~ ❯ </span>scp notes.md gpu4edu:~/thesis/</pre>
+            <p class="note"><code>gpu4edu</code> now works everywhere: <code>ssh</code>, <code>scp</code>, <code>rsync</code>. <code>ServerAliveInterval</code> keeps a quiet connection from timing out. Remove the <code>UseKeychain</code> line on Linux or WSL.</p>
+          </div>
+        </div>
+      </div>
+      <div class="panel wide yellow">
+        <span class="caption">Key safety</span>
+        <ol class="habits cols">
+          <li>Never send, upload or share <code>id_ed25519</code> (the file without <code>.pub</code>). Not even with a TA.</li>
+          <li>Lost a laptop, or think a key leaked? Tell IT services so that key is revoked, then make a new pair and share the new public key.</li>
+          <li>One key per device. Name each one in the comment (<code>-C "u123456 macbook"</code>) so you and IT services know which key is which.</li>
+          <li>Never share your account either. Everything that runs under your u-number is your responsibility.</li>
+        </ol>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 3 SYNC -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="sync">
+    <div class="ch-head"><span class="ch-num">Chapter 3</span><h2>One codebase, two machines</h2><span class="part-tag">Part 1 · Get in</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>Golden rule: <strong>write code on your laptop, run it on the cluster.</strong> Git carries the code between them, so both always have the same version.</div>
+        <div class="scroll-x">
+        <svg class="art" viewBox="0 0 640 190" role="img" aria-label="Laptop pushes commits to GitHub; the cluster pulls them. Data and results travel separately with rsync." style="min-width:520px">
+          <rect width="640" height="190" fill="url(#dots)"/>
+          <rect x="20" y="48" width="130" height="64" rx="8" fill="#fff3c4" stroke="#15131a" stroke-width="3"/>
+          <text x="85" y="76" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="20" fill="#15131a">LAPTOP</text>
+          <text x="85" y="96" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#15131a">edit · test · commit</text>
+          <path d="M240 46 A26 26 0 0 1 262 14 A34 34 0 0 1 326 8 A30 30 0 0 1 382 30 A18 18 0 0 1 384 62 H244 A18 18 0 0 1 240 46 Z" fill="#ffffff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+          <text x="312" y="44" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="20" fill="#15131a">GITHUB</text>
+          <rect x="490" y="48" width="130" height="64" rx="8" fill="#bfe9fa" stroke="#15131a" stroke-width="3"/>
+          <text x="555" y="76" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="20" fill="#15131a">CLUSTER</text>
+          <text x="555" y="96" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#15131a">pull · run</text>
+          <path d="M150 62 C190 40 210 36 236 40" fill="none" stroke="#e83e8c" stroke-width="5"/>
+          <path d="M228 30 L244 40 L228 50 Z" fill="#e83e8c" stroke="#15131a" stroke-width="2"/>
+          <text x="186" y="36" font-family="JetBrains Mono, monospace" font-weight="700" font-size="15" fill="#e83e8c">push</text>
+          <path d="M388 40 C430 36 456 42 488 62" fill="none" stroke="#1d8fbe" stroke-width="5"/>
+          <path d="M480 52 L494 66 L476 70 Z" fill="#2bb3e8" stroke="#15131a" stroke-width="2"/>
+          <text x="420" y="32" font-family="JetBrains Mono, monospace" font-weight="700" font-size="15" fill="#1d8fbe">pull</text>
+          <path d="M150 104 C280 160 360 160 490 104" fill="none" stroke="#15131a" stroke-width="3.5" stroke-dasharray="7 6"/>
+          <path d="M482 98 L496 102 L486 114 Z" fill="#15131a"/>
+          <path d="M158 98 L146 104 L158 112 Z" fill="#15131a"/>
+          <text x="320" y="180" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="14" fill="#15131a">rsync: data in, results out</text>
+        </svg>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="caption">The daily loop</span>
+<pre class="term"><span class="c"># laptop: change code, then</span>
+<span class="p">~ ❯ </span>git commit -am "Add dropout"
+<span class="p">~ ❯ </span>git push
+<span class="c"># cluster: get it, then run</span>
+<span class="pc">gpu4edu:~/thesis$ </span>git pull
+<span class="pc">gpu4edu:~/thesis$ </span>make run EXP=baseline</pre>
+        <p class="note">Always <code>git pull</code> before you submit, or you'll run yesterday's code. <a class="xref" href="git-good-slides.html#remotes">Git Good · Ch. 8</a></p>
+      </div>
+      <div class="panel">
+        <span class="caption">First time on the cluster</span>
+<pre class="term"><span class="c"># private repo: give the cluster its own key</span>
+<span class="pc">gpu4edu:~$ </span>ssh-keygen -t ed25519 -C "u123456 gpu4edu"
+<span class="pc">gpu4edu:~$ </span>cat ~/.ssh/id_ed25519.pub
+<span class="c"># paste into GitHub → Settings → SSH keys</span>
+<span class="pc">gpu4edu:~$ </span>git clone git@github.com:sam/thesis.git</pre>
+        <p class="note">The same idea as Chapter 2, one level up: now the cluster proves who it is to GitHub. A public repo can simply be cloned over HTTPS.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">What travels how</span>
+        <div class="scroll-x">
+        <table class="cmp" style="min-width:0">
+          <thead><tr><th>Thing</th><th>How</th></tr></thead>
+          <tbody>
+            <tr><td>Code, configs, <code>Makefile</code>, job scripts</td><td>Git</td></tr>
+            <tr><td>Datasets</td><td><code>rsync</code>, once</td></tr>
+            <tr><td>Logs, results, checkpoints</td><td><code>rsync</code> back; never in Git</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <div class="panel span2">
+        <span class="caption">rsync: copy only what changed</span>
+<pre class="term"><span class="c"># data to the cluster (once)</span>
+<span class="p">~/thesis ❯ </span>rsync -avz --progress data/ gpu4edu:~/thesis/data/
+<span class="c"># results back home</span>
+<span class="p">~/thesis ❯ </span>rsync -avz gpu4edu:~/thesis/runs/ runs/</pre>
+        <p class="note">Mind the trailing <code>/</code> on folders: <code>data/</code> copies the folder's <em>contents</em>. Add <code>data/</code> and <code>runs/</code> to <code>.gitignore</code>. <a class="xref" href="git-good-slides.html#ignore">Git Good · Ch. 9</a></p>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">Quick fix on the cluster?</span>
+        <div class="bubble plain"><span class="who snap">Snap</span>It happens. Then commit and push it <em>from the cluster</em> right away, and <code>git pull</code> on your laptop. Two machines editing the same file without syncing = merge conflict. <a class="xref" href="git-good-slides.html#conflicts">Git Good · Ch. 7</a></div>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 4 SLURM -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="slurm">
+    <div class="ch-head"><span class="ch-num">Chapter 4</span><h2>Slurm: take a number</h2><span class="part-tag">Part 2 · Run</span></div>
+    <div class="strip">
+      <div class="panel">
+        <div class="bubble"><span class="who snap">Snap</span>You don't grab a GPU. You ask Slurm for one, like taking a number at the bakery. When a GPU is free, Slurm runs your job on it.</div>
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="A ticket dispenser handing out number 42, with a display showing now serving 39">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <rect x="30" y="20" width="80" height="100" rx="10" fill="#e5484d" stroke="#15131a" stroke-width="3"/>
+          <rect x="44" y="36" width="52" height="30" rx="4" fill="#ffffff" stroke="#15131a" stroke-width="2.5"/>
+          <g transform="rotate(10 112 92)"><rect x="96" y="76" width="60" height="34" fill="#ffffff" stroke="#15131a" stroke-width="2.5"/>
+          <text x="126" y="100" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="22" fill="#15131a">42</text></g>
+          <rect x="182" y="22" width="100" height="56" rx="6" fill="#17151d" stroke="#15131a" stroke-width="3"/>
+          <text x="232" y="42" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="11" fill="#ece9f4">now running</text>
+          <text x="232" y="68" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="22" fill="#ffd23f">39</text>
+        </svg>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Two ways to ask</span>
+        <div class="scroll-x">
+        <table class="cmp">
+          <thead><tr><th></th><th><code>srun</code></th><th><code>sbatch</code></th></tr></thead>
+          <tbody>
+            <tr><td><strong>What</strong></td><td>Runs a command right now and shows the output in your terminal</td><td>Queues a script; returns your prompt immediately</td></tr>
+            <tr><td><strong>If your connection drops</strong></td><td>The job dies with it</td><td>Keeps running</td></tr>
+            <tr><td><strong>Use for</strong></td><td>Quick checks (seconds to minutes), a short interactive look</td><td>Everything else: training, evaluation, anything you'd leave running</td></tr>
+          </tbody>
+        </table>
+        </div>
+<pre class="term"><span class="c"># quick check: does a GPU node see the GPU?</span>
+<span class="pc">gpu4edu:~$ </span>srun -p GPU --gres=gpu:1 --time=00:05:00 nvidia-smi
+<span class="c"># short interactive session on a GPU node</span>
+<span class="pc">gpu4edu:~$ </span>srun -p GPU --gres=gpu:1 --time=00:30:00 --pty bash -l
+<span class="c"># … test things …  then ALWAYS:</span>
+exit</pre>
+        <div class="warn">An open interactive session keeps a GPU reserved, even while you're at lunch. Type <code>exit</code> the moment you're done.</div>
+      </div>
+      <div class="panel wide">
+        <span class="caption">A job script, line by line</span>
+        <div class="duo">
+<pre class="tree small"><b>#!/bin/bash</b>
+#SBATCH --job-name=baseline
+#SBATCH --partition=GPU
+#SBATCH --nodes=1
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=16G
+#SBATCH --time=02:00:00
+#SBATCH --output=logs/%x-%j.out
+#SBATCH --error=logs/%x-%j.err
+
+set -e
+. /usr/local/anaconda3/etc/profile.d/conda.sh
+conda activate thesis
+
+echo "Started on $(hostname) at $(date)"
+python train.py --config configs/baseline.yaml
+echo "Finished at $(date)"</pre>
+          <ol class="tb-legend">
+            <li><span class="mark m1">1</span><span><strong><code>#SBATCH</code> lines are not comments.</strong> Slurm reads them as the job's settings: a name, the <code>GPU</code> partition, one GPU (<code>--gres=gpu:1</code>), CPUs and memory.</span></li>
+            <li><span class="mark m2">2</span><span><strong><code>--time</code> is a hard limit.</strong> Slurm stops the job when it runs out. Ask for a realistic upper bound, not “3 days just in case”: a modest request is fairer to others and is often scheduled sooner.</span></li>
+            <li><span class="mark m3">3</span><span><strong><code>%x</code> and <code>%j</code></strong> become the job name and job ID. The <code>logs/</code> folder must exist <em>before</em> you submit (<code>mkdir -p logs</code>).</span></li>
+            <li><span class="mark m1">4</span><span><strong>Activate conda inside the script.</strong> A batch job starts a fresh shell that doesn't know <code>conda activate</code> until you load <code>conda.sh</code>. <a class="xref" href="works-on-my-machine-slides.html#recipes">Issue #2 · Ch. 6</a></span></li>
+            <li><span class="mark m2">5</span><span><strong>Echo the start and end time.</strong> <code>sacct</code> (Slurm's job history) is switched off on GPU4EDU, so these two lines are your record of how long a run took.</span></li>
+          </ol>
+        </div>
+<pre class="term"><span class="pc">gpu4edu:~/thesis$ </span>mkdir -p logs
+<span class="pc">gpu4edu:~/thesis$ </span>sbatch job.sh
+<span class="ok">Submitted batch job 123456</span>
+<span class="pc">gpu4edu:~/thesis$ </span>sinfo -p GPU         <span class="c"># are nodes idle, mixed or fully allocated?</span></pre>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 5 SCREEN -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="screen">
+    <div class="ch-head"><span class="ch-num">Chapter 5</span><h2>Stay connected: screen</h2><span class="part-tag">Part 2 · Run</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">The problem</span>
+        <div class="bubble"><span class="who sam">Sam</span>I closed my laptop on the train and my <code>tail -f</code> and my <code>srun</code> session were just… gone.</div>
+        <svg class="art" viewBox="0 0 300 130" role="img" aria-label="A laptop connected to a server; the cable is cut and sparks fly">
+          <rect width="300" height="130" fill="url(#dots)"/>
+          <rect x="20" y="40" width="80" height="54" rx="5" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+          <rect x="28" y="48" width="64" height="38" fill="#fff3c4"/>
+          <use href="#rack" x="222" y="10" width="54" height="116"/>
+          <path d="M100 66 H140 M170 66 H222" stroke="#15131a" stroke-width="4" stroke-dasharray="7 5"/>
+          <use href="#burst" x="128" y="42" width="50" height="50" fill="#ffd23f"/>
+          <text x="153" y="72" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="14" fill="#e5484d">ZAP</text>
+        </svg>
+      </div>
+      <div class="panel">
+        <span class="caption">The fix</span>
+        <div class="bubble r"><span class="who snap">Snap</span><code>screen</code> keeps a terminal running <em>on the server</em>. You can detach, disconnect, reconnect tomorrow from another laptop and pick up exactly where you left off.</div>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>screen -S thesis      <span class="c"># start a named session</span>
+<span class="c"># … work …   Ctrl+a d to detach</span>
+<span class="pc">gpu4edu:~$ </span>screen -ls            <span class="c"># list sessions</span>
+<span class="pc">gpu4edu:~$ </span>screen -r thesis      <span class="c"># reattach</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Split the screen</span>
+        <div class="oops">
+          <div class="h">Keys</div><div class="h">Does</div>
+          <div><kbd>Ctrl</kbd>+<kbd>a</kbd> <kbd>S</kbd></div><div>split top / bottom</div>
+          <div><kbd>Ctrl</kbd>+<kbd>a</kbd> <kbd>|</kbd></div><div>split left / right</div>
+          <div><kbd>Ctrl</kbd>+<kbd>a</kbd> <kbd>Tab</kbd></div><div>move to the next region</div>
+          <div><kbd>Ctrl</kbd>+<kbd>a</kbd> <kbd>c</kbd></div><div>start a shell in it (new regions start empty!)</div>
+          <div><kbd>Ctrl</kbd>+<kbd>a</kbd> <kbd>d</kbd></div><div>detach</div>
+        </div>
+      </div>
+      <div class="panel wide yellow">
+        <span class="caption">Good to know</span>
+        <ol class="habits cols">
+          <li><strong><code>sbatch</code> jobs don't need screen</strong> to survive a disconnect. Screen is for <em>your</em> windows: monitoring, an interactive <code>srun</code>, editing.</li>
+          <li><strong>tmux</strong> does the same job and is common on other servers. It isn't installed on GPU4EDU, so this issue uses <code>screen</code>.</li>
+          <li><strong>Close sessions you're done with:</strong> <code>screen -X -S thesis quit</code>. Detached sessions live forever otherwise.</li>
+        </ol>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 6 MAKE -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="make">
+    <div class="ch-head"><span class="ch-num">Chapter 6</span><h2>Organise runs with a Makefile</h2><span class="part-tag">Part 2 · Run</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Three weeks later…</span>
+        <div class="bubble"><span class="who sam">Sam</span>Which config gave me 81.6? Was it <code>out2.log</code>? Or <code>model_final_new.pt</code>?</div>
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="A messy pile of files with confusing names">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#15131a">
+            <g transform="rotate(-8 80 30)"><rect x="20" y="16" width="110" height="22" fill="#fff" stroke="#15131a" stroke-width="2"/><text x="28" y="31">out2.log</text></g>
+            <g transform="rotate(6 190 40)"><rect x="140" y="26" width="140" height="22" fill="#fff" stroke="#15131a" stroke-width="2"/><text x="148" y="41">model_final_new.pt</text></g>
+            <g transform="rotate(-4 120 70)"><rect x="50" y="58" width="150" height="22" fill="#fff" stroke="#15131a" stroke-width="2"/><text x="58" y="73">results_v3_ok?.csv</text></g>
+            <g transform="rotate(5 150 104)"><rect x="70" y="92" width="170" height="22" fill="#ffd23f" stroke="#15131a" stroke-width="2"/><text x="78" y="107">slurm.cerulean.1234.out</text></g>
+          </g>
+        </svg>
+      </div>
+      <div class="panel span2">
+        <span class="caption">One folder per run</span>
+<pre class="tree small">thesis/
+├── <b>Makefile</b>
+├── job.sh
+├── train.py
+├── configs/
+│   ├── baseline.yaml
+│   └── lr-small.yaml
+└── runs/                       <span class="c">← in .gitignore</span>
+    └── 20261014-1530_baseline/
+        ├── config.yaml         <span class="c">← exact copy of the settings used</span>
+        ├── commit.txt          <span class="c">← which version of the code</span>
+        ├── logs/               <span class="c">← Slurm .out and .err</span>
+        └── results.json, model.pt</pre>
+        <p class="note">Every number you report can now be traced to its settings, its code version and its log. The Makefile below builds this for you, the same way every time.</p>
+      </div>
+      <div class="panel wide">
+        <span class="caption">The Makefile</span>
+        <div class="duo">
+<pre class="tree small"><b># Makefile</b>
+EXP ?= baseline
+RUN := runs/$(shell date +%Y%m%d-%H%M)_$(EXP)
+
+.PHONY: run status clean
+
+run:            <span class="c">## new run folder + submit</span>
+	@git diff --quiet || (echo "Commit first!"; exit 1)
+	mkdir -p $(RUN)/logs
+	cp configs/$(EXP).yaml $(RUN)/config.yaml
+	git rev-parse --short HEAD > $(RUN)/commit.txt
+	sbatch --job-name=$(EXP) \
+	  --output=$(RUN)/logs/%x-%j.out \
+	  --error=$(RUN)/logs/%x-%j.err \
+	  job.sh $(RUN)
+
+status:
+	squeue --me
+
+clean:          <span class="c">## remove Python caches</span>
+	find . -name __pycache__ -type d -prune -exec rm -rf {} +</pre>
+          <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+<pre class="tree small"><b># job.sh: last lines now use the run folder</b>
+RUN_DIR="$1"
+python train.py --config "$RUN_DIR/config.yaml" \
+                --out "$RUN_DIR"</pre>
+<pre class="term"><span class="pc">gpu4edu:~/thesis$ </span>make run EXP=lr-small
+<span class="ok">Submitted batch job 123457</span>
+<span class="pc">gpu4edu:~/thesis$ </span>make status
+<span class="pc">gpu4edu:~/thesis$ </span>make -n run   <span class="c"># dry run: print, don't do</span></pre>
+            <ol class="tb-legend">
+              <li><span class="mark m1">1</span><span><code>EXP ?= baseline</code> is a default you override on the command line.</span></li>
+              <li><span class="mark m2">2</span><span>The first line refuses to run with uncommitted changes, so <code>commit.txt</code> always tells the truth.</span></li>
+              <li><span class="mark m3">3</span><span><code>--output</code> on the command line overrides the <code>#SBATCH</code> line in <code>job.sh</code>.</span></li>
+            </ol>
+          </div>
+        </div>
+        <div class="warn">Recipe lines must start with a real <strong>Tab</strong>, not spaces. Otherwise: <code>*** missing separator. Stop.</code> In vim, <code>:set list</code> shows tabs as <code>^I</code>.</div>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 7 HTOP -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="htop">
+    <div class="ch-head"><span class="ch-num">Chapter 7</span><h2>htop: what's running here?</h2><span class="part-tag">Part 3 · Watch</span></div>
+    <div class="strip">
+      <div class="panel span2">
+        <span class="caption">The login node's dashboard</span>
+<pre class="term htop"><span class="hb">  0[<span class="g">|||||||</span>              31%]   Mem[<span class="g">||||||</span><span class="bl">||</span>       21.4G/126G]
+  1[<span class="g">||||||||||||||||||</span><span class="rr">|||</span>  92%]   Swp[                    0K/8.0G]
+  2[<span class="g">||</span>                    8%]   Load average: 3.12 2.80 2.41</span>
+  <span class="hdr">  PID USER     CPU% MEM%   TIME+  Command                       </span>
+  48213 <span class="y">u123456</span>   97.0  4.1  18:02  python train.py   <span class="bad">← oops</span>
+  47120 u654321    2.0  0.4   0:41  vim notes.md
+  46988 <span class="y">u123456</span>    0.0  0.6   0:03  jupyter-lab --no-browser
+<span class="fk">F1</span>Help <span class="fk">F3</span>Search <span class="fk">F4</span>Filter <span class="fk">F6</span>Sort <span class="fk">F9</span>Kill <span class="fk">F10</span>Quit</pre>
+        <p class="note">Each bar is one CPU core. Green is ordinary work, red is system work. Below: one line per process, with its owner and how much CPU and memory it uses.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Look only at yours</span>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>htop -u $USER</pre>
+        <div class="oops">
+          <div class="h">Key</div><div class="h">Does</div>
+          <div><kbd>P</kbd> / <kbd>M</kbd></div><div>sort by CPU / memory</div>
+          <div><kbd>F4</kbd></div><div>filter by name, e.g. <code>python</code></div>
+          <div><kbd>F9</kbd></div><div>stop a process (only your own)</div>
+          <div><kbd>q</kbd></div><div>quit</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="bubble"><span class="who snap">Snap</span>Spotted the oops? Training on the login node slows it down for <em>everyone</em> logged in, and it doesn't even get a GPU. Edit, pull, submit here; compute goes through Slurm.</div>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>pkill -u $USER -f train.py   <span class="c"># stop it</span>
+<span class="pc">gpu4edu:~$ </span>sbatch job.sh               <span class="c"># do it right</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Use htop to find</span>
+        <ol class="habits">
+          <li>Scripts you accidentally started on the login node</li>
+          <li>A Jupyter server you forgot to close last week</li>
+          <li>Leftovers from a crashed session</li>
+        </ol>
+        <p class="note">htop only shows the machine you're on. Your Slurm job runs on a compute node: watch it with <code>squeue</code> and <code>nvidia-smi</code>.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">No htop?</span>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>top -u $USER     <span class="c"># q to quit</span>
+<span class="pc">gpu4edu:~$ </span>ps -u $USER -f    <span class="c"># a plain list</span></pre>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 8 SMI -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="smi">
+    <div class="ch-head"><span class="ch-num">Chapter 8</span><h2>nvidia-smi: is my GPU actually working?</h2><span class="part-tag">Part 3 · Watch</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Ask from inside your job</span>
+        <div class="bubble"><span class="who snap">Snap</span>The login node has no GPU, so <code>nvidia-smi</code> there tells you nothing. Step into your running job and ask there.</div>
+<pre class="term"><span class="c"># one snapshot</span>
+<span class="pc">gpu4edu:~$ </span>srun --jobid=123456 --overlap nvidia-smi
+<span class="c"># a line every 5 s: power, utilisation</span>
+<span class="pc">gpu4edu:~$ </span>srun --jobid=123456 --overlap \
+      nvidia-smi dmon -s pu -d 5</pre>
+        <p class="note"><code>--overlap</code> lets this small command share your job's resources instead of asking for new ones.</p>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Reading the table</span>
+<pre class="term tb">+-----------------------------------------------------------------------------+
+| GPU  Name        Temp   Pwr:Usage/Cap |        Memory-Usage  | GPU-Util     |
+|=======================================+======================+==============|
+|   0  NVIDIA A40   61C  <span class="mark m3">3</span><span class="y">212W / 300W</span> | <span class="mark m2">2</span><span class="y">31240MiB / 46068MiB</span>| <span class="mark m1">1</span><span class="y">97%</span>      |
++-----------------------------------------------------------------------------+
+| Processes:   PID   Type   Process name                       GPU Memory    |
+|<span class="mark m1">4</span>          48213    C    python                               31200MiB    |
++-----------------------------------------------------------------------------+</pre>
+        <ol class="tb-legend">
+          <li><span class="mark m1">1</span><span><strong>GPU-Util:</strong> how busy the GPU is. Training should be high most of the time.</span></li>
+          <li><span class="mark m2">2</span><span><strong>Memory:</strong> how much of the A40's 48 GB your model and batches take.</span></li>
+          <li><span class="mark m3">3</span><span><strong>Power:</strong> what it draws right now. Busy GPUs draw far more than idle ones (Chapter 10 turns this into CO₂).</span></li>
+          <li><span class="mark m1">4</span><span><strong>Processes:</strong> your program, and how much memory it holds.</span></li>
+        </ol>
+      </div>
+      <div class="panel wide">
+        <span class="caption">What the numbers tell you</span>
+        <div class="scroll-x">
+        <table class="cmp">
+          <thead><tr><th>You see</th><th>It probably means</th><th>Try</th></tr></thead>
+          <tbody>
+            <tr><td>Util 80–100%, memory well used</td><td>All good: the GPU is earning its keep</td><td>Nothing. Go have a coffee</td></tr>
+            <tr><td>Util jumps between 0% and 100%</td><td>The GPU waits for data between batches</td><td>More data-loader workers (<code>num_workers</code>), data on local disk, bigger batches</td></tr>
+            <tr><td>Util 0%, no python process listed</td><td>Your code runs on the <strong>CPU</strong>: a GPU reserved for nothing</td><td>Check <code>torch.cuda.is_available()</code> and that you move the model and data <code>.to("cuda")</code>; <code>scancel</code> and fix</td></tr>
+            <tr><td>Memory almost full</td><td>Close to <code>CUDA out of memory</code></td><td>Smaller batch size or shorter sequences <a class="xref" href="works-on-my-machine-slides.html#bestiary">Issue #2 · Ch. 10</a></td></tr>
+            <tr><td>Memory almost empty, util low</td><td>The job is small for this GPU</td><td>Bigger batches; or is a GPU needed at all?</td></tr>
+          </tbody>
+        </table>
+        </div>
+<pre class="nb"><span class="in">In [1]:</span> import torch
+        print(torch.cuda.is_available(), torch.cuda.get_device_name(0))
+<span class="out">Out[1]:</span> True NVIDIA A40</pre>
+        <p class="note">Put that line at the top of your training script. If the log says <code>False</code>, stop the job: it isn't using the GPU it holds.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 9 QUEUE -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="queue">
+    <div class="ch-head"><span class="ch-num">Chapter 9</span><h2>Watch the queue &amp; the logs</h2><span class="part-tag">Part 3 · Watch</span></div>
+    <div class="strip">
+      <div class="panel span2">
+        <span class="caption">squeue: where is my job?</span>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>squeue --me
+ JOBID PARTITION     NAME     USER ST   TIME NODES NODELIST(REASON)
+<span class="ok">123456       GPU baseline  u123456  R  12:04     1 cerulean</span>
+<span class="y">123457       GPU lr-small  u123456 PD   0:00     1 (Resources)</span></pre>
+        <div class="oops">
+          <div class="h">ST / Reason</div><div class="h">Means</div>
+          <div><code>R</code></div><div>Running.</div>
+          <div><code>PD</code> <code>(Resources)</code></div><div>Pending: waiting for a GPU to become free.</div>
+          <div><code>PD</code> <code>(Priority)</code></div><div>Pending: other jobs are ahead of you in line.</div>
+          <div><code>CG</code></div><div>Completing: wrapping up.</div>
+          <div>(gone)</div><div>Finished, failed or cancelled. Read the log to find out which.</div>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="caption">Stop a job</span>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>scancel 123457</pre>
+        <div class="bubble plain"><span class="who snap">Snap</span>Saw a bug in the log? Wrong config? Cancel right away. A job you no longer need is a GPU someone else is waiting for.</div>
+        <p class="note"><code>scancel --me</code> cancels <em>all</em> your jobs. Use with care.</p>
+      </div>
+      <div class="panel wide">
+        <span class="caption">Snapshot vs stream: pick the right tool</span>
+        <div class="duo">
+          <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+<pre class="term"><span class="pc">gpu4edu:~$ </span>watch -n 10 squeue --me</pre>
+            <p><strong><code>watch</code></strong> reruns a command every few seconds and redraws the screen. Right for a <em>snapshot</em> that changes, like the queue, where jobs appear and disappear.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+<pre class="term"><span class="pc">gpu4edu:~$ </span>tail -f runs/…_baseline/logs/baseline-123456.out</pre>
+            <p><strong><code>tail -f</code></strong> follows new lines as they're added to a file. Right for a <em>stream</em> that grows, like a log.</p>
+          </div>
+        </div>
+        <p class="note"><kbd>Ctrl</kbd>+<kbd>C</kbd> stops watching. It does <strong>not</strong> stop the job. Put both in a <code>screen</code> session with two regions and you have a control room that survives a closed laptop.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">After the job</span>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>grep -i error logs/*.err
+<span class="pc">gpu4edu:~$ </span>head -1 logs/baseline-123456.out
+<span class="ok">Started on cerulean at Tue 14 Oct 15:30</span>
+<span class="pc">gpu4edu:~$ </span>tail -1 logs/baseline-123456.out
+<span class="ok">Finished at Tue 14 Oct 17:12</span></pre>
+        <p class="note">On clusters with job accounting, <code>sacct</code> gives elapsed times. On GPU4EDU it is switched off, so your own timestamps are the record.</p>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Your control room</span>
+        <svg class="art" viewBox="0 0 640 180" role="img" aria-label="A screen session split into three regions: the log streaming, the queue refreshing, and GPU power readings" style="max-width:100%">
+          <rect width="640" height="180" fill="url(#dots)"/>
+          <rect x="10" y="10" width="620" height="160" rx="8" fill="#17151d" stroke="#15131a" stroke-width="3"/>
+          <path d="M320 18 V162 M328 90 H622" stroke="#5b5f6b" stroke-width="2"/>
+          <g font-family="JetBrains Mono, monospace" font-size="11">
+            <text x="22" y="34" fill="#ffe17a">tail -f baseline-123456.out</text>
+            <text x="22" y="56" fill="#ece9f4">epoch 12/50 loss 0.412</text>
+            <text x="22" y="74" fill="#ece9f4">epoch 13/50 loss 0.398</text>
+            <text x="22" y="92" fill="#ece9f4">epoch 14/50 loss 0.391</text>
+            <text x="22" y="110" fill="#5fe39a">val acc 0.803</text>
+            <text x="336" y="34" fill="#ffe17a">watch -n 10 squeue --me</text>
+            <text x="336" y="56" fill="#ece9f4">123456 GPU baseline R 12:04</text>
+            <text x="336" y="110" fill="#ffe17a">nvidia-smi dmon -s pu -d 5</text>
+            <text x="336" y="130" fill="#ece9f4"># gpu   pwr  sm  mem</text>
+            <text x="336" y="148" fill="#ece9f4">    0   212  97   54</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 10 CARBON -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="carbon">
+    <div class="ch-head"><span class="ch-num">Chapter 10</span><h2>Bonus: what did that cost the planet?</h2><span class="part-tag">Part 3 · Watch · optional</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Optional, but worth it</span>
+        <div class="bubble"><span class="who snap">Snap</span>Every job draws electricity, and the grid isn't carbon-free. Usually nobody tells you how much. CarbonTracker does.</div>
+        <ol class="habits">
+          <li><strong>Awareness:</strong> more papers include a short carbon statement next to their results.</li>
+          <li><strong>Reporting:</strong> universities and funders increasingly ask for it.</li>
+          <li><strong>Optimising:</strong> a measured number shows whether the smaller model or shorter run really saved energy.</li>
+        </ol>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Add four lines to your training loop</span>
+<pre class="nb"><span class="in">train.py</span>
+from carbontracker.tracker import CarbonTracker
+
+tracker = CarbonTracker(epochs=EPOCHS, components="gpu",
+                        log_dir="carbontracker_logs/")
+for epoch in range(EPOCHS):
+    tracker.epoch_start()
+    train_one_epoch(model, loader)
+    tracker.epoch_end()
+tracker.stop()</pre>
+        <p class="note">Install it once in your environment: <code>pip install carbontracker</code>. <code>components="gpu"</code> because measuring the CPU needs administrator rights (Intel RAPL) that students don't have on GPU4EDU. The report therefore covers the GPU only.</p>
+      </div>
+      <div class="panel span2">
+        <span class="caption">The report (in carbontracker_logs/)</span>
+<pre class="term">Actual consumption for 50 epoch(s):
+        Time:   <span class="y">1:41:52</span>
+        Energy: <span class="y">0.35 kWh</span>
+        CO2eq:  <span class="y">… g</span>
+        This is equivalent to:
+        <span class="y">… km travelled by car</span>
+CarbonTracker: Average carbon intensity during training was
+<span class="y">… gCO2/kWh</span> at detected location: Tilburg, North Brabant, NL.</pre>
+        <p class="note">Same energy, different grid, different CO₂: the result depends on how clean the electricity is at that moment, not only on how much you used. (Numbers above are illustrative; yours come from your own run.)</p>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">Cross-check it</span>
+        <p>A number that matters deserves a second opinion. While the job runs, the power column of <code>nvidia-smi dmon</code> should rise well above idle:</p>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>srun --jobid=123456 --overlap \
+  nvidia-smi dmon -i 0 -s mpucv -d 1 -o TD</pre>
+        <p class="note">No time to instrument? The ML CO₂ Impact calculator (mlco2.github.io/impact) gives a rough estimate from GPU type and hours.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 11 CLEAN -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="clean">
+    <div class="ch-head"><span class="ch-num">Chapter 11</span><h2>Leave it cleaner than you found it</h2><span class="part-tag">Part 4 · Be a good neighbour</span></div>
+    <div class="strip">
+      <div class="panel">
+        <div class="bubble"><span class="who snap">Snap</span>Shared disk, shared GPUs, shared login node. What you leave behind is in everyone's way. Two minutes at the end of each session keeps it tidy.</div>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="Snap sweeping up old files with a broom">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <use href="#snap" x="40" y="30" width="100" height="110"/>
+          <path d="M150 20 L200 120" stroke="#a07c55" stroke-width="7" stroke-linecap="round"/>
+          <path d="M184 112 L222 104 L236 140 L192 146 Z" fill="#ffd23f" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M198 116 L204 142 M210 112 L218 142 M222 108 L228 140" stroke="#15131a" stroke-width="2"/>
+          <g transform="rotate(-20 260 130)"><use href="#file" x="244" y="110" width="26" height="32"/></g>
+          <g transform="rotate(25 270 96)"><use href="#file" x="256" y="80" width="22" height="28"/></g>
+        </svg>
+      </div>
+      <div class="panel span2">
+        <span class="caption">End-of-session checklist</span>
+        <div class="scroll-x">
+        <table class="cmp">
+          <thead><tr><th>Check</th><th>Command</th><th>Should show</th></tr></thead>
+          <tbody>
+            <tr><td>No forgotten jobs</td><td><code>squeue --me</code></td><td>only jobs you still want</td></tr>
+            <tr><td>No idle interactive GPU session</td><td><code>exit</code> any <code>srun --pty</code> shell</td><td>you're back on aurometalsaurus</td></tr>
+            <tr><td>No stray processes on the login node</td><td><code>htop -u $USER</code></td><td>nothing busy</td></tr>
+            <tr><td>Screen sessions closed</td><td><code>screen -ls</code> → <code>screen -X -S name quit</code></td><td><code>No Sockets found</code></td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Disk: find the big stuff</span>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>du -sh ~/* ~/.cache ~/.conda 2&gt;/dev/null | sort -h
+<span class="ok">  12M  /home/u123456/notes
+ 2.1G  /home/u123456/.cache
+ 8.7G  /home/u123456/thesis</span>
+<span class="pc">gpu4edu:~$ </span>df -h ~                        <span class="c"># space left</span>
+<span class="pc">gpu4edu:~$ </span>conda clean --all               <span class="c"># old package downloads</span>
+<span class="pc">gpu4edu:~$ </span>pip cache purge
+<span class="pc">gpu4edu:~$ </span>conda env list                  <span class="c"># environments you no longer use?</span>
+<span class="pc">gpu4edu:~$ </span>conda env remove --name old-env</pre>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">Project hygiene</span>
+        <ol class="habits">
+          <li>Delete checkpoints of failed and test runs. Keep the best one, not every epoch.</li>
+          <li>One copy of each dataset, not one per experiment folder.</li>
+          <li>The cluster is not a backup. Copy results home with <code>rsync</code> (Chapter 3) and keep code on GitHub.</li>
+          <li>Finished the course or thesis? Copy what you need, then delete the rest.</li>
+        </ol>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 12 RULES -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="rules">
+    <div class="ch-head"><span class="ch-num">Chapter 12</span><h2>House rules</h2><span class="part-tag">Part 4 · Be a good neighbour</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>A shared server is set up for a specific group and purpose: GPU4EDU, for example, is for students in the courses that use it. Everyone shares the same few GPUs, often in the same deadline week. These habits keep it fair.</div>
+        <div class="dodont">
+          <div class="do">
+            <h3>Do</h3>
+            <ul>
+              <li><strong>Test small first.</strong> A tiny run with a short <code>--time</code> before the big one. <a class="xref" href="works-on-my-machine-slides.html#first-run">Issue #2 · Ch. 8</a></li>
+              <li><strong>Ask for what you need.</strong> One GPU unless your code really uses more; a realistic time limit.</li>
+              <li><strong>Use <code>sbatch</code></strong> for anything longer than a quick check.</li>
+              <li><strong>Watch your first minutes.</strong> Is the GPU busy? Is the loss going down?</li>
+              <li><strong>Cancel what you don't need</strong>, as soon as you know.</li>
+              <li><strong>Plan for deadlines.</strong> The queue is longest the week before submission. Start early.</li>
+              <li><strong>Ask for help</strong> in your server's support channel (for GPU4EDU, its Google Chat): include the job ID, your script and the error.</li>
+            </ul>
+          </div>
+          <div class="dont">
+            <h3>Don't</h3>
+            <ul>
+              <li><strong>Train on the login node.</strong> It has no GPU and everyone shares it.</li>
+              <li><strong>Leave an interactive GPU session idle</strong>, overnight or over lunch.</li>
+              <li><strong>Submit ten copies</strong> to see which one starts first.</li>
+              <li><strong>Share your account or private key</strong>, or use someone else's.</li>
+              <li><strong>Copy data you aren't allowed to</strong>: check your data agreement and ethics approval before uploading personal or sensitive data.</li>
+              <li><strong>Use it for things it isn't meant for</strong>: on a teaching server like GPU4EDU that means coursework only; no personal projects, mining or gaming.</li>
+              <li><strong>Try to work around limits</strong> or look into other people's files.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="note">This page describes good practice. Your course's rules and your server's official documentation (for GPU4EDU: ilk.uvt.nl/~shterion/gpu4edu.html) always come first.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 13 BESTIARY -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="bestiary">
+    <div class="ch-head"><span class="ch-num">Chapter 13</span><h2>Cluster error bestiary</h2><span class="part-tag">Part 4 · Be a good neighbour</span></div>
+    <div class="strip">
+      <div class="panel top">
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="Three cartoon bugs labelled permission denied, pending forever, and time limit">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <use href="#bug" x="14" y="26" width="84" height="70" fill="#e83e8c"/>
+          <use href="#bug" x="108" y="12" width="84" height="70" fill="#ffd23f"/>
+          <use href="#bug" x="202" y="26" width="84" height="70" fill="#2bb3e8"/>
+          <g font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" text-anchor="middle" fill="#15131a">
+            <text x="56" y="114">permission</text><text x="56" y="126">denied</text>
+            <text x="150" y="100">pending</text><text x="150" y="112">forever</text>
+            <text x="244" y="114">time</text><text x="244" y="126">limit</text>
+          </g>
+        </svg>
+        <div class="bubble plain"><span class="who snap">Snap</span>Most cluster errors are about <em>where</em> you are, <em>who</em> you are, or <em>how long</em> you asked for.</div>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Field guide</span>
+        <div class="scroll-x">
+        <table class="cmp beasts">
+          <thead><tr><th>You see</th><th>It usually means</th><th>Try</th></tr></thead>
+          <tbody>
+            <tr><td><code>Permission denied (publickey)</code></td><td>Wrong username, your key hasn't been installed yet, or SSH offers a different key</td><td>Use your u-number; check that IT services installed the key you shared via SURF (Chapter 2, step 2); <code>ssh -v gpu4edu</code> shows which keys were tried</td></tr>
+            <tr><td><code>Connection timed out</code></td><td>Network problem or typo in the host name</td><td>Check <code>aurometalsaurus.uvt.nl</code>; off campus, check whether you need the university VPN</td></tr>
+            <tr><td><code>REMOTE HOST IDENTIFICATION HAS CHANGED</code></td><td>The server was reinstalled, or you're not talking to the server you think</td><td>Ask your server's support channel before running <code>ssh-keygen -R aurometalsaurus.uvt.nl</code></td></tr>
+            <tr><td><code>torch.cuda.is_available()</code> → <code>False</code></td><td>On the login node: expected (no GPU). In a job: wrong environment or CPU-only PyTorch</td><td>Test inside a job; install the CUDA build of PyTorch</td></tr>
+            <tr><td><code>CommandNotFoundError</code> on <code>conda activate</code> in a job</td><td>Batch shells don't load your conda setup</td><td>Load conda first, e.g. <code>. /usr/local/anaconda3/etc/profile.d/conda.sh</code> on GPU4EDU, before <code>conda activate</code></td></tr>
+            <tr><td>Job disappears at once, no log file</td><td>The <code>--output</code> folder doesn't exist, or a path is wrong</td><td><code>mkdir -p logs</code>; check paths relative to where you ran <code>sbatch</code></td></tr>
+            <tr><td><code>PD (Resources)</code> for a long time</td><td>All GPUs are busy</td><td>Wait; don't resubmit copies; a shorter <code>--time</code> can help it fit in a gap</td></tr>
+            <tr><td><code>CANCELLED … DUE TO TIME LIMIT</code></td><td>The job needed longer than <code>--time</code></td><td>Raise <code>--time</code> a little; save checkpoints so you can resume</td></tr>
+            <tr><td><code>Disk quota exceeded</code> / <code>No space left on device</code></td><td>Your home folder is full</td><td>Chapter 11: <code>du -sh</code>, clean caches, delete old checkpoints</td></tr>
+            <tr><td><code>sacct: error: … accounting storage is disabled</code></td><td>Expected on servers without job accounting, like GPU4EDU</td><td>Use the timestamps your job script echoes</td></tr>
+            <tr><td><code>Makefile:…: *** missing separator.  Stop.</code></td><td>Spaces instead of a Tab in a recipe</td><td>Replace the indent with one Tab</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <div class="panel wide row">
+        <span class="caption">Series finale</span>
+        <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+          <div class="bubble"><span class="who sam">Sam</span>Key-based login, code synced with Git, one tidy folder per run, a GPU at 97%… and I cleaned up after myself.</div>
+          <div class="bubble r plain-tail"><span class="who snap">Snap</span>Nine days became one evening, and the next student in line got their GPU on time. That's how you share a cluster.</div>
+        </div>
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="Sam and Snap high-five">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <use href="#burst" x="105" y="-14" width="90" height="90" fill="#ffd23f"/>
+          <g transform="translate(40 4) scale(.88)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M41 60 Q50 69 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+            <path d="M76 90 L108 50" stroke="#e83e8c" stroke-width="10" stroke-linecap="round"/>
+            <circle cx="110" cy="46" r="8" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+          </g>
+          <use href="#snap" x="160" y="30" width="100" height="110"/>
+          <text x="150" y="36" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="18" fill="#15131a">SHARED!</text>
+        </svg>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- CHEAT SHEET -->
+  <div class="slide"><div class="slide-inner"><section class="cheat" id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat-grid">
+      <div class="cheat-group">
+        <h3>Connect (laptop)</h3>
+        <div class="cmd"><code>ssh-keygen -t ed25519</code><span>make a key pair, once</span></div>
+        <div class="cmd"><code>cat ~/.ssh/id_ed25519.pub</code><span>the public key to share (GPU4EDU: via SURF)</span></div>
+        <div class="cmd"><code>ssh gpu4edu</code><span>log in (with ~/.ssh/config)</span></div>
+        <div class="cmd"><code>rsync -avz src/ gpu4edu:dst/</code><span>copy only what changed</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Sync code</h3>
+        <div class="cmd"><code>git push</code><span>laptop: send your commits</span></div>
+        <div class="cmd"><code>git pull</code><span>cluster: get them before every run</span></div>
+        <div class="cmd"><code>git rev-parse --short HEAD</code><span>which version is this?</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Slurm</h3>
+        <div class="cmd"><code>sbatch job.sh</code><span>queue a job</span></div>
+        <div class="cmd"><code>squeue --me</code><span>my jobs</span></div>
+        <div class="cmd"><code>scancel &lt;jobid&gt;</code><span>cancel one</span></div>
+        <div class="cmd"><code>sinfo -p GPU</code><span>how busy is the partition?</span></div>
+        <div class="cmd"><code>srun -p GPU --gres=gpu:1 --pty bash -l</code><span>interactive, then <code>exit</code>!</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Watch</h3>
+        <div class="cmd"><code>htop -u $USER</code><span>my processes on the login node</span></div>
+        <div class="cmd"><code>srun --jobid=&lt;id&gt; --overlap nvidia-smi</code><span>my GPU, inside my job</span></div>
+        <div class="cmd"><code>watch -n 10 squeue --me</code><span>refresh a snapshot</span></div>
+        <div class="cmd"><code>tail -f logs/&lt;file&gt;.out</code><span>follow a growing log</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>screen</h3>
+        <div class="cmd"><code>screen -S name</code><span>start</span></div>
+        <div class="cmd"><code>Ctrl+a d</code><span>detach</span></div>
+        <div class="cmd"><code>screen -r name</code><span>reattach</span></div>
+        <div class="cmd"><code>screen -X -S name quit</code><span>close for good</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Clean up</h3>
+        <div class="cmd"><code>du -sh ~/* | sort -h</code><span>what takes space?</span></div>
+        <div class="cmd"><code>conda clean --all</code><span>package cache</span></div>
+        <div class="cmd"><code>conda env remove --name old</code><span>unused environment</span></div>
+        <div class="cmd"><code>squeue --me</code><span>nothing left running?</span></div>
+      </div>
+    </div>
+    <p class="end">Be the neighbour you'd want in the queue.</p>
+  </section></div></div>
+</main>
+<nav class="nav" aria-label="Slide navigation">
+  <span class="bar" id="bar"></span>
+  <button id="prev" type="button" aria-label="Previous slide">◀ Back</button>
+  <div class="mid">
+    <div class="label" id="label" aria-live="polite"></div>
+    <div class="dots" id="dots"></div>
+  </div>
+  <span class="hint">← → · h l · j k</span>
+  <button id="next" type="button" aria-label="Next slide">Next ▶</button>
+</nav>
+<script>
+(function(){
+  const slides=[...document.querySelectorAll('.slide')];
+  const ids=slides.map(s=>s.querySelector('section').id);
+  const labels=slides.map((s,i)=>{
+    const h=s.querySelector('.ch-head h2, .cheat h2');
+    return i===0?'Share the GPU':(h?h.textContent.trim():'Slide '+(i+1));
+  });
+  const dots=document.getElementById('dots'), label=document.getElementById('label');
+  const prev=document.getElementById('prev'), next=document.getElementById('next'), bar=document.getElementById('bar');
+  slides.forEach((s,i)=>{
+    const b=document.createElement('button');b.type='button';
+    b.title=labels[i];b.setAttribute('aria-label','Go to '+labels[i]);
+    b.addEventListener('click',()=>go(i));dots.appendChild(b);
+  });
+  let cur=-1;
+  function go(i,fromHash){
+    i=Math.max(0,Math.min(slides.length-1,i));
+    if(i===cur)return;
+    const dir=i>cur?'in-next':'in-prev';
+    slides.forEach((s,k)=>{s.hidden=k!==i;s.classList.remove('in-next','in-prev');});
+    const el=slides[i];
+    if(cur!==-1){void el.offsetWidth;el.classList.add(dir);}
+    el.scrollTop=0;
+    cur=i;
+    label.textContent='';
+    const b=document.createElement('b');b.textContent=(i+1)+' / '+slides.length;
+    label.append(b,labels[i]);
+    [...dots.children].forEach((d,k)=>d.setAttribute('aria-current',k===i?'true':'false'));
+    prev.disabled=i===0; next.disabled=i===slides.length-1;
+    bar.style.width=((i+1)/slides.length*100)+'%';
+    if(!fromHash&&ids[i]){try{history.replaceState(null,'','#'+ids[i]);}catch(e){}}
+  }
+  function fromHash(){
+    const i=ids.indexOf(location.hash.slice(1));
+    go(i>=0?i:(cur<0?0:cur),true);
+  }
+  prev.addEventListener('click',()=>go(cur-1));
+  next.addEventListener('click',()=>go(cur+1));
+  window.addEventListener('hashchange',fromHash);
+  document.querySelectorAll('.toc a').forEach(a=>a.addEventListener('click',e=>{
+    const i=ids.indexOf(a.getAttribute('href').slice(1));
+    if(i>=0){e.preventDefault();go(i);}
+  }));
+  document.addEventListener('keydown',e=>{
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
+    if(['ArrowRight','PageDown','l','j'].includes(e.key)){e.preventDefault();go(cur+1);}
+    else if(['ArrowLeft','PageUp','h','k'].includes(e.key)){e.preventDefault();go(cur-1);}
+    else if(e.key==='Home'){e.preventDefault();go(0);}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1);}
+  });
+  let sx=0,sy=0,st=null;
+  document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=e.target;},{passive:true});
+  document.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(st&&st.closest&&st.closest('.term,[style*="overflow-x"],.nav'))return;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)go(cur+(dx<0?1:-1));
+  },{passive:true});
+  fromHash();
+})();
+</script>
+</body>
+</html>

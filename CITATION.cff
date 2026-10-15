@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use or adapt this material, please cite it as below."
+title: "From Notebook to Cluster: An illustrated guide to research computing"
+authors:
+  - family-names: "YOUR-FAMILY-NAME"
+    given-names: "YOUR-GIVEN-NAMES"
+    affiliation: "Tilburg University"
+license: CC-BY-4.0
+url: "https://YOUR-USERNAME.github.io/notebook-to-cluster/"
+repository-code: "https://github.com/YOUR-USERNAME/notebook-to-cluster"
+date-released: 2026-10-14
+version: "1.0.0"
+keywords:
+  - research computing
+  - teaching material
+  - terminal
+  - git
+  - python environments
+  - slurm
+  - gpu

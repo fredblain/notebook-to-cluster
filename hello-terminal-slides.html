@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0}
+img,svg{max-width:100%}
+[hidden]{display:none!important}
+kbd{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.82em;font-weight:700;background:#fff;color:#15131a;border:2px solid #15131a;border-bottom-width:4px;border-radius:6px;padding:0 .4em;white-space:nowrap}
+</style>
+<title>Hello, Terminal Slides</title>
+<style>
+@font-face{font-family:"Big Shoulders";src:url("fonts/BigShoulders-Bold.ttf") format("truetype");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+
+/* Issue #0 of the Git Good comic series. Layout: a comic book. Chapters are rows of bordered panels on a halftone page; speech bubbles sit above each drawing. One deliberate light "printed page" look. */
+:root{
+  --paper:#eef3f8;
+  --panel:#ffffff;
+  --ink:#15131a;
+  --cyan:#2bb3e8;
+  --magenta:#e83e8c;
+  --yellow:#ffd23f;
+  --green:#2fbf6c;
+  --red:#e5484d;
+  --muted:#5b5f6b;
+  --term:#17151d;
+  --term-fg:#ece9f4;
+  --f-display:"Big Shoulders","Impact","Arial Narrow Bold",sans-serif;
+  --f-body:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:radial-gradient(rgba(43,179,232,.22) 1.2px, transparent 1.4px);
+  background-size:9px 9px;
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:17px;
+  line-height:1.45;
+}
+.page{max-width:1060px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;letter-spacing:.03em;margin:0;text-wrap:balance}
+code{font-family:var(--f-mono);font-size:.88em;background:#fff3c4;border:1.5px solid var(--ink);border-radius:5px;padding:0 .3em;white-space:nowrap}
+
+/* cover */
+.cover{background:var(--panel);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);overflow:hidden}
+.cover-text{padding:28px 28px 24px;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.issue{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--yellow);align-self:flex-start;padding:4px 10px}
+.cover h1{font-size:clamp(3.8rem,11vw,7.2rem);line-height:.9;color:var(--yellow);-webkit-text-stroke:3px var(--ink);text-shadow:5px 5px 0 var(--magenta),9px 9px 0 var(--ink)}
+.cover p{margin:0;font-size:1.12rem;max-width:34ch}
+.cover-art{background:var(--cyan);border-left:4px solid var(--ink);display:flex;align-items:flex-end;justify-content:center;min-height:260px}
+.cover-art svg{width:100%;height:auto;display:block}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.toc a{font-family:var(--f-display);letter-spacing:.04em;font-size:1rem;color:var(--ink);text-decoration:none;background:#fff;border:2px solid var(--ink);padding:2px 8px;box-shadow:2px 2px 0 var(--ink)}
+.toc a:hover,.toc a:focus-visible{background:var(--yellow);outline:none}
+
+/* chapters */
+.chapter{display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
+.ch-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ch-num{font-family:var(--f-display);font-size:1.05rem;letter-spacing:.06em;background:var(--magenta);color:#fff;border:3px solid var(--ink);padding:2px 10px;transform:rotate(-3deg);box-shadow:3px 3px 0 var(--ink)}
+.ch-head h2{font-size:clamp(2rem,5vw,2.9rem);line-height:1;-webkit-text-stroke:1px var(--ink)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.panel{background:var(--panel);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel.wide{grid-column:1/-1}
+.panel.yellow{background:#fff6cf}
+.panel svg.art{width:100%;height:auto;display:block;margin-top:auto}
+.caption{background:var(--yellow);border:2px solid var(--ink);font-weight:700;padding:3px 9px;align-self:flex-start;text-transform:uppercase;font-size:.78rem;letter-spacing:.06em;line-height:1.3}
+.panel p{margin:0}
+.note{font-size:.95rem;color:var(--muted)}
+.note strong{color:var(--ink)}
+
+/* speech bubbles */
+.bubble{background:#fff;border:2.5px solid var(--ink);border-radius:20px;padding:9px 14px;position:relative;line-height:1.35;margin-bottom:12px}
+.bubble::before,.bubble::after{content:"";position:absolute;width:0;height:0;border-style:solid}
+.bubble::before{bottom:-15px;left:30px;border-width:15px 9px 0 9px;border-color:var(--ink) transparent transparent transparent}
+.bubble::after{bottom:-10px;left:32.5px;border-width:10px 6.5px 0 6.5px;border-color:#fff transparent transparent transparent}
+.bubble.r::before{left:auto;right:30px}
+.bubble.r::after{left:auto;right:32.5px}
+.bubble.c::before{left:calc(50% - 9px)}
+.bubble.c::after{left:calc(50% - 6.5px)}
+.bubble.plain{margin-bottom:0}
+.bubble.plain::before,.bubble.plain::after{display:none}
+.who{display:inline-block;font-family:var(--f-display);letter-spacing:.06em;font-size:.85rem;padding:0 6px;border:1.5px solid var(--ink);margin-right:6px;transform:translateY(-1px)}
+.who.snap{background:var(--yellow)}
+.who.sam{background:var(--magenta);color:#fff}
+.bubble.shout{font-weight:700;background:#fff}
+
+/* terminal */
+.term{background:var(--term);color:var(--term-fg);font-family:var(--f-mono);font-size:.82rem;line-height:1.6;border:3px solid var(--ink);border-radius:8px;padding:12px 14px;overflow-x:auto;white-space:pre;margin:0;tab-size:4}
+.term .p{color:var(--yellow);user-select:none}
+.term .c{color:#8d8a99}
+.term .ok{color:#5fe39a}
+.term .bad{color:#ff7b80}
+.term .hl{color:#7fd3f5}
+.term .y{color:#ffe17a}
+
+/* steps & chips */
+.loop{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip{font-family:var(--f-mono);font-weight:700;font-size:.85rem;background:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:4px 12px;box-shadow:2px 2px 0 var(--ink)}
+.chip.y{background:var(--yellow)}
+.chip.c{background:#bfe9fa}
+.chip.m{background:#f9c7de}
+.arrow{font-family:var(--f-display);font-size:1.3rem;line-height:1}
+.zones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+.zones h3{font-size:1.15rem}
+.zones p{font-size:.88rem;color:var(--muted)}
+
+/* tables */
+.oops{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);border:2.5px solid var(--ink);background:#fff}
+.oops > div{padding:9px 12px;border-bottom:2px dashed #c9cdd6;min-width:0}
+.oops > div:nth-last-child(-n+2){border-bottom:0}
+.oops .h{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-size:1.05rem;border-bottom:0}
+.oops code{white-space:normal;word-break:break-word}
+.warn{background:var(--red);color:#fff;border:2.5px solid var(--ink);padding:8px 12px;font-weight:700;box-shadow:3px 3px 0 var(--ink)}
+.warn code{color:var(--ink)}
+.good-bad{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.good-bad ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.good-bad li{font-family:var(--f-mono);font-size:.82rem;background:#fff;border:2px solid var(--ink);padding:4px 8px;min-width:0;overflow-wrap:anywhere}
+.good-bad h3{font-size:1.2rem;margin-bottom:6px}
+.bad-t{color:var(--red)}
+.good-t{color:var(--green)}
+.habits{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+.habits li::marker{color:var(--magenta);font-weight:700}
+
+/* cheat sheet */
+.cheat{background:var(--yellow);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px;display:flex;flex-direction:column;gap:14px}
+.cheat h2{font-size:clamp(2rem,5vw,2.8rem);line-height:1}
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.cheat-group{background:#fff;border:2.5px solid var(--ink);padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cheat-group h3{font-size:1.1rem;color:var(--magenta)}
+.cmd{display:flex;flex-direction:column;gap:1px}
+.cmd code{white-space:normal;word-break:break-word;align-self:flex-start;background:#eef7fc}
+.cmd span{font-size:.88rem;color:var(--muted)}
+.end{text-align:center;font-family:var(--f-display);font-size:1.4rem;letter-spacing:.05em}
+
+@media (max-width:700px){
+  .cover{grid-template-columns:1fr}
+  .cover-art{border-left:0;border-top:4px solid var(--ink);min-height:0}
+  .oops{grid-template-columns:1fr}
+  .oops > div:nth-child(2n+1):not(.h){border-bottom:0;padding-bottom:2px;font-weight:700}
+  .oops .h:nth-child(2){display:none}
+  .good-bad{grid-template-columns:1fr}
+  body{font-size:16px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .flash{animation:flash 2.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+  @keyframes flash{0%,80%,100%{opacity:1;transform:scale(1)}88%{opacity:.6;transform:scale(1.12)}}
+}
+
+/* ---- issue 2 additions ---- */
+.ch-head .part-tag{font-family:var(--f-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-left:auto;align-self:center}
+.toc-part{flex-basis:100%;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.cover p.prev-issue{font-size:.95rem;max-width:none}
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+.xref:hover,.xref:focus-visible{background:var(--yellow);outline:none}
+.tree{background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:8px;padding:12px 14px;font-family:var(--f-mono);font-size:.8rem;line-height:1.6;overflow-x:auto;white-space:pre;margin:0}
+.tree .c{color:#1d7fa8}
+.tree b{color:#c22d72}
+.tree.small{font-size:.76rem}
+.scroll-x{overflow-x:auto}
+table.cmp{border-collapse:collapse;width:100%;min-width:620px;background:#fff;border:2.5px solid var(--ink);font-size:.95rem}
+.cmp th{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-weight:400;text-align:left;padding:8px 10px;font-size:1.05rem}
+.cmp td{padding:9px 10px;border-top:2px dashed #c9cdd6;vertical-align:top}
+.cmp code{white-space:normal;word-break:break-word}
+.beasts td:first-child{width:34%}
+.mark{display:inline-flex;align-items:center;justify-content:center;flex:none;width:1.45em;height:1.45em;border-radius:50%;font-family:var(--f-display);font-size:.95em;line-height:1;border:2px solid var(--ink);color:var(--ink);margin-right:6px;vertical-align:middle}
+.term .mark{border-color:#fff;font-size:.85em}
+.m1{background:var(--yellow)}.m2{background:var(--cyan)}.m3{background:#f9c7de}
+.tb-legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tb-legend li{display:flex;gap:4px;align-items:flex-start}
+.msg{border:2.5px solid var(--ink);border-radius:14px;padding:12px 14px;white-space:pre-wrap;line-height:1.45;box-shadow:3px 3px 0 var(--ink);min-width:0;overflow-wrap:anywhere}
+.msg code{white-space:normal;word-break:break-word}
+.bad-msg{background:#ffe1e2}
+.good-msg{background:#e3f8ec}
+
+.chip{white-space:nowrap}
+@media (min-width:900px){.panel.span2{grid-column:span 2}}
+.habits.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 28px;padding-left:1.3em}
+.panel.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);align-items:center;column-gap:20px}
+.panel.row > .caption{grid-column:1/-1}
+.panel.row svg.art{margin-top:0}
+@media (max-width:640px){.panel.row{grid-template-columns:1fr}}
+
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start}
+.duo p{margin:0}
+.nb{background:#ffffff;color:var(--ink);border:3px solid var(--ink);border-left:8px solid var(--cyan);border-radius:6px;padding:12px 14px;font-family:var(--f-mono);font-size:.8rem;line-height:1.6;overflow-x:auto;white-space:pre;margin:0}
+.nb .in{color:#1d7fa8;font-weight:700}
+.nb .out{color:#c22d72;font-weight:700}
+
+/* ---- issue 0 additions ---- */
+kbd{font-family:var(--f-mono);font-size:.82em;font-weight:700;background:#fff;color:var(--ink);border:2px solid var(--ink);border-bottom-width:4px;border-radius:6px;padding:0 .4em;white-space:nowrap}
+.oslist{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:10px}
+.anat{display:flex;flex-wrap:wrap;gap:10px 6px;align-items:flex-start;background:var(--term);border:3px solid var(--ink);border-radius:8px;padding:16px}
+.anat .part{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.anat .seg{font-family:var(--f-mono);font-weight:700;font-size:1.15rem;padding:2px 6px;border-radius:4px;color:var(--term-fg);border-bottom:4px solid}
+.anat.big .seg{font-size:1.6rem;padding:4px 10px}
+.anat .lab{font-size:.8rem;color:#c9c6d6;text-align:center;line-height:1.25}
+.a1{border-color:#5fe39a;color:#5fe39a!important}.a2{border-color:#9aa0ad}.a3{border-color:#7fd3f5;color:#7fd3f5!important}.a4{border-color:#ffd23f;color:#ffe17a!important}.a5{border-color:var(--magenta);color:#ff7bb6!important}.a6{border-color:#fff}
+.c1{border-color:var(--yellow);color:#ffe17a!important}.c2{border-color:var(--magenta);color:#ff7bb6!important}.c3{border-color:var(--cyan);color:#7fd3f5!important}
+.cur{color:var(--yellow)}
+.prompts td:first-child{white-space:nowrap}
+.cmp.prompts td:first-child code{font-size:.9em;white-space:nowrap;word-break:normal}
+.redp{color:#e5484d;font-weight:700}
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.key-card{display:flex;gap:12px;align-items:flex-start;background:#fff;border:2.5px solid var(--ink);padding:10px 12px;min-width:0}
+.key-card .kc{flex:none;min-width:96px;display:flex;gap:4px;flex-wrap:wrap;align-items:center;font-weight:700}
+.key-card kbd{font-size:.95rem}
+@media (prefers-reduced-motion:no-preference){.blink{animation:blink 1.1s steps(1) infinite}@keyframes blink{50%{opacity:0}}}
+/* ---- slide deck mode ---- */
+:root{--nav-h:64px}
+html,body{height:100%;overflow:hidden}
+.deck{position:fixed;inset:0;padding:0;margin:0;max-width:none;display:block}
+.slide{position:absolute;inset:0 0 calc(var(--nav-h) + env(safe-area-inset-bottom,0px)) 0;padding-top:env(safe-area-inset-top,0px);overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column}
+.slide-inner{width:100%;max-width:1060px;margin:auto;padding-inline:16px;padding-block:28px 36px}
+.cheat .end{margin:6px 0 0}
+@media (prefers-reduced-motion:no-preference){
+  .slide.in-next .slide-inner{animation:inNext .38s cubic-bezier(.2,.8,.2,1)}
+  .slide.in-prev .slide-inner{animation:inPrev .38s cubic-bezier(.2,.8,.2,1)}
+  @keyframes inNext{from{opacity:0;transform:translateX(48px) rotate(.6deg)}to{opacity:1;transform:none}}
+  @keyframes inPrev{from{opacity:0;transform:translateX(-48px) rotate(-.6deg)}to{opacity:1;transform:none}}
+}
+.nav{position:fixed;left:0;right:0;bottom:0;height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));padding:0 16px env(safe-area-inset-bottom,0px);background:var(--ink);color:#fff;display:flex;align-items:center;gap:14px;z-index:5}
+.nav .bar{position:absolute;left:0;top:0;height:4px;background:var(--yellow);transition:width .3s}
+.nav button{font-family:var(--f-display);font-size:1.15rem;letter-spacing:.05em;background:var(--yellow);color:var(--ink);border:3px solid #fff;padding:4px 14px;cursor:pointer;box-shadow:3px 3px 0 var(--magenta);line-height:1.2}
+.nav button:hover{background:#fff}
+.nav button:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+.nav button:disabled{opacity:.35;cursor:default;box-shadow:none}
+.nav .mid{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+.nav .label{font-family:var(--f-display);letter-spacing:.05em;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.nav .label b{color:var(--yellow);font-weight:400;margin-right:8px;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:6px}
+.nav .dots button{width:12px;height:12px;padding:0;border:2px solid #fff;border-radius:50%;background:transparent;box-shadow:none}
+.nav .dots button[aria-current="true"]{background:var(--yellow);border-color:var(--yellow);transform:scale(1.25)}
+.nav .dots button:hover{background:var(--magenta)}
+.hint{font-family:var(--f-mono);font-size:.7rem;color:#a9a6b5;white-space:nowrap}
+@media (max-width:640px){.hint{display:none}.nav{gap:8px}.nav button{padding:4px 9px;font-size:1rem}.dots{gap:4px}.nav .dots button{width:9px;height:9px}}
+.cmd .codes{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.cmd .codes code{align-self:auto}
+.panel.top svg.art{margin-top:0}
+
+/* ---- offline series navigation ---- */
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+a.xref:hover,a.xref:focus-visible{background:var(--yellow);outline:none}
+.cover p.prev-issue,.cover p.formats{font-size:.95rem;max-width:none;margin:0}
+.series-bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.series-bar .lbl{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.xref.home{background:var(--yellow)}
+.xref.fmt{background:#f9c7de}
+</style>
+</head>
+<body>
+<!-- shared drawings -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#15131a" opacity=".16"/></pattern>
+    <pattern id="dotsW" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#ffffff" opacity=".35"/></pattern>
+
+    <symbol id="sam" viewBox="0 0 100 150">
+      <rect x="36" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <rect x="53" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <path d="M20 122 Q18 80 50 75 Q82 80 80 122 Z" fill="#e83e8c" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M44 80 L43 98 M56 80 L57 98" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="50" cy="46" r="26" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+      <path d="M24 46 Q20 16 50 16 Q82 16 76 46 Q72 31 60 33 Q52 23 40 32 Q30 33 24 46 Z" fill="#15131a"/>
+      <circle cx="41" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="59" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="34" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+      <circle cx="66" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+    </symbol>
+
+    <symbol id="snap" viewBox="0 0 100 110">
+      <path d="M38 82 L36 101 M62 82 L64 101" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <ellipse cx="33" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <ellipse cx="67" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <path d="M14 52 L5 40 M86 52 L95 40" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <circle cx="5" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="95" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="28" y="14" width="22" height="16" rx="4" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="62" y="17" width="14" height="11" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="14" y="26" width="72" height="58" rx="12" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="50" cy="52" r="20" fill="#15131a"/>
+      <circle cx="50" cy="52" r="14" fill="#2bb3e8"/>
+      <circle cx="50" cy="52" r="6" fill="#15131a"/>
+      <circle cx="44" cy="46" r="4" fill="#ffffff"/>
+      <path d="M42 76 Q50 81 58 76" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="burst" viewBox="-50 -50 100 100">
+      <polygon points="50,0 27.7,11.5 35.4,35.4 11.5,27.7 0,50 -11.5,27.7 -35.4,35.4 -27.7,11.5 -50,0 -27.7,-11.5 -35.4,-35.4 -11.5,-27.7 0,-50 11.5,-27.7 35.4,-35.4 27.7,-11.5" stroke="#15131a" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="polaroid" viewBox="0 0 60 70">
+      <rect x="1.5" y="1.5" width="57" height="67" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="7" y="7" width="46" height="40" fill="#bfe9fa" stroke="#15131a" stroke-width="2"/>
+      <path d="M7 47 L22 28 L32 39 L39 31 L53 47 Z" fill="#2fbf6c" stroke="#15131a" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="42" cy="17" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="2"/>
+    </symbol>
+
+    <symbol id="file" viewBox="0 0 40 50">
+      <path d="M2 2 H28 L38 12 V48 H2 Z" fill="#ffffff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M28 2 V12 H38" fill="none" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M9 22 H31 M9 29 H27 M9 36 H31" stroke="#9aa0ad" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="hat" viewBox="0 0 100 40">
+      <path d="M22 34 Q22 4 50 4 Q78 4 78 34 Z" fill="#a07c55" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M34 9 L36 32 M50 4 V33 M66 9 L64 32 M24 22 H76" stroke="#6b5034" stroke-width="2" fill="none"/>
+      <ellipse cx="50" cy="34" rx="36" ry="5.5" fill="#8a6a4a" stroke="#15131a" stroke-width="3"/>
+    </symbol>
+    <symbol id="magnifier" viewBox="0 0 60 60">
+      <path d="M36 36 L54 54" stroke="#15131a" stroke-width="11" stroke-linecap="round"/>
+      <path d="M36 36 L54 54" stroke="#2d3a5a" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="24" cy="24" r="16" fill="#bfe9fa" fill-opacity=".7" stroke="#15131a" stroke-width="4"/>
+      <path d="M15 20 Q17 13 24 12" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="jar" viewBox="0 0 110 130">
+      <path d="M14 22 H96 V112 Q96 126 82 126 H28 Q14 126 14 112 Z" fill="#e9f7ff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M24 34 V100" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <rect x="18" y="5" width="74" height="17" rx="4" fill="#9aa0ad" stroke="#15131a" stroke-width="3"/>
+    </symbol>
+    <symbol id="bug" viewBox="0 0 84 70">
+      <path d="M24 40 L8 32 M22 48 L5 52 M26 56 L12 66 M60 40 L76 32 M62 48 L79 52 M58 56 L72 66" stroke="#15131a" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M37 12 Q32 2 24 4 M47 12 Q52 2 60 4" stroke="#15131a" stroke-width="2.5" fill="none"/>
+      <circle cx="24" cy="4" r="3" fill="#15131a"/><circle cx="60" cy="4" r="3" fill="#15131a"/>
+      <ellipse cx="42" cy="46" rx="22" ry="18" stroke="#15131a" stroke-width="3"/>
+      <path d="M42 30 V63" stroke="#15131a" stroke-width="2" opacity=".5"/>
+      <circle cx="42" cy="22" r="12" stroke="#15131a" stroke-width="3"/>
+      <circle cx="37" cy="20" r="4.2" fill="#ffffff" stroke="#15131a" stroke-width="1.5"/>
+      <circle cx="47" cy="20" r="4.2" fill="#ffffff" stroke="#15131a" stroke-width="1.5"/>
+      <circle cx="38" cy="21" r="1.8" fill="#15131a"/><circle cx="46" cy="21" r="1.8" fill="#15131a"/>
+      <path d="M32 14 L40 17 M52 14 L44 17" stroke="#15131a" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M37 28 L40 26 L42 28 L44 26 L47 28" fill="none" stroke="#15131a" stroke-width="1.8" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="deck" id="deck">
+
+  <!-- COVER -->
+  <div class="slide"><div class="slide-inner"><section class="cover" id="cover">
+    <div class="cover-text">
+      <span class="issue">Issue #0 · Before everything else</span>
+      <h1>Hello,<br>Terminal</h1>
+      <p>That black window with the blinking cursor isn't scary. It's a chat with your computer: you type a command, it answers. This issue covers everything you need before cloning repos, building environments and running code.</p>
+      <nav class="toc" aria-label="Chapters">
+        <span class="toc-part">Meet it</span>
+        <a href="#why">1 · Why type?</a>
+        <a href="#open">2 · The prompt</a>
+        <a href="#anatomy">3 · Commands</a>
+        <span class="toc-part">Move around</span>
+        <a href="#paths">4 · Where am I?</a>
+        <a href="#files">5 · Files &amp; folders</a>
+        <a href="#peek">6 · Look inside</a>
+        <span class="toc-part">Level up</span>
+        <a href="#keys">7 · Superpowers</a>
+        <a href="#pipes">8 · Pipes</a>
+        <a href="#programs">9 · Running programs</a>
+        <a href="#zsh">10 · Your prompt</a>
+        <a href="#errors">11 · Error bestiary</a>
+        <a href="#cheat">Cheat sheet</a>
+      </nav>
+      <div class="series-bar"><span class="lbl">Series</span><a class="xref home" href="index.html">⌂ Home</a><a class="xref" href="windows-and-wsl-slides.html">Appendix · Windows &amp; WSL</a><a class="xref" href="git-good-slides.html">Issue #1 · Git Good</a><a class="xref" href="works-on-my-machine-slides.html">Issue #2 · Works on my machine</a><a class="xref" href="share-the-gpu-slides.html">Issue #3 · Share the GPU</a><a class="xref fmt" href="hello-terminal.html">▤ Read as one page</a></div>
+    </div>
+    <div class="cover-art">
+      <svg viewBox="0 0 420 300" role="img" aria-label="Sam and Snap in front of a giant terminal window with a blinking cursor">
+        <rect width="420" height="300" fill="url(#dotsW)"/>
+        <rect x="120" y="24" width="270" height="170" rx="10" fill="#17151d" stroke="#15131a" stroke-width="4"/>
+        <rect x="120" y="24" width="270" height="26" rx="10" fill="#2d3a5a" stroke="#15131a" stroke-width="4"/>
+        <circle cx="140" cy="37" r="5" fill="#e5484d"/><circle cx="156" cy="37" r="5" fill="#ffd23f"/><circle cx="172" cy="37" r="5" fill="#2fbf6c"/>
+        <g font-family="JetBrains Mono, monospace" font-size="15" font-weight="700">
+          <text x="136" y="80" fill="#7fd3f5">~</text><text x="154" y="80" fill="#e83e8c">❯</text><text x="172" y="80" fill="#ece9f4">pwd</text>
+          <text x="136" y="104" fill="#5fe39a">/Users/sam</text>
+          <text x="136" y="132" fill="#7fd3f5">~</text><text x="154" y="132" fill="#e83e8c">❯</text>
+        </g>
+        <rect class="blink" x="174" y="118" width="11" height="18" fill="#ffd23f"/>
+        <text x="300" y="176" font-family="Big Shoulders, Impact, sans-serif" font-size="40" fill="#ffd23f">&gt;_</text>
+        <g transform="translate(26 110) scale(1.2)">
+          <use href="#sam" width="100" height="150"/>
+          <path d="M41 60 Q50 69 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <use href="#snap" x="270" y="172" width="110" height="121"/>
+        <rect x="0" y="292" width="420" height="8" fill="#15131a"/>
+      </svg>
+    </div>
+  </section></div></div>
+
+  <!-- 1 WHY -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="why">
+    <div class="ch-head"><span class="ch-num">Chapter 1</span><h2>Why type when you can click?</h2><span class="part-tag">Meet it</span></div>
+    <div class="strip">
+      <div class="panel">
+        <div class="bubble"><span class="who sam">Sam</span>I have Jupyter and a mouse. Why would I ever type commands?</div>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="Sam with a computer mouse looking unconvinced">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <g transform="translate(40 6) scale(.9)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M44 62 L56 62" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <path d="M190 60 Q190 36 214 36 Q238 36 238 60 V100 Q238 124 214 124 Q190 124 190 100 Z" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+          <path d="M214 36 V70 M190 70 H238" stroke="#15131a" stroke-width="2.5"/>
+          <path d="M214 36 Q214 16 236 12" fill="none" stroke="#15131a" stroke-width="3"/>
+        </svg>
+      </div>
+      <div class="panel">
+        <div class="bubble r"><span class="who snap">Snap</span>Three reasons. One: a GPU cluster has no screen and no mouse, only a terminal. Two: a command can be repeated, shared and pasted in a README. Three: every tool in Issues #1 and #2 starts here.</div>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="A server rack labelled GPU cluster with no screen or mouse, connected to a terminal">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <rect x="30" y="14" width="90" height="126" rx="6" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+          <g fill="#17151d" stroke="#15131a" stroke-width="2"><rect x="40" y="26" width="70" height="20"/><rect x="40" y="54" width="70" height="20"/><rect x="40" y="82" width="70" height="20"/><rect x="40" y="110" width="70" height="20"/></g>
+          <g fill="#5fe39a"><circle cx="100" cy="36" r="3"/><circle cx="100" cy="64" r="3"/><circle cx="100" cy="92" r="3"/><circle cx="100" cy="120" r="3"/></g>
+          <path d="M120 76 C150 76 150 70 176 70" stroke="#15131a" stroke-width="3" stroke-dasharray="6 5" fill="none"/>
+          <rect x="176" y="40" width="108" height="66" rx="6" fill="#17151d" stroke="#15131a" stroke-width="3"/>
+          <text x="186" y="66" font-family="JetBrains Mono, monospace" font-size="11" fill="#e83e8c">❯ <tspan fill="#ece9f4">python</tspan></text>
+          <text x="186" y="82" font-family="JetBrains Mono, monospace" font-size="11" fill="#ece9f4">  train.py</text>
+          <text x="75" y="10" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="13" fill="#15131a" dy="2">GPU CLUSTER</text>
+          <text x="230" y="124" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" font-weight="700" fill="#15131a">no screen, no mouse</text>
+        </svg>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">What you'll use it for</span>
+        <ol class="habits">
+          <li>Moving around your files and folders</li>
+          <li>Git: cloning, committing, pushing <a class="xref" href="git-good-slides.html">Issue #1 ↗</a></li>
+          <li>Creating Python environments and installing packages <a class="xref" href="works-on-my-machine-slides.html#recipes">Issue #2 ↗</a></li>
+          <li>Running scripts, and starting Jupyter itself</li>
+          <li>Working on the GPU cluster <a class="xref" href="share-the-gpu-slides.html">Issue #3</a></li>
+        </ol>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 2 OPEN -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="open">
+    <div class="ch-head"><span class="ch-num">Chapter 2</span><h2>Open it &amp; read the prompt</h2><span class="part-tag">Meet it</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Open a terminal</span>
+        <ul class="oslist">
+          <li><strong>macOS:</strong> <kbd>⌘</kbd> + <kbd>Space</kbd>, type “Terminal”, press Enter. (iTerm2 is a popular free upgrade.)</li>
+          <li><strong>Linux:</strong> <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd> on most distributions.</li>
+          <li><strong>Windows:</strong> install WSL: open PowerShell as administrator, run <code>wsl --install</code>, restart, then open “Ubuntu” from the Start menu. That gives you a real Linux terminal, so every command in this guide works. More in <a class="xref" href="windows-and-wsl-slides.html">Appendix · Windows &amp; WSL</a></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <span class="caption">The shell</span>
+        <div class="bubble"><span class="who snap">Snap</span>The program inside the window that reads your commands is the <strong>shell</strong>. On a Mac it's <strong>zsh</strong>; on Linux and WSL it's usually <strong>bash</strong>. For everything in this guide, they behave the same.</div>
+<pre class="term"><span class="p">~ ❯ </span>echo $SHELL
+<span class="ok">/bin/zsh</span></pre>
+      </div>
+      <div class="panel wide">
+        <span class="caption">Anatomy of a prompt</span>
+        <p>The prompt is the shell saying “I'm ready, your turn.” What it shows depends on your setup. The prompts in this guide come from one example setup, zsh with Prezto (see Chapter 10). Yours will look different, and that's fine.</p>
+        <div class="anat" role="img" aria-label="Prompt broken into parts: user, computer, current folder, git branch, prompt symbol, cursor">
+          <div class="part"><span class="seg a1">ada</span><span class="lab">your username</span></div>
+          <div class="part"><span class="seg a2">@macbook</span><span class="lab">the computer</span></div>
+          <div class="part"><span class="seg a3">~/thesis</span><span class="lab">current folder</span></div>
+          <div class="part"><span class="seg a4">main</span><span class="lab">git branch (if any)</span></div>
+          <div class="part"><span class="seg a5">❯</span><span class="lab">“type here”</span></div>
+          <div class="part"><span class="seg a6">ls<span class="cur">▌</span></span><span class="lab">your command</span></div>
+        </div>
+        <p class="note">Yours might show <code>%</code> or <code>$</code> instead of <code>❯</code>, or nothing but the folder. In instructions online, <code>$</code> at the start of a line means “type what follows”, so don't type the <code>$</code> itself.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 3 ANATOMY -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="anatomy">
+    <div class="ch-head"><span class="ch-num">Chapter 3</span><h2>Anatomy of a command</h2><span class="part-tag">Meet it</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>Almost every command has the same shape: <strong>what to do</strong>, then <strong>how</strong>, then <strong>on what</strong>. Separated by spaces.</div>
+        <div class="anat big" role="img" aria-label="The command ls -l -a ~/Downloads split into command, options and argument">
+          <div class="part"><span class="seg c1">ls</span><span class="lab">command<br>“list files”</span></div>
+          <div class="part"><span class="seg c2">-l -a</span><span class="lab">options (flags)<br>long format, all files</span></div>
+          <div class="part"><span class="seg c3">~/Downloads</span><span class="lab">argument<br>which folder</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="caption">Flags come in two sizes</span>
+<pre class="term"><span class="p">~ ❯ </span>ls -l -a      <span class="c"># short flags</span>
+<span class="p">~ ❯ </span>ls -la        <span class="c"># same, combined</span>
+<span class="p">~ ❯ </span>ls --all      <span class="c"># long flag, same as -a</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Forgot a flag? Ask</span>
+<pre class="term"><span class="p">~ ❯ </span>man ls          <span class="c"># the manual (q to quit)</span>
+<span class="p">~ ❯ </span>python --help   <span class="c"># most programs have this</span>
+<span class="p">~ ❯ </span>git help commit</pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Spaces matter</span>
+<pre class="term"><span class="p">~ ❯ </span>cd My Thesis
+<span class="bad">cd: string not in pwd: My</span>
+<span class="p">~ ❯ </span>cd "My Thesis"   <span class="c"># quotes keep it together</span></pre>
+        <p class="note">The shell splits on spaces. Easiest fix: never use spaces in file and folder names. Use <code>my-thesis</code> or <code>my_thesis</code>.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 4 PATHS -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="paths">
+    <div class="ch-head"><span class="ch-num">Chapter 4</span><h2>Where am I? Paths</h2><span class="part-tag">Move around</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>Your files live in a big upside-down tree. The terminal is always standing in one folder: the <strong>working directory</strong>. Everything you type happens <em>there</em>.</div>
+        <div class="scroll-x">
+        <svg class="art" viewBox="0 0 640 250" role="img" aria-label="Folder tree from root slash, to Users, to ada which is home or tilde, to Downloads, Documents and thesis; thesis contains data and analysis.py. A pin marks thesis as you are here." style="min-width:520px">
+          <rect width="640" height="250" fill="url(#dots)"/>
+          <g stroke="#15131a" stroke-width="3" fill="none">
+            <path d="M320 42 V58"/><path d="M320 86 V106"/>
+            <path d="M320 134 V146 H160 V160 M320 146 V160 M320 146 H480 V160"/>
+            <path d="M480 188 V200 H410 V212 M480 200 H560 V212"/>
+          </g>
+          <g stroke="#15131a" stroke-width="3">
+            <rect x="290" y="14" width="60" height="28" rx="5" fill="#ffffff"/>
+            <rect x="270" y="58" width="100" height="28" rx="5" fill="#ffffff"/>
+            <rect x="250" y="106" width="140" height="28" rx="5" fill="#ffd23f"/>
+            <rect x="105" y="160" width="110" height="28" rx="5" fill="#ffffff"/>
+            <rect x="265" y="160" width="110" height="28" rx="5" fill="#ffffff"/>
+            <rect x="425" y="160" width="110" height="28" rx="5" fill="#f9c7de"/>
+            <rect x="360" y="212" width="100" height="28" rx="5" fill="#ffffff"/>
+            <rect x="500" y="212" width="120" height="28" rx="5" fill="#ffffff"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" text-anchor="middle" fill="#15131a">
+            <text x="320" y="33">/</text>
+            <text x="320" y="77">Users</text>
+            <text x="320" y="125">ada  (~)</text>
+            <text x="160" y="179">Downloads</text>
+            <text x="320" y="179">Documents</text>
+            <text x="480" y="179">thesis</text>
+            <text x="410" y="231">data</text>
+            <text x="560" y="231">analysis.py</text>
+          </g>
+          <g font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">
+            <text x="358" y="32">root: the very top</text>
+            <text x="396" y="125">home: your own folder</text>
+          </g>
+          <path d="M528 128 C528 110 552 110 552 128 C552 140 540 148 540 158 C540 148 528 140 528 128 Z" fill="#e5484d" stroke="#15131a" stroke-width="2.5"/>
+          <circle cx="540" cy="126" r="4.5" fill="#ffffff"/>
+          <text x="520" y="148" text-anchor="end" font-family="Big Shoulders, Impact, sans-serif" font-size="16" fill="#e5484d">YOU ARE HERE</text>
+        </svg>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="caption">Look &amp; move</span>
+<pre class="term"><span class="p">~/thesis ❯ </span>pwd            <span class="c"># print working directory</span>
+<span class="ok">/Users/ada/thesis</span>
+<span class="p">~/thesis ❯ </span>ls             <span class="c"># what's here?</span>
+<span class="ok">analysis.py  data</span>
+<span class="p">~/thesis ❯ </span>cd data        <span class="c"># go into a folder</span>
+<span class="p">~/thesis/data ❯ </span>cd ..     <span class="c"># go up one level</span>
+<span class="p">~/thesis ❯ </span>cd             <span class="c"># go home (same as cd ~)</span>
+<span class="p">~ ❯ </span>cd -                <span class="c"># back to previous folder</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Absolute vs relative</span>
+        <p><strong>Absolute</strong> paths start with <code>/</code> (or <code>~</code>) and work from anywhere:</p>
+        <p><code>/Users/ada/thesis/data/raw.csv</code></p>
+        <p><strong>Relative</strong> paths start from where you are now. From <code>~/thesis</code>:</p>
+        <p><code>data/raw.csv</code> · <code>./analysis.py</code> · <code>../Downloads/paper.pdf</code></p>
+        <p class="note"><code>.</code> = this folder, <code>..</code> = the folder above.</p>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">The #1 reason scripts “can't find” files</span>
+        <div class="bubble"><span class="who snap">Snap</span>Relative paths in Python are relative to where you <em>started the command</em>, not where the script lives.</div>
+<pre class="term"><span class="c"># analysis.py contains: open("data/raw.csv")</span>
+<span class="p">~/thesis/scripts ❯ </span>python ../analysis.py
+<span class="bad">FileNotFoundError: 'data/raw.csv'</span>
+<span class="p">~/thesis ❯ </span>python analysis.py   <span class="ok">✓ works</span></pre>
+        <p class="note"><a class="xref" href="works-on-my-machine-slides.html#bestiary">Issue #2 · Ch. 10: error bestiary ↗</a></p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 5 FILES -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="files">
+    <div class="ch-head"><span class="ch-num">Chapter 5</span><h2>Files &amp; folders</h2><span class="part-tag">Move around</span></div>
+    <div class="strip">
+      <div class="panel span2">
+        <span class="caption">Make, copy, move, rename</span>
+<pre class="term"><span class="p">~/thesis ❯ </span>mkdir results               <span class="c"># new folder</span>
+<span class="p">~/thesis ❯ </span>mkdir -p data/raw/2026      <span class="c"># create nested folders at once</span>
+<span class="p">~/thesis ❯ </span>touch notes.md              <span class="c"># new empty file</span>
+<span class="p">~/thesis ❯ </span>cp notes.md notes-backup.md  <span class="c"># copy</span>
+<span class="p">~/thesis ❯ </span>cp -r data data-copy         <span class="c"># copy a whole folder</span>
+<span class="p">~/thesis ❯ </span>mv notes.md docs/            <span class="c"># move into a folder</span>
+<span class="p">~/thesis ❯ </span>mv draft.py model.py         <span class="c"># rename = move to a new name</span>
+<span class="p">~/thesis ❯ </span>ls -lh                       <span class="c"># list with sizes (human-readable)</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Deleting</span>
+<pre class="term"><span class="p">~/thesis ❯ </span>rm old.csv          <span class="c"># delete a file</span>
+<span class="p">~/thesis ❯ </span>rm -r old-results/  <span class="c"># delete a folder</span></pre>
+        <svg class="art" viewBox="0 0 300 130" role="img" aria-label="A file vanishes in a poof: rm skips the trash, there is no undo">
+          <rect width="300" height="130" fill="url(#dots)"/>
+          <use href="#burst" x="34" y="8" width="110" height="110" fill="#ffd23f"/>
+          <text x="89" y="70" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="26" fill="#15131a">POOF!</text>
+          <path d="M190 38 H262 L256 116 H196 Z" fill="#9aa0ad" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+          <rect x="184" y="28" width="84" height="12" rx="3" fill="#9aa0ad" stroke="#15131a" stroke-width="3"/>
+          <path d="M184 32 L268 70 M268 32 L184 70" stroke="#e5484d" stroke-width="5" stroke-linecap="round"/>
+          <text x="226" y="100" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="12" fill="#15131a">no trash</text>
+        </svg>
+        <div class="warn">No trash can, no undo. Double-check with <code>ls</code> before you <code>rm</code>.</div>
+      </div>
+      <div class="panel wide">
+        <span class="caption">Bridge to your normal desktop</span>
+<pre class="term"><span class="p">~/thesis ❯ </span>open .              <span class="c"># macOS: open this folder in Finder</span>
+<span class="p">~/thesis ❯ </span>open paper.pdf      <span class="c"># open a file with its default app</span>
+<span class="p">~/thesis ❯ </span>xdg-open .          <span class="c"># Linux</span>
+<span class="p">~/thesis ❯ </span>explorer.exe .      <span class="c"># WSL: open in Windows Explorer</span></pre>
+        <p class="note">Tip: drag a file from Finder into the terminal window to paste its full path.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 6 PEEK -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="peek">
+    <div class="ch-head"><span class="ch-num">Chapter 6</span><h2>Look inside files</h2><span class="part-tag">Move around</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Read without opening an app</span>
+<pre class="term"><span class="p">~/thesis ❯ </span>cat notes.md           <span class="c"># print the whole file</span>
+<span class="p">~/thesis ❯ </span>less README.md         <span class="c"># scroll through (q quits)</span>
+<span class="p">~/thesis ❯ </span>head -n 5 data/raw.csv <span class="c"># first 5 lines</span>
+<span class="p">~/thesis ❯ </span>tail -n 20 train.log   <span class="c"># last 20 lines</span>
+<span class="p">~/thesis ❯ </span>tail -f train.log      <span class="c"># follow live (Ctrl+C stops)</span>
+<span class="p">~/thesis ❯ </span>wc -l data/raw.csv     <span class="c"># count lines</span></pre>
+        <p class="note"><code>head</code> on a CSV is the fastest way to see its columns, much faster than opening a 2 GB file in Excel.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Edit in the terminal</span>
+        <p><strong>nano</strong> is the friendly one: the shortcuts are listed at the bottom (<code>^O</code> save, <code>^X</code> exit, where <code>^</code> is Ctrl).</p>
+<pre class="term"><span class="p">~/thesis ❯ </span>nano notes.md</pre>
+        <p><strong>vim</strong> is powerful and often the only editor on a server. Worth learning one day (<code>vimtutor</code> teaches it in 30 minutes).</p>
+      </div>
+      <div class="panel">
+        <div class="bubble"><span class="who sam">Sam</span>Help! I typed <code>vim</code> and now nothing works and I can't get out!</div>
+        <div class="bubble r"><span class="who snap">Snap</span>A rite of passage! Press <kbd>Esc</kbd>, then type <code>:q!</code> and Enter. That quits without saving. (<code>:wq</code> saves and quits.)</div>
+        <svg class="art" viewBox="0 0 300 110" role="img" aria-label="Keyboard keys Escape, colon, q, exclamation mark">
+          <rect width="300" height="110" fill="url(#dots)"/>
+          <g stroke="#15131a" stroke-width="3">
+            <rect x="20" y="28" width="76" height="56" rx="8" fill="#ffd23f"/>
+            <rect x="114" y="28" width="50" height="56" rx="8" fill="#ffffff"/>
+            <rect x="174" y="28" width="50" height="56" rx="8" fill="#ffffff"/>
+            <rect x="234" y="28" width="50" height="56" rx="8" fill="#ffffff"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-weight="700" font-size="20" text-anchor="middle" fill="#15131a">
+            <text x="58" y="63">Esc</text><text x="139" y="64">:</text><text x="199" y="64">q</text><text x="259" y="64">!</text>
+          </g>
+          <text x="104" y="62" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="16" fill="#15131a">→</text>
+        </svg>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 7 KEYS -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="keys">
+    <div class="ch-head"><span class="ch-num">Chapter 7</span><h2>Keyboard superpowers</h2><span class="part-tag">Level up</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>Pros don't type faster, they type <em>less</em>. Learn these keys and the terminal feels ten times quicker.</div>
+        <div class="keys">
+          <div class="key-card"><span class="kc"><kbd>Tab</kbd></span><div><strong>Autocomplete.</strong> Type <code>cd th</code> + Tab → <code>cd thesis/</code>. Press twice to see all options. If Tab completes nothing, the file isn't there (or you're in the wrong folder).</div></div>
+          <div class="key-card"><span class="kc"><kbd>↑</kbd> <kbd>↓</kbd></span><div><strong>History.</strong> Scroll through previous commands. No need to retype that long <code>pip install</code> line.</div></div>
+          <div class="key-card"><span class="kc"><kbd>Ctrl</kbd>+<kbd>R</kbd></span><div><strong>Search history.</strong> Type part of an old command, e.g. <code>clone</code>, to find it.</div></div>
+          <div class="key-card"><span class="kc"><kbd>Ctrl</kbd>+<kbd>C</kbd></span><div><strong>Stop!</strong> Cancels the running program or the half-typed line. Your emergency brake. (It does <em>not</em> copy here!)</div></div>
+          <div class="key-card"><span class="kc"><kbd>Ctrl</kbd>+<kbd>L</kbd></span><div><strong>Clear the screen.</strong> Same as typing <code>clear</code>.</div></div>
+          <div class="key-card"><span class="kc"><kbd>Ctrl</kbd>+<kbd>A</kbd> / <kbd>E</kbd></span><div><strong>Jump</strong> to the start / end of the line.</div></div>
+        </div>
+        <p class="note">Copy and paste: <kbd>⌘</kbd>+<kbd>C</kbd> / <kbd>⌘</kbd>+<kbd>V</kbd> on macOS; <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> / <kbd>V</kbd> in most Linux and WSL terminals.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Wildcards</span>
+<pre class="term"><span class="p">~/thesis ❯ </span>ls *.py            <span class="c"># every .py file</span>
+<span class="p">~/thesis ❯ </span>ls data/*.csv
+<span class="p">~/thesis ❯ </span>cp results/run_*.json backup/
+<span class="p">~/thesis ❯ </span>ls **/*.py         <span class="c"># zsh: in all subfolders</span></pre>
+        <p class="note"><code>*</code> means “anything”. The shell expands it into the list of matching names <em>before</em> the command runs.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Reuse what you typed</span>
+<pre class="term"><span class="p">~ ❯ </span>history | tail    <span class="c"># your last commands</span>
+<span class="p">~ ❯ </span>!!                <span class="c"># repeat the last command</span>
+<span class="p">~ ❯ </span>cd !$             <span class="c"># reuse last argument</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Chain commands</span>
+<pre class="term"><span class="p">~ ❯ </span>cd thesis &amp;&amp; ls      <span class="c"># 2nd runs only if 1st worked</span>
+<span class="p">~ ❯ </span>mkdir out; cd out     <span class="c"># run one after another</span></pre>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 8 PIPES -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="pipes">
+    <div class="ch-head"><span class="ch-num">Chapter 8</span><h2>Pipes &amp; redirection</h2><span class="part-tag">Level up</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>Small commands, plumbed together. <code>|</code> sends the output of one command into the next.</div>
+        <div class="scroll-x">
+        <svg class="art" viewBox="0 0 640 140" role="img" aria-label="Pipeline: cat train.log flows into grep ERROR, which flows into wc -l, which outputs 3" style="min-width:520px">
+          <rect width="640" height="140" fill="url(#dots)"/>
+          <g fill="#9aa0ad" stroke="#15131a" stroke-width="3">
+            <rect x="160" y="58" width="56" height="24"/><rect x="356" y="58" width="56" height="24"/><rect x="540" y="58" width="36" height="24"/>
+          </g>
+          <g fill="#bfe9fa" stroke="#15131a" stroke-width="1.5"><circle cx="176" cy="70" r="5"/><circle cx="196" cy="70" r="5"/><circle cx="372" cy="70" r="5"/><circle cx="392" cy="70" r="5"/></g>
+          <g stroke="#15131a" stroke-width="3">
+            <rect x="20" y="44" width="140" height="52" rx="8" fill="#ffffff"/>
+            <rect x="216" y="44" width="140" height="52" rx="8" fill="#f9c7de"/>
+            <rect x="412" y="44" width="128" height="52" rx="8" fill="#bfe9fa"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-weight="700" font-size="14" text-anchor="middle" fill="#15131a">
+            <text x="90" y="75">cat train.log</text>
+            <text x="286" y="75">grep ERROR</text>
+            <text x="476" y="75">wc -l</text>
+          </g>
+          <use href="#burst" x="572" y="36" width="64" height="64" fill="#ffd23f"/>
+          <text x="604" y="76" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="24" fill="#15131a">3</text>
+          <g font-family="Bricolage Grotesque, sans-serif" font-size="12" text-anchor="middle" fill="#5b5f6b">
+            <text x="90" y="118">all 10 000 lines</text><text x="286" y="118">only lines with ERROR</text><text x="476" y="118">count them</text>
+          </g>
+          <text x="188" y="48" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="16" fill="#e83e8c">|</text>
+          <text x="384" y="48" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="16" fill="#e83e8c">|</text>
+        </svg>
+        </div>
+<pre class="term"><span class="p">~/thesis ❯ </span>cat train.log | grep ERROR | wc -l
+<span class="ok">3</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Useful pipes</span>
+<pre class="term"><span class="p">❯ </span>ls | wc -l                 <span class="c"># how many files?</span>
+<span class="p">❯ </span>grep -i "accuracy" train.log | tail -3
+<span class="p">❯ </span>pip list | grep torch      <span class="c"># is torch installed?</span>
+<span class="p">❯ </span>history | grep conda</pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Send output to a file</span>
+<pre class="term"><span class="p">❯ </span>ls &gt; files.txt          <span class="c"># write (overwrites!)</span>
+<span class="p">❯ </span>echo "run 2" &gt;&gt; log.txt <span class="c"># append to the end</span>
+<span class="p">❯ </span>python train.py &gt; out.log 2&gt;&amp;1</pre>
+        <p class="note">The last one saves normal output <em>and</em> errors (<code>2&gt;&amp;1</code>) to one file, handy for long runs.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Find things</span>
+<pre class="term"><span class="p">❯ </span>grep -rn "def train" .    <span class="c"># text inside files</span>
+<span class="p">❯ </span>find . -name "*.csv"       <span class="c"># files by name</span>
+<span class="p">❯ </span>du -sh data/               <span class="c"># how big is it?</span></pre>
+        <p class="note">These come back in <a class="xref" href="works-on-my-machine-slides.html#trace">Issue #2 · Ch. 3 ↗</a> to explore research code.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 9 PROGRAMS -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="programs">
+    <div class="ch-head"><span class="ch-num">Chapter 9</span><h2>Running programs</h2><span class="part-tag">Level up</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Python from the terminal</span>
+<pre class="term"><span class="p">~/thesis ❯ </span>python3 analysis.py      <span class="c"># run a script</span>
+<span class="p">~/thesis ❯ </span>python3                  <span class="c"># interactive Python</span>
+<span class="y">&gt;&gt;&gt; </span>2 + 2
+<span class="ok">4</span>
+<span class="y">&gt;&gt;&gt; </span>exit()
+<span class="p">~/thesis ❯ </span>jupyter lab              <span class="c"># yes, Jupyter starts here too</span></pre>
+        <p class="note">Jupyter runs <em>inside</em> that terminal. Close the terminal (or press Ctrl+C) and the notebook server stops.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Where do commands come from?</span>
+        <div class="bubble"><span class="who snap">Snap</span>When you type <code>python</code>, the shell searches a list of folders called <code>PATH</code> and runs the first match it finds.</div>
+<pre class="term"><span class="p">❯ </span>which python3
+<span class="ok">/opt/homebrew/bin/python3</span>
+<span class="p">❯ </span>echo $PATH
+<span class="ok">/opt/homebrew/bin:/usr/bin:/bin:…</span></pre>
+        <p class="note">Activating a Python environment simply puts its folder first in <code>PATH</code>. <a class="xref" href="works-on-my-machine-slides.html#check">Issue #2 · Ch. 7 ↗</a></p>
+      </div>
+      <div class="panel">
+        <span class="caption">Variables &amp; scripts</span>
+<pre class="term"><span class="p">❯ </span>echo $HOME
+<span class="ok">/Users/ada</span>
+<span class="p">❯ </span>export DATA_DIR=~/thesis/data   <span class="c"># for this session</span>
+<span class="p">❯ </span>bash scripts/train.sh           <span class="c"># run a shell script</span>
+<span class="p">❯ </span>chmod +x scripts/train.sh       <span class="c"># or make it runnable…</span>
+<span class="p">❯ </span>./scripts/train.sh              <span class="c"># …and run it directly</span></pre>
+        <div class="warn">Be careful with <code>sudo</code> (“run as administrator”). Only use it when you know why, and never for <code>pip install</code>.</div>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 10 ZSH -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="zsh">
+    <div class="ch-head"><span class="ch-num">Chapter 10</span><h2>Make it yours: a prompt that talks back</h2><span class="part-tag">Level up</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Your config file</span>
+        <p>Your shell reads a config file every time a terminal opens: <code>~/.zshrc</code> for zsh, <code>~/.bashrc</code> for bash. Put your shortcuts there.</p>
+<pre class="term"><span class="c"># in ~/.zshrc (or ~/.bashrc)</span>
+alias ll="ls -lah"
+alias gs="git status"
+alias act="source .venv/bin/activate"
+
+<span class="p">❯ </span>source ~/.zshrc   <span class="c"># reload without reopening</span></pre>
+        <p class="note">Files starting with <code>.</code> are hidden. <code>ls -a</code> shows them.</p>
+      </div>
+      <div class="panel span2">
+        <span class="caption">What a configured prompt can tell you</span>
+        <div class="bubble"><span class="who snap">Snap</span>A plain prompt only says where you are. A configured one also tells you <em>what state you're in</em>, before you type anything.</div>
+        <div class="scroll-x">
+        <table class="cmp prompts">
+          <thead><tr><th>Prompt</th><th>Tells you</th></tr></thead>
+          <tbody>
+            <tr><td><code>ada@macbook thesis %</code></td><td>Plain zsh: user, computer, folder. That's all.</td></tr>
+            <tr><td><code>~/Downloads ❯❯❯</code></td><td>Not inside a Git repository: no branch shown.</td></tr>
+            <tr><td><code>~/thesis main ❯❯❯</code></td><td>Inside a Git repository, on branch <code>main</code>.</td></tr>
+            <tr><td><code>~/thesis main ✱ ❯❯❯</code></td><td>…with uncommitted changes. Time for <code>git status</code>.</td></tr>
+            <tr><td><code>(thesis) ~/thesis try-lr ❯❯❯</code></td><td>A Python environment (<code>thesis</code>) is active, and you're on branch <code>try-lr</code>.</td></tr>
+            <tr><td><code>~/thesis main <span class="redp">❯</span>❯❯</code></td><td>The last command failed (the first arrow turns red).</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="note">Why it helps: you notice the wrong branch before committing, the wrong environment before installing, and uncommitted work before switching. Exact symbols and colours depend on the theme you pick.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">One example: zsh + Prezto</span>
+        <p>The prompts in this guide come from the author's own setup: <strong>zsh</strong> with <strong>Prezto</strong>, a ready-made zsh configuration (theme: sorin). It adds the Git-aware prompt, smarter Tab completion, colours as you type and suggestions from your history.</p>
+<pre class="term"><span class="c"># back up your current config first!</span>
+<span class="p">❯ </span>cp ~/.zshrc ~/.zshrc.backup
+<span class="p">❯ </span>git clone --recursive \
+    https://github.com/sorin-ionescu/prezto.git \
+    "${ZDOTDIR:-$HOME}/.zprezto"
+<span class="c"># then follow the install steps</span>
+<span class="c"># in the prezto README</span></pre>
+        <p class="note">Modules and theme live in <code>~/.zpreztorc</code>, e.g. <code>'git'</code>, <code>'syntax-highlighting'</code>, <code>'autosuggestions'</code>. <code>prompt -l</code> lists themes.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Other ways to get there</span>
+        <ul class="oslist">
+          <li><strong>Oh My Zsh:</strong> the most popular zsh configuration framework, with hundreds of themes.</li>
+          <li><strong>Starship:</strong> one prompt that works the same in zsh, bash and even PowerShell.</li>
+          <li><strong>Plain bash:</strong> Git ships a small script, <code>git-prompt.sh</code>, that adds the branch to your bash prompt.</li>
+        </ul>
+        <p class="note">Pick one, or none: all of this is optional. The point is knowing that a prompt <em>can</em> do this.</p>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">On Linux or WSL? Get zsh too</span>
+<pre class="term"><span class="p">$ </span>sudo apt install zsh
+<span class="p">$ </span>chsh -s "$(which zsh)"
+<span class="c"># reopen the terminal</span></pre>
+        <p class="note">One of the few good reasons for <code>sudo</code>. Totally optional: bash works fine for everything in this guide.</p>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- 11 ERRORS -->
+  <div class="slide"><div class="slide-inner"><section class="chapter" id="errors">
+    <div class="ch-head"><span class="ch-num">Chapter 11</span><h2>Terminal error bestiary</h2><span class="part-tag">Level up</span></div>
+    <div class="strip">
+      <div class="panel top">
+        <div class="bubble"><span class="who snap">Snap</span>The terminal is blunt, not angry. Every message tells you what it didn't like.</div>
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="Three cartoon bugs labelled command not found, no such file, and permission denied">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <use href="#bug" x="14" y="26" width="84" height="70" fill="#e83e8c"/>
+          <use href="#bug" x="108" y="12" width="84" height="70" fill="#ffd23f"/>
+          <use href="#bug" x="202" y="26" width="84" height="70" fill="#2bb3e8"/>
+          <g font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" text-anchor="middle" fill="#15131a">
+            <text x="56" y="114">command</text><text x="56" y="126">not found</text>
+            <text x="150" y="100">no such</text><text x="150" y="112">file</text>
+            <text x="244" y="114">permission</text><text x="244" y="126">denied</text>
+          </g>
+        </svg>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Field guide</span>
+        <div class="scroll-x">
+        <table class="cmp beasts">
+          <thead><tr><th>You see</th><th>It means</th><th>Try</th></tr></thead>
+          <tbody>
+            <tr><td><code>zsh: command not found: pyhton</code></td><td>Typo, or the program isn't installed / not in <code>PATH</code>.</td><td>Check spelling; <code>which python3</code>; activate your environment</td></tr>
+            <tr><td><code>no such file or directory</code></td><td>The path is wrong from where you are.</td><td><code>pwd</code>, <code>ls</code>, and use Tab to complete paths</td></tr>
+            <tr><td><code>permission denied: ./train.sh</code></td><td>The file isn't marked as runnable, or isn't yours.</td><td><code>bash train.sh</code> or <code>chmod +x train.sh</code></td></tr>
+            <tr><td><code>zsh: no matches found: .[dev]</code></td><td>zsh treats <code>[ ]</code>, <code>*</code> and <code>?</code> as wildcards.</td><td>Add quotes: <code>pip install ".[dev]"</code></td></tr>
+            <tr><td>Weird file called <code>1.24</code> appears after <code>pip install numpy&lt;1.24</code></td><td><code>&lt;</code> and <code>&gt;</code> are redirection symbols.</td><td>Always quote versions: <code>pip install "numpy&lt;1.24"</code></td></tr>
+            <tr><td>Prompt changes to <code>dquote&gt;</code> or <code>quote&gt;</code></td><td>You opened a quote and never closed it.</td><td>Ctrl+C and retype the line</td></tr>
+            <tr><td>Nothing happens, no prompt comes back</td><td>A program is still running (or waiting for input).</td><td>Wait, or Ctrl+C to stop it</td></tr>
+            <tr><td>Stuck in a screen with <code>:</code> or <code>(END)</code> at the bottom</td><td>You're in <code>less</code> or <code>man</code>.</td><td>Press <kbd>q</kbd></td></tr>
+            <tr><td>Stuck in a screen full of <code>~</code> lines</td><td>You're in vim.</td><td><kbd>Esc</kbd> then <code>:q!</code> Enter</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <div class="panel wide row">
+        <span class="caption">Ready for the next issue</span>
+        <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+          <div class="bubble"><span class="who sam">Sam</span>I moved around, made folders, piped a log into grep, and escaped vim. I'm basically a hacker now.</div>
+          <div class="bubble r plain-tail"><span class="who snap">Snap</span>Basically! Next stop: taking snapshots of your work with Git. <a class="xref" href="git-good-slides.html">Issue #1 · Git Good ↗</a></div>
+        </div>
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="Sam and Snap high-five">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <use href="#burst" x="105" y="-14" width="90" height="90" fill="#ffd23f"/>
+          <g transform="translate(40 4) scale(.88)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M41 60 Q50 69 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+            <path d="M76 90 L108 50" stroke="#e83e8c" stroke-width="10" stroke-linecap="round"/>
+            <circle cx="110" cy="46" r="8" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+          </g>
+          <use href="#snap" x="160" y="30" width="100" height="110"/>
+          <text x="150" y="36" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="18" fill="#15131a">&gt;_ YES!</text>
+        </svg>
+      </div>
+    </div>
+  </section></div></div>
+
+  <!-- CHEAT SHEET -->
+  <div class="slide"><div class="slide-inner"><section class="cheat" id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat-grid">
+      <div class="cheat-group">
+        <h3>Where am I?</h3>
+        <div class="cmd"><code>pwd</code><span>print current folder</span></div>
+        <div class="cmd"><code>ls -la</code><span>list everything, with details</span></div>
+        <div class="cmd"><span class="codes"><code>cd folder</code> <code>cd ..</code></span><span>go in · go up</span></div>
+        <div class="cmd"><span class="codes"><code>cd</code> <code>cd -</code></span><span>go home · go back</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Files</h3>
+        <div class="cmd"><code>mkdir -p a/b</code><span>make folders</span></div>
+        <div class="cmd"><span class="codes"><code>cp</code> <code>cp -r</code></span><span>copy file · copy folder</span></div>
+        <div class="cmd"><code>mv old new</code><span>move or rename</span></div>
+        <div class="cmd"><span class="codes"><code>rm</code> <code>rm -r</code></span><span>delete (no undo!)</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Look inside</h3>
+        <div class="cmd"><code>less file</code><span>scroll (q quits)</span></div>
+        <div class="cmd"><code>head -n 5 file</code><span>first lines</span></div>
+        <div class="cmd"><code>tail -f log</code><span>watch a log live</span></div>
+        <div class="cmd"><code>open .</code><span>open in Finder (macOS)</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Keys</h3>
+        <div class="cmd"><code>Tab</code><span>autocomplete</span></div>
+        <div class="cmd"><span class="codes"><code>↑</code> <code>Ctrl+R</code></span><span>history · search history</span></div>
+        <div class="cmd"><code>Ctrl+C</code><span>stop / cancel</span></div>
+        <div class="cmd"><code>Ctrl+L</code><span>clear screen</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Plumbing</h3>
+        <div class="cmd"><code>a | b</code><span>output of a into b</span></div>
+        <div class="cmd"><span class="codes"><code>&gt;</code> <code>&gt;&gt;</code></span><span>write to file · append</span></div>
+        <div class="cmd"><code>grep -rn "text" .</code><span>search inside files</span></div>
+        <div class="cmd"><code>find . -name "*.py"</code><span>search file names</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Help &amp; escape</h3>
+        <div class="cmd"><span class="codes"><code>man cmd</code> <code>cmd --help</code></span><span>how does it work?</span></div>
+        <div class="cmd"><code>which cmd</code><span>where is it installed?</span></div>
+        <div class="cmd"><code>q</code><span>leave less / man</span></div>
+        <div class="cmd"><span class="codes"><code>Esc</code> <code>:q!</code></span><span>leave vim</span></div>
+      </div>
+    </div>
+    <p class="end">Now you speak terminal. On to <a class="xref" href="git-good-slides.html">Issue #1 ↗</a></p>
+  </section></div></div>
+</main>
+<nav class="nav" aria-label="Slide navigation">
+  <span class="bar" id="bar"></span>
+  <button id="prev" type="button" aria-label="Previous slide">◀ Back</button>
+  <div class="mid">
+    <div class="label" id="label" aria-live="polite"></div>
+    <div class="dots" id="dots"></div>
+  </div>
+  <span class="hint">← → · h l · j k</span>
+  <button id="next" type="button" aria-label="Next slide">Next ▶</button>
+</nav>
+<script>
+(function(){
+  const slides=[...document.querySelectorAll('.slide')];
+  const ids=slides.map(s=>s.querySelector('section').id);
+  const labels=slides.map((s,i)=>{
+    const h=s.querySelector('.ch-head h2, .cheat h2');
+    return i===0?'Hello, Terminal':(h?h.textContent.trim():'Slide '+(i+1));
+  });
+  const dots=document.getElementById('dots'), label=document.getElementById('label');
+  const prev=document.getElementById('prev'), next=document.getElementById('next'), bar=document.getElementById('bar');
+  slides.forEach((s,i)=>{
+    const b=document.createElement('button');b.type='button';
+    b.title=labels[i];b.setAttribute('aria-label','Go to '+labels[i]);
+    b.addEventListener('click',()=>go(i));dots.appendChild(b);
+  });
+  let cur=-1;
+  function go(i,fromHash){
+    i=Math.max(0,Math.min(slides.length-1,i));
+    if(i===cur)return;
+    const dir=i>cur?'in-next':'in-prev';
+    slides.forEach((s,k)=>{s.hidden=k!==i;s.classList.remove('in-next','in-prev');});
+    const el=slides[i];
+    if(cur!==-1){void el.offsetWidth;el.classList.add(dir);}
+    el.scrollTop=0;
+    cur=i;
+    label.textContent='';
+    const b=document.createElement('b');b.textContent=(i+1)+' / '+slides.length;
+    label.append(b,labels[i]);
+    [...dots.children].forEach((d,k)=>d.setAttribute('aria-current',k===i?'true':'false'));
+    prev.disabled=i===0; next.disabled=i===slides.length-1;
+    bar.style.width=((i+1)/slides.length*100)+'%';
+    if(!fromHash&&ids[i]){try{history.replaceState(null,'','#'+ids[i]);}catch(e){}}
+  }
+  function fromHash(){
+    const i=ids.indexOf(location.hash.slice(1));
+    go(i>=0?i:(cur<0?0:cur),true);
+  }
+  prev.addEventListener('click',()=>go(cur-1));
+  next.addEventListener('click',()=>go(cur+1));
+  window.addEventListener('hashchange',fromHash);
+  document.querySelectorAll('.toc a').forEach(a=>a.addEventListener('click',e=>{
+    const i=ids.indexOf(a.getAttribute('href').slice(1));
+    if(i>=0){e.preventDefault();go(i);}
+  }));
+  document.addEventListener('keydown',e=>{
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
+    if(['ArrowRight','PageDown','l','j'].includes(e.key)){e.preventDefault();go(cur+1);}
+    else if(['ArrowLeft','PageUp','h','k'].includes(e.key)){e.preventDefault();go(cur-1);}
+    else if(e.key==='Home'){e.preventDefault();go(0);}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1);}
+  });
+  let sx=0,sy=0,st=null;
+  document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=e.target;},{passive:true});
+  document.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(st&&st.closest&&st.closest('.term,[style*="overflow-x"],.nav'))return;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)go(cur+(dx<0?1:-1));
+  },{passive:true});
+  fromHash();
+})();
+</script>
+</body>
+</html>

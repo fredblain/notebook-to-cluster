@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0}
+img,svg{max-width:100%}
+[hidden]{display:none!important}
+kbd{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.82em;font-weight:700;background:#fff;color:#15131a;border:2px solid #15131a;border-bottom-width:4px;border-radius:6px;padding:0 .4em;white-space:nowrap}
+</style>
+<title>Git Good</title>
+<style>
+@font-face{font-family:"Big Shoulders";src:url("fonts/BigShoulders-Bold.ttf") format("truetype");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+
+/* Layout: a comic book. Chapters are rows of bordered panels on a halftone page; speech bubbles sit above each drawing. One deliberate light "printed page" look. */
+:root{
+  --paper:#eef3f8;
+  --panel:#ffffff;
+  --ink:#15131a;
+  --cyan:#2bb3e8;
+  --magenta:#e83e8c;
+  --yellow:#ffd23f;
+  --green:#2fbf6c;
+  --red:#e5484d;
+  --muted:#5b5f6b;
+  --term:#17151d;
+  --term-fg:#ece9f4;
+  --f-display:"Big Shoulders","Impact","Arial Narrow Bold",sans-serif;
+  --f-body:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:radial-gradient(rgba(43,179,232,.22) 1.2px, transparent 1.4px);
+  background-size:9px 9px;
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:17px;
+  line-height:1.45;
+}
+.page{max-width:1060px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;letter-spacing:.03em;margin:0;text-wrap:balance}
+code{font-family:var(--f-mono);font-size:.88em;background:#fff3c4;border:1.5px solid var(--ink);border-radius:5px;padding:0 .3em;white-space:nowrap}
+
+/* cover */
+.cover{background:var(--panel);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);overflow:hidden}
+.cover-text{padding:28px 28px 24px;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.issue{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--yellow);align-self:flex-start;padding:4px 10px}
+.cover h1{font-size:clamp(3.8rem,11vw,7.2rem);line-height:.9;color:var(--yellow);-webkit-text-stroke:3px var(--ink);text-shadow:5px 5px 0 var(--magenta),9px 9px 0 var(--ink)}
+.cover p{margin:0;font-size:1.12rem;max-width:34ch}
+.cover-art{background:var(--cyan);border-left:4px solid var(--ink);display:flex;align-items:flex-end;justify-content:center;min-height:260px}
+.cover-art svg{width:100%;height:auto;display:block}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.toc a{font-family:var(--f-display);letter-spacing:.04em;font-size:1rem;color:var(--ink);text-decoration:none;background:#fff;border:2px solid var(--ink);padding:2px 8px;box-shadow:2px 2px 0 var(--ink)}
+.toc a:hover,.toc a:focus-visible{background:var(--yellow);outline:none}
+
+/* chapters */
+.chapter{display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
+.ch-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ch-num{font-family:var(--f-display);font-size:1.05rem;letter-spacing:.06em;background:var(--magenta);color:#fff;border:3px solid var(--ink);padding:2px 10px;transform:rotate(-3deg);box-shadow:3px 3px 0 var(--ink)}
+.ch-head h2{font-size:clamp(2rem,5vw,2.9rem);line-height:1;-webkit-text-stroke:1px var(--ink)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.panel{background:var(--panel);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel.wide{grid-column:1/-1}
+.panel.yellow{background:#fff6cf}
+.panel svg.art{width:100%;height:auto;display:block;margin-top:auto}
+.caption{background:var(--yellow);border:2px solid var(--ink);font-weight:700;padding:3px 9px;align-self:flex-start;text-transform:uppercase;font-size:.78rem;letter-spacing:.06em;line-height:1.3}
+.panel p{margin:0}
+.note{font-size:.95rem;color:var(--muted)}
+.note strong{color:var(--ink)}
+
+/* speech bubbles */
+.bubble{background:#fff;border:2.5px solid var(--ink);border-radius:20px;padding:9px 14px;position:relative;line-height:1.35;margin-bottom:12px}
+.bubble::before,.bubble::after{content:"";position:absolute;width:0;height:0;border-style:solid}
+.bubble::before{bottom:-15px;left:30px;border-width:15px 9px 0 9px;border-color:var(--ink) transparent transparent transparent}
+.bubble::after{bottom:-10px;left:32.5px;border-width:10px 6.5px 0 6.5px;border-color:#fff transparent transparent transparent}
+.bubble.r::before{left:auto;right:30px}
+.bubble.r::after{left:auto;right:32.5px}
+.bubble.c::before{left:calc(50% - 9px)}
+.bubble.c::after{left:calc(50% - 6.5px)}
+.bubble.plain{margin-bottom:0}
+.bubble.plain::before,.bubble.plain::after{display:none}
+.who{display:inline-block;font-family:var(--f-display);letter-spacing:.06em;font-size:.85rem;padding:0 6px;border:1.5px solid var(--ink);margin-right:6px;transform:translateY(-1px)}
+.who.snap{background:var(--yellow)}
+.who.sam{background:var(--magenta);color:#fff}
+.bubble.shout{font-weight:700;background:#fff}
+
+/* terminal */
+.term{background:var(--term);color:var(--term-fg);font-family:var(--f-mono);font-size:.82rem;line-height:1.6;border:3px solid var(--ink);border-radius:8px;padding:12px 14px;overflow-x:auto;white-space:pre;margin:0;tab-size:4}
+.term .p{color:var(--yellow);user-select:none}
+.term .c{color:#8d8a99}
+.term .ok{color:#5fe39a}
+.term .bad{color:#ff7b80}
+.term .hl{color:#7fd3f5}
+.term .y{color:#ffe17a}
+
+/* steps & chips */
+.loop{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip{font-family:var(--f-mono);font-weight:700;font-size:.85rem;background:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:4px 12px;box-shadow:2px 2px 0 var(--ink)}
+.chip.y{background:var(--yellow)}
+.chip.c{background:#bfe9fa}
+.chip.m{background:#f9c7de}
+.arrow{font-family:var(--f-display);font-size:1.3rem;line-height:1}
+.zones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+.zones h3{font-size:1.15rem}
+.zones p{font-size:.88rem;color:var(--muted)}
+
+/* tables */
+.oops{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);border:2.5px solid var(--ink);background:#fff}
+.oops > div{padding:9px 12px;border-bottom:2px dashed #c9cdd6;min-width:0}
+.oops > div:nth-last-child(-n+2){border-bottom:0}
+.oops .h{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-size:1.05rem;border-bottom:0}
+.oops code{white-space:normal;word-break:break-word}
+.warn{background:var(--red);color:#fff;border:2.5px solid var(--ink);padding:8px 12px;font-weight:700;box-shadow:3px 3px 0 var(--ink)}
+.warn code{color:var(--ink)}
+.good-bad{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.good-bad ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.good-bad li{font-family:var(--f-mono);font-size:.82rem;background:#fff;border:2px solid var(--ink);padding:4px 8px;min-width:0;overflow-wrap:anywhere}
+.good-bad h3{font-size:1.2rem;margin-bottom:6px}
+.bad-t{color:var(--red)}
+.good-t{color:var(--green)}
+.habits{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+.habits li::marker{color:var(--magenta);font-weight:700}
+
+/* cheat sheet */
+.cheat{background:var(--yellow);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px;display:flex;flex-direction:column;gap:14px}
+.cheat h2{font-size:clamp(2rem,5vw,2.8rem);line-height:1}
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.cheat-group{background:#fff;border:2.5px solid var(--ink);padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cheat-group h3{font-size:1.1rem;color:var(--magenta)}
+.cmd{display:flex;flex-direction:column;gap:1px}
+.cmd code{white-space:normal;word-break:break-word;align-self:flex-start;background:#eef7fc}
+.cmd span{font-size:.88rem;color:var(--muted)}
+.end{text-align:center;font-family:var(--f-display);font-size:1.4rem;letter-spacing:.05em}
+
+@media (max-width:700px){
+  .cover{grid-template-columns:1fr}
+  .cover-art{border-left:0;border-top:4px solid var(--ink);min-height:0}
+  .oops{grid-template-columns:1fr}
+  .oops > div:nth-child(2n+1):not(.h){border-bottom:0;padding-bottom:2px;font-weight:700}
+  .oops .h:nth-child(2){display:none}
+  .good-bad{grid-template-columns:1fr}
+  body{font-size:16px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .flash{animation:flash 2.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+  @keyframes flash{0%,80%,100%{opacity:1;transform:scale(1)}88%{opacity:.6;transform:scale(1.12)}}
+}
+
+/* ---- offline series navigation ---- */
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+a.xref:hover,a.xref:focus-visible{background:var(--yellow);outline:none}
+.cover p.prev-issue,.cover p.formats{font-size:.95rem;max-width:none;margin:0}
+.series-bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.series-bar .lbl{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.xref.home{background:var(--yellow)}
+.xref.fmt{background:#f9c7de}
+</style>
+</head>
+<body>
+<!-- shared drawings -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#15131a" opacity=".16"/></pattern>
+    <pattern id="dotsW" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#ffffff" opacity=".35"/></pattern>
+
+    <symbol id="sam" viewBox="0 0 100 150">
+      <rect x="36" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <rect x="53" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <path d="M20 122 Q18 80 50 75 Q82 80 80 122 Z" fill="#e83e8c" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M44 80 L43 98 M56 80 L57 98" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="50" cy="46" r="26" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+      <path d="M24 46 Q20 16 50 16 Q82 16 76 46 Q72 31 60 33 Q52 23 40 32 Q30 33 24 46 Z" fill="#15131a"/>
+      <circle cx="41" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="59" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="34" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+      <circle cx="66" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+    </symbol>
+
+    <symbol id="snap" viewBox="0 0 100 110">
+      <path d="M38 82 L36 101 M62 82 L64 101" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <ellipse cx="33" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <ellipse cx="67" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <path d="M14 52 L5 40 M86 52 L95 40" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <circle cx="5" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="95" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="28" y="14" width="22" height="16" rx="4" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="62" y="17" width="14" height="11" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="14" y="26" width="72" height="58" rx="12" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="50" cy="52" r="20" fill="#15131a"/>
+      <circle cx="50" cy="52" r="14" fill="#2bb3e8"/>
+      <circle cx="50" cy="52" r="6" fill="#15131a"/>
+      <circle cx="44" cy="46" r="4" fill="#ffffff"/>
+      <path d="M42 76 Q50 81 58 76" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="burst" viewBox="-50 -50 100 100">
+      <polygon points="50,0 27.7,11.5 35.4,35.4 11.5,27.7 0,50 -11.5,27.7 -35.4,35.4 -27.7,11.5 -50,0 -27.7,-11.5 -35.4,-35.4 -11.5,-27.7 0,-50 11.5,-27.7 35.4,-35.4 27.7,-11.5" stroke="#15131a" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="polaroid" viewBox="0 0 60 70">
+      <rect x="1.5" y="1.5" width="57" height="67" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="7" y="7" width="46" height="40" fill="#bfe9fa" stroke="#15131a" stroke-width="2"/>
+      <path d="M7 47 L22 28 L32 39 L39 31 L53 47 Z" fill="#2fbf6c" stroke="#15131a" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="42" cy="17" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="2"/>
+    </symbol>
+
+    <symbol id="file" viewBox="0 0 40 50">
+      <path d="M2 2 H28 L38 12 V48 H2 Z" fill="#ffffff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M28 2 V12 H38" fill="none" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M9 22 H31 M9 29 H27 M9 36 H31" stroke="#9aa0ad" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="page">
+
+  <!-- COVER -->
+  <section class="cover">
+    <div class="cover-text">
+      <span class="issue">Issue #1 · Version control for humans</span>
+      <h1>Git<br>Good</h1>
+      <p>An illustrated guide to Git for students who have a folder full of <code>final_v3_REAL.py</code> files and would like that to stop.</p>
+      <nav class="toc" aria-label="Chapters">
+        <a href="#problem">1 · Why</a>
+        <a href="#setup">2 · Setup</a>
+        <a href="#places">3 · Three places</a>
+        <a href="#first">4 · First commit</a>
+        <a href="#back">5 · Look back</a>
+        <a href="#branches">6 · Branches</a>
+        <a href="#conflicts">7 · Conflicts</a>
+        <a href="#remotes">8 · GitHub</a>
+        <a href="#ignore">9 · .gitignore</a>
+        <a href="#notebooks">10 · Notebooks</a>
+        <a href="#habits">11 · Habits</a>
+        <a href="#cheat">Cheat sheet</a>
+      </nav>
+      <div class="series-bar"><span class="lbl">Series</span><a class="xref home" href="index.html">⌂ Home</a><a class="xref" href="hello-terminal.html">Issue #0 · Hello, Terminal</a><a class="xref" href="windows-and-wsl.html">Appendix · Windows &amp; WSL</a><a class="xref" href="works-on-my-machine.html">Issue #2 · Works on my machine</a><a class="xref" href="share-the-gpu.html">Issue #3 · Share the GPU</a><a class="xref fmt" href="git-good-slides.html">▶ View as slides</a></div>
+    </div>
+    <div class="cover-art">
+      <svg viewBox="0 0 420 300" role="img" aria-label="Sam the student and Snap the camera robot, surrounded by floating photos">
+        <rect width="420" height="300" fill="url(#dotsW)"/>
+        <use href="#burst" x="150" y="40" width="230" height="230" fill="#ffd23f"/>
+        <g transform="rotate(-12 70 60)"><use href="#polaroid" x="40" y="26" width="52" height="60"/></g>
+        <g transform="rotate(10 360 70)"><use href="#polaroid" x="334" y="34" width="48" height="56"/></g>
+        <g transform="rotate(-4 220 30)"><use href="#polaroid" x="200" y="6" width="40" height="46"/></g>
+        <g transform="translate(70 92) scale(1.3)">
+          <use href="#sam" width="100" height="150"/>
+          <path d="M41 60 Q50 69 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <use href="#snap" x="220" y="128" width="150" height="165"/>
+        <rect x="0" y="292" width="420" height="8" fill="#15131a"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 1 PROBLEM -->
+  <section class="chapter" id="problem">
+    <div class="ch-head"><span class="ch-num">Chapter 1</span><h2>The problem</h2></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Week 6 of the thesis…</span>
+        <div class="bubble"><span class="who sam">Sam</span>Which of these files actually worked last Tuesday?!</div>
+        <svg class="art" viewBox="0 0 300 180" role="img" aria-label="Sam looks worried at a pile of files named final, final real, and final fixed">
+          <rect width="300" height="180" fill="url(#dots)"/>
+          <rect x="0" y="160" width="300" height="20" fill="#c9a77c" stroke="#15131a" stroke-width="3"/>
+          <g transform="translate(14 26) scale(.9)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M42 64 Q50 57 58 64" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+            <path d="M80 26 q5 8 0 11 q-5 -3 0 -11z" fill="#2bb3e8" stroke="#15131a" stroke-width="1.5"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#15131a">
+            <g transform="rotate(-6 170 30)"><rect x="118" y="14" width="118" height="22" fill="#fff" stroke="#15131a" stroke-width="2"/><text x="125" y="29">thesis.py</text></g>
+            <g transform="rotate(4 190 55)"><rect x="132" y="42" width="128" height="22" fill="#fff" stroke="#15131a" stroke-width="2"/><text x="139" y="57">thesis_v2.py</text></g>
+            <g transform="rotate(-3 180 82)"><rect x="118" y="70" width="140" height="22" fill="#fff" stroke="#15131a" stroke-width="2"/><text x="125" y="85">thesis_final.py</text></g>
+            <g transform="rotate(5 200 108)"><rect x="128" y="96" width="160" height="22" fill="#fff" stroke="#15131a" stroke-width="2"/><text x="135" y="111">thesis_final_REAL.py</text></g>
+            <g transform="rotate(-4 200 136)"><rect x="112" y="124" width="182" height="22" fill="#ffd23f" stroke="#15131a" stroke-width="2"/><text x="119" y="139">final_REAL_fixed(2).py</text></g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="panel">
+        <span class="caption">Suddenly…</span>
+        <div class="bubble"><span class="who snap">Snap</span>Hi! I'm Snap. I'm basically what Git does: I take <strong>snapshots</strong> of your whole project folder, whenever you tell me to.</div>
+        <svg class="art" viewBox="0 0 300 180" role="img" aria-label="Snap the camera robot pops into view">
+          <rect width="300" height="180" fill="#bfe9fa"/>
+          <rect width="300" height="180" fill="url(#dots)"/>
+          <use href="#burst" x="55" y="-5" width="190" height="190" fill="#e83e8c"/>
+          <use href="#snap" x="100" y="38" width="100" height="110"/>
+          <text x="18" y="48" font-family="Big Shoulders, Impact, sans-serif" font-size="38" fill="#ffd23f" stroke="#15131a" stroke-width="2" transform="rotate(-10 40 40)">POP!</text>
+        </svg>
+      </div>
+
+      <div class="panel">
+        <span class="caption">One folder, full history</span>
+        <div class="bubble"><span class="who snap">Snap</span>Each snapshot is a <strong>commit</strong>. It remembers what changed, who did it, when, and a short message saying why.</div>
+        <svg class="art" viewBox="0 0 300 180" role="img" aria-label="Three photos hanging on a line, each a commit with an ID and a message">
+          <rect width="300" height="180" fill="url(#dots)"/>
+          <path d="M0 28 Q150 58 300 28" fill="none" stroke="#15131a" stroke-width="2.5"/>
+          <g transform="rotate(-5 50 80)"><use href="#polaroid" x="20" y="36" width="64" height="75"/></g>
+          <g transform="rotate(3 150 85)"><use href="#polaroid" x="118" y="44" width="64" height="75"/></g>
+          <g transform="rotate(-3 250 80)"><use href="#polaroid" x="216" y="36" width="64" height="75"/></g>
+          <g fill="#e83e8c" stroke="#15131a" stroke-width="2"><rect x="47" y="30" width="8" height="14" rx="2"/><rect x="146" y="38" width="8" height="14" rx="2"/><rect x="244" y="30" width="8" height="14" rx="2"/></g>
+          <g font-family="JetBrains Mono, monospace" font-size="10" text-anchor="middle" fill="#15131a">
+            <text x="52" y="132" font-weight="700">a1b2c3d</text><text x="52" y="146">Load data</text>
+            <text x="150" y="140" font-weight="700">b7c3d10</text><text x="150" y="154">Fix split</text>
+            <text x="248" y="132" font-weight="700">e4f9a21</text><text x="248" y="146">Add plot</text>
+          </g>
+          <path d="M20 168 H280" stroke="#15131a" stroke-width="2" stroke-dasharray="4 5"/>
+          <path d="M272 162 L282 168 L272 174" fill="none" stroke="#15131a" stroke-width="2"/>
+          <text x="20" y="178" font-family="Bricolage Grotesque, sans-serif" font-size="9" fill="#5b5f6b">older</text>
+          <text x="250" y="160" font-family="Bricolage Grotesque, sans-serif" font-size="9" fill="#5b5f6b">newer</text>
+        </svg>
+      </div>
+    </div>
+    <div class="strip">
+      <div class="panel wide yellow">
+        <p><strong>What you get:</strong> go back to any earlier version, see exactly what changed between two versions, try risky ideas without breaking working code, and share code with teammates (or your supervisor) without emailing zip files. Git runs locally on your computer. GitHub and GitLab are websites that host a copy of your Git project online; you'll meet them in Chapter 8.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 SETUP -->
+  <section class="chapter" id="setup">
+    <div class="ch-head"><span class="ch-num">Chapter 2</span><h2>Setup (once per computer)</h2></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Is Git installed?</span>
+        <div class="bubble r"><span class="who snap">Snap</span>Open a terminal and ask me my version.</div>
+<pre class="term"><span class="p">$ </span>git --version
+<span class="ok">git version 2.4x.x</span></pre>
+        <p class="note"><strong>Not found?</strong> macOS: run <code>xcode-select --install</code> (or <code>brew install git</code>). Ubuntu/Debian: <code>sudo apt install git</code>. Windows: install “Git for Windows” from git-scm.com.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Tell Git who you are</span>
+        <div class="bubble"><span class="who snap">Snap</span>I sign every snapshot with your name and email. Use the same email as your GitHub account.</div>
+<pre class="term"><span class="p">$ </span>git config --global user.name "Ada Student"
+<span class="p">$ </span>git config --global user.email "ada@example.com"
+<span class="p">$ </span>git config --global init.defaultBranch main
+<span class="c"># check it worked</span>
+<span class="p">$ </span>git config --list</pre>
+        <p class="note"><code>--global</code> means “for every project on this computer”, so you only do this once.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 THREE PLACES -->
+  <section class="chapter" id="places">
+    <div class="ch-head"><span class="ch-num">Chapter 3</span><h2>The three places your files live</h2></div>
+    <div class="strip">
+      <div class="panel wide">
+        <span class="caption">The most important page in this issue</span>
+        <div class="bubble c"><span class="who snap">Snap</span>Think of a photo shoot. First you choose who stands on the stage (<code>git add</code>). Then you press the button (<code>git commit</code>).</div>
+        <svg class="art" viewBox="0 0 640 210" role="img" aria-label="Files move from the working directory desk, to the staging area stage with git add, then into the repository photo album with git commit">
+          <rect width="640" height="210" fill="url(#dots)"/>
+          <!-- desk -->
+          <rect x="20" y="150" width="160" height="14" fill="#c9a77c" stroke="#15131a" stroke-width="3"/>
+          <path d="M34 164 V200 M166 164 V200" stroke="#15131a" stroke-width="4"/>
+          <g transform="rotate(-10 60 120)"><use href="#file" x="40" y="96" width="40" height="50"/></g>
+          <use href="#file" x="82" y="96" width="40" height="50"/>
+          <g transform="rotate(8 140 120)"><use href="#file" x="122" y="98" width="40" height="50"/></g>
+          <path d="M116 60 L152 96" stroke="#15131a" stroke-width="5" stroke-linecap="round"/>
+          <path d="M150 94 L156 100" stroke="#e83e8c" stroke-width="7" stroke-linecap="round"/>
+          <text x="100" y="40" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="22" fill="#15131a">EDIT</text>
+          <!-- arrow add -->
+          <path d="M188 128 H226" stroke="#15131a" stroke-width="4"/>
+          <path d="M222 118 L236 128 L222 138 Z" fill="#15131a"/>
+          <rect x="168" y="86" width="86" height="26" rx="4" fill="#bfe9fa" stroke="#15131a" stroke-width="2.5"/>
+          <text x="211" y="104" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="14" fill="#15131a">git add</text>
+          <!-- stage -->
+          <polygon points="290,20 350,20 400,170 240,170" fill="#ffd23f" opacity=".45"/>
+          <rect x="300" y="8" width="40" height="16" rx="3" fill="#15131a"/>
+          <ellipse cx="320" cy="172" rx="82" ry="16" fill="#e83e8c" stroke="#15131a" stroke-width="3"/>
+          <path d="M238 172 V190 Q320 214 402 190 V172" fill="#b52d6c" stroke="#15131a" stroke-width="3"/>
+          <use href="#file" x="282" y="112" width="40" height="50"/>
+          <use href="#file" x="320" y="112" width="40" height="50"/>
+          <!-- arrow commit -->
+          <path d="M408 128 H446" stroke="#15131a" stroke-width="4"/>
+          <path d="M442 118 L456 128 L442 138 Z" fill="#15131a"/>
+          <rect x="374" y="86" width="116" height="26" rx="4" fill="#f9c7de" stroke="#15131a" stroke-width="2.5"/>
+          <text x="432" y="104" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="14" fill="#15131a">git commit</text>
+          <!-- album -->
+          <path d="M466 58 Q540 48 540 62 Q540 48 614 58 V190 Q540 180 540 194 Q540 180 466 190 Z" fill="#2d3a5a" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M474 64 Q536 56 536 68 V184 Q536 174 474 182 Z" fill="#ffffff" stroke="#15131a" stroke-width="2"/>
+          <path d="M544 68 Q544 56 606 64 V182 Q544 174 544 184 Z" fill="#ffffff" stroke="#15131a" stroke-width="2"/>
+          <use href="#polaroid" x="482" y="72" width="22" height="26"/>
+          <use href="#polaroid" x="508" y="72" width="22" height="26"/>
+          <use href="#polaroid" x="482" y="104" width="22" height="26"/>
+          <use href="#polaroid" x="508" y="104" width="22" height="26"/>
+          <use href="#polaroid" x="552" y="72" width="22" height="26"/>
+          <use href="#polaroid" x="578" y="72" width="22" height="26"/>
+          <g class="flash"><use href="#polaroid" x="552" y="104" width="22" height="26"/></g>
+          <use href="#burst" x="570" y="18" width="50" height="50" fill="#ffd23f"/>
+        </svg>
+        <div class="zones">
+          <div><h3>Working directory</h3><p>Your normal project folder. You edit files here.</p></div>
+          <div><h3>Staging area</h3><p>The list of changes that will go into the next snapshot.</p></div>
+          <div><h3>Repository</h3><p>All saved snapshots, kept in the hidden <code>.git</code> folder.</p></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="bubble"><span class="who sam">Sam</span>Why not just snapshot everything at once?</div>
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="Sam scratching their head">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <g transform="translate(110 4) scale(.9)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M44 62 L56 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <text x="200" y="40" font-family="Big Shoulders, Impact, sans-serif" font-size="36" fill="#e83e8c" stroke="#15131a" stroke-width="1.5">?</text>
+        </svg>
+      </div>
+      <div class="panel">
+        <div class="bubble r"><span class="who snap">Snap</span>Say you fixed a bug <em>and</em> started a new feature. Two separate photos, “Fix bug” and “Start feature”, tell a much clearer story later.</div>
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="Snap holding up two separate photos">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <g transform="rotate(-8 60 70)"><use href="#polaroid" x="30" y="30" width="60" height="70"/></g>
+          <use href="#snap" x="105" y="20" width="100" height="110"/>
+          <g transform="rotate(8 240 70)"><use href="#polaroid" x="212" y="30" width="60" height="70"/></g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 FIRST COMMIT -->
+  <section class="chapter" id="first">
+    <div class="ch-head"><span class="ch-num">Chapter 4</span><h2>Your first commit</h2></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Step 1 · Start tracking a folder</span>
+<pre class="term"><span class="p">$ </span>mkdir my-project
+<span class="p">$ </span>cd my-project
+<span class="p">$ </span>git init
+<span class="ok">Initialized empty Git repository
+in /Users/ada/my-project/.git/</span></pre>
+        <div class="bubble plain"><span class="who snap">Snap</span>I now live in the hidden <code>.git</code> folder. You never need to touch it. Deleting it deletes all history!</div>
+      </div>
+      <div class="panel">
+        <span class="caption">Step 2 · Ask what's going on</span>
+<pre class="term"><span class="c"># create a file, then:</span>
+<span class="p">$ </span>git status
+On branch main
+Untracked files:
+    <span class="bad">analysis.py</span></pre>
+        <div class="bubble plain"><span class="who sam">Sam</span>Red means Git sees the file but isn't tracking it yet. Got it.</div>
+      </div>
+      <div class="panel">
+        <span class="caption">Step 3 · Put it on stage</span>
+<pre class="term"><span class="p">$ </span>git add analysis.py
+<span class="p">$ </span>git status
+Changes to be committed:
+    <span class="ok">new file:   analysis.py</span></pre>
+        <p class="note"><code>git add .</code> stages <em>everything</em> changed in the folder. Handy, but check <code>git status</code> first.</p>
+      </div>
+    </div>
+    <div class="strip">
+      <div class="panel wide">
+        <span class="caption">Step 4 · Click!</span>
+        <div class="strip" style="align-items:center">
+          <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+<pre class="term"><span class="p">$ </span>git commit -m "Add data loading script"
+<span class="hl">[main (root-commit) a1b2c3d]</span> Add data loading script
+ 1 file changed, 12 insertions(+)
+ create mode 100644 analysis.py</pre>
+            <p class="note"><code>-m</code> is the message. Write what this snapshot <em>does</em>. <code>a1b2c3d</code> is the commit's ID (a short “hash”); every commit gets a unique one.</p>
+          </div>
+          <svg class="art" viewBox="0 0 320 190" role="img" aria-label="Snap's flash goes off and a fresh photo pops out">
+            <rect width="320" height="190" fill="#bfe9fa"/>
+            <rect width="320" height="190" fill="url(#dots)"/>
+            <g class="flash"><use href="#burst" x="150" y="-10" width="140" height="140" fill="#ffffff"/></g>
+            <use href="#snap" x="40" y="44" width="125" height="137"/>
+            <g transform="rotate(12 250 120)"><use href="#polaroid" x="210" y="80" width="70" height="82"/></g>
+            <text x="196" y="66" font-family="Big Shoulders, Impact, sans-serif" font-size="40" fill="#e83e8c" stroke="#15131a" stroke-width="2">FLASH!</text>
+          </svg>
+        </div>
+      </div>
+      <div class="panel wide yellow">
+        <span class="caption">The loop you'll repeat forever</span>
+        <div class="loop">
+          <span class="chip">edit files</span><span class="arrow">→</span>
+          <span class="chip c">git status</span><span class="arrow">→</span>
+          <span class="chip c">git add …</span><span class="arrow">→</span>
+          <span class="chip m">git commit -m "…"</span><span class="arrow">↺</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 LOOK BACK -->
+  <section class="chapter" id="back">
+    <div class="ch-head"><span class="ch-num">Chapter 5</span><h2>Looking back &amp; undoing</h2></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">The photo album</span>
+<pre class="term"><span class="p">$ </span>git log --oneline
+<span class="hl">e4f9a21</span> <span class="y">(HEAD -&gt; main)</span> Plot accuracy per epoch
+<span class="hl">b7c3d10</span> Fix off-by-one in data split
+<span class="hl">a1b2c3d</span> Add data loading script</pre>
+        <div class="bubble plain"><span class="who snap">Snap</span>Newest on top. <code>HEAD</code> is a “you are here” sticker on the snapshot you're currently on.</div>
+      </div>
+      <div class="panel">
+        <span class="caption">Spot the difference</span>
+<pre class="term"><span class="p">$ </span>git diff
+<span class="c">--- a/analysis.py</span>
+<span class="c">+++ b/analysis.py</span>
+<span class="bad">-test_size = 0.3</span>
+<span class="ok">+test_size = 0.2</span></pre>
+        <p class="note"><code>git diff</code> shows edits you haven't staged yet. <code>git diff --staged</code> shows what's about to be committed.</p>
+      </div>
+    </div>
+    <div class="strip">
+      <div class="panel wide">
+        <span class="caption">“Oops, I…” — quick fixes</span>
+        <div class="oops">
+          <div class="h">Oops, I…</div><div class="h">Do this</div>
+          <div>broke a file and want the last committed version back</div><div><code>git restore analysis.py</code></div>
+          <div>staged a file I didn't mean to</div><div><code>git restore --staged analysis.py</code></div>
+          <div>want to peek at an old version of a file</div><div><code>git show a1b2c3d:analysis.py</code></div>
+          <div>want to visit an old snapshot of the whole project</div><div><code>git switch --detach a1b2c3d</code> … then <code>git switch main</code> to come back</div>
+          <div>made a typo in the last commit message (not pushed yet)</div><div><code>git commit --amend -m "Better message"</code></div>
+          <div>want to undo a commit that's already shared</div><div><code>git revert b7c3d10</code> (makes a new commit that cancels it)</div>
+        </div>
+        <div class="warn">Careful: <code>git restore file</code> throws away edits you never committed. Git can only bring back what it has a snapshot of.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 BRANCHES -->
+  <section class="chapter" id="branches">
+    <div class="ch-head"><span class="ch-num">Chapter 6</span><h2>Branches: parallel universes</h2></div>
+    <div class="strip">
+      <div class="panel">
+        <div class="bubble"><span class="who sam">Sam</span>My model works. Now I want to try a transformer, but I'm scared of breaking everything.</div>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="Sam nervous next to a working model">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <g transform="translate(30 6) scale(.9)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M42 64 Q50 57 58 64" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <rect x="160" y="40" width="110" height="70" rx="6" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+          <path d="M172 96 L192 80 L210 88 L232 62 L258 54" fill="none" stroke="#2fbf6c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="215" y="132" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#15131a">acc 0.87 ✓</text>
+        </svg>
+      </div>
+      <div class="panel">
+        <div class="bubble r"><span class="who snap">Snap</span>Make a branch! It's a separate line of snapshots. <code>main</code> stays safe while you experiment.</div>
+<pre class="term"><span class="p">$ </span>git switch -c try-transformer   <span class="c"># create + move</span>
+<span class="c"># ...edit, add, commit as usual...</span>
+<span class="p">$ </span>git switch main                 <span class="c"># back to safety</span>
+<span class="p">$ </span>git merge try-transformer       <span class="c"># it worked? bring it in</span>
+<span class="p">$ </span>git branch -d try-transformer   <span class="c"># tidy up</span></pre>
+      </div>
+      <div class="panel wide">
+        <span class="caption">What it looks like inside Git</span>
+        <div style="overflow-x:auto">
+        <svg class="art" viewBox="0 0 640 170" role="img" aria-label="Commit graph: main has three commits, a branch called try-transformer splits off with two commits, then merges back into main" style="min-width:480px">
+          <rect width="640" height="170" fill="url(#dots)"/>
+          <path d="M40 120 H600" stroke="#15131a" stroke-width="5"/>
+          <path d="M200 120 C240 120 240 52 290 52 H400 C450 52 450 120 490 120" fill="none" stroke="#e83e8c" stroke-width="5"/>
+          <g stroke="#15131a" stroke-width="3">
+            <circle cx="60" cy="120" r="14" fill="#2bb3e8"/>
+            <circle cx="130" cy="120" r="14" fill="#2bb3e8"/>
+            <circle cx="200" cy="120" r="14" fill="#2bb3e8"/>
+            <circle cx="300" cy="52" r="14" fill="#e83e8c"/>
+            <circle cx="390" cy="52" r="14" fill="#e83e8c"/>
+            <circle cx="490" cy="120" r="17" fill="#ffd23f"/>
+          </g>
+          <rect x="530" y="102" width="76" height="34" rx="6" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+          <text x="568" y="125" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="15" fill="#15131a">main</text>
+          <rect x="250" y="8" width="190" height="26" rx="6" fill="#f9c7de" stroke="#15131a" stroke-width="2.5"/>
+          <text x="345" y="26" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="13" fill="#15131a">try-transformer</text>
+          <text x="490" y="160" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="14" fill="#15131a">merge commit</text>
+          <text x="130" y="160" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="14" fill="#5b5f6b">safe, working code</text>
+          <g transform="rotate(-8 560 68)"><rect x="530" y="52" width="62" height="28" fill="#ffd23f" stroke="#15131a" stroke-width="2.5"/><text x="561" y="72" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="17" fill="#15131a">HEAD</text></g>
+          <path d="M562 82 L566 98" stroke="#15131a" stroke-width="2.5"/>
+        </svg>
+        </div>
+        <p class="note"><code>git branch</code> lists your branches and marks the current one with <code>*</code>. Switching branches changes the files in your folder to match that branch, so commit (or stash) your work before switching.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 CONFLICTS -->
+  <section class="chapter" id="conflicts">
+    <div class="ch-head"><span class="ch-num">Chapter 7</span><h2>Merge conflicts (don't panic)</h2></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Both branches changed the same line</span>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="Two versions of the same line collide">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <use href="#burst" x="100" y="25" width="100" height="100" fill="#ffd23f"/>
+          <rect x="10" y="58" width="104" height="34" rx="5" fill="#bfe9fa" stroke="#15131a" stroke-width="3"/>
+          <text x="62" y="80" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="12" fill="#15131a">lr = 0.001</text>
+          <rect x="186" y="58" width="104" height="34" rx="5" fill="#f9c7de" stroke="#15131a" stroke-width="3"/>
+          <text x="238" y="80" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="12" fill="#15131a">lr = 0.01</text>
+          <text x="150" y="84" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="22" fill="#e5484d" stroke="#15131a" stroke-width="1">CLASH</text>
+          <text x="62" y="118" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">on main</text>
+          <text x="238" y="118" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">on your branch</text>
+        </svg>
+        <div class="bubble plain"><span class="who snap">Snap</span>I can't guess which one you want, so I ask you. That's all a conflict is.</div>
+      </div>
+      <div class="panel">
+        <span class="caption">Git marks the spot in the file</span>
+<pre class="term"><span class="y">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
+lr = 0.001
+<span class="y">=======</span>
+lr = 0.01
+<span class="y">&gt;&gt;&gt;&gt;&gt;&gt;&gt; try-transformer</span></pre>
+        <ol class="habits">
+          <li>Open the file. Keep the version you want (or combine them).</li>
+          <li>Delete the three marker lines.</li>
+          <li><code>git add train.py</code></li>
+          <li><code>git commit</code> — done!</li>
+        </ol>
+        <p class="note">Want to bail out instead? <code>git merge --abort</code> puts everything back.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 REMOTES -->
+  <section class="chapter" id="remotes">
+    <div class="ch-head"><span class="ch-num">Chapter 8</span><h2>Going online: GitHub &amp; friends</h2></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>A <strong>remote</strong> is a copy of your repository on a server. <code>push</code> uploads your new snapshots, <code>pull</code> downloads new ones, <code>clone</code> copies a whole project to a new computer.</div>
+        <div style="overflow-x:auto">
+        <svg class="art" viewBox="0 0 640 220" role="img" aria-label="Your laptop pushes commits up to a cloud server called origin and pulls them back down; a second laptop clones from the cloud" style="min-width:480px">
+          <rect width="640" height="220" fill="url(#dots)"/>
+          <!-- laptop 1 -->
+          <rect x="40" y="110" width="130" height="80" rx="6" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+          <rect x="50" y="120" width="110" height="60" fill="#bfe9fa" stroke="#15131a" stroke-width="2"/>
+          <path d="M24 190 H186 L176 204 H34 Z" fill="#9aa0ad" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+          <g stroke="#15131a" stroke-width="2"><circle cx="72" cy="150" r="7" fill="#2bb3e8"/><circle cx="96" cy="150" r="7" fill="#2bb3e8"/><circle cx="120" cy="150" r="7" fill="#2bb3e8"/><circle cx="144" cy="150" r="7" fill="#ffd23f"/></g>
+          <path d="M79 150 H89 M103 150 H113 M127 150 H137" stroke="#15131a" stroke-width="2"/>
+          <text x="105" y="100" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="20" fill="#15131a">YOUR LAPTOP</text>
+          <!-- cloud -->
+          <path d="M300 110 A30 30 0 0 1 318 54 A40 40 0 0 1 392 40 A34 34 0 0 1 450 74 A20 20 0 0 1 448 110 Z" fill="#ffffff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+          <text x="375" y="84" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="16" fill="#15131a">origin</text>
+          <text x="375" y="102" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">GitHub / GitLab</text>
+          <!-- push / pull -->
+          <path d="M150 104 C180 50 230 44 288 62" fill="none" stroke="#e83e8c" stroke-width="5"/>
+          <path d="M282 50 L298 64 L280 74 Z" fill="#e83e8c" stroke="#15131a" stroke-width="2"/>
+          <text x="196" y="50" font-family="JetBrains Mono, monospace" font-weight="700" font-size="16" fill="#e83e8c">push ↑</text>
+          <path d="M300 112 C260 140 220 150 186 150" fill="none" stroke="#2bb3e8" stroke-width="5"/>
+          <path d="M192 140 L176 150 L192 160 Z" fill="#2bb3e8" stroke="#15131a" stroke-width="2"/>
+          <text x="224" y="176" font-family="JetBrains Mono, monospace" font-weight="700" font-size="16" fill="#1d8fbe">pull ↓</text>
+          <!-- laptop 2 -->
+          <rect x="490" y="130" width="110" height="64" rx="6" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+          <rect x="499" y="139" width="92" height="46" fill="#f9c7de" stroke="#15131a" stroke-width="2"/>
+          <path d="M476 194 H614 L605 206 H485 Z" fill="#9aa0ad" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M440 112 C470 120 500 110 520 126" fill="none" stroke="#2fbf6c" stroke-width="5"/>
+          <path d="M512 118 L528 132 L508 134 Z" fill="#2fbf6c" stroke="#15131a" stroke-width="2"/>
+          <text x="476" y="102" font-family="JetBrains Mono, monospace" font-weight="700" font-size="16" fill="#1f9452">clone</text>
+          <text x="545" y="166" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="12" fill="#15131a">GPU server,</text>
+          <text x="545" y="180" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="700" font-size="12" fill="#15131a">teammate…</text>
+        </svg>
+        </div>
+      </div>
+      <div class="panel">
+        <span class="caption">Option A · Project already online</span>
+<pre class="term"><span class="p">$ </span>git clone https://github.com/ada/my-project.git
+<span class="p">$ </span>cd my-project</pre>
+        <p class="note">You get all files and the full history. The remote is already set up as <code>origin</code>.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Option B · You started locally</span>
+<pre class="term"><span class="c"># make an EMPTY repo on GitHub first, then:</span>
+<span class="p">$ </span>git remote add origin git@github.com:ada/my-project.git
+<span class="p">$ </span>git push -u origin main   <span class="c"># first time</span>
+<span class="p">$ </span>git push                  <span class="c"># every time after</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Staying in sync</span>
+<pre class="term"><span class="p">$ </span>git pull    <span class="c"># start of the day</span>
+<span class="c"># ...work, add, commit...</span>
+<span class="p">$ </span>git push    <span class="c"># end of the day</span></pre>
+        <p class="note"><strong>Login tip:</strong> GitHub doesn't accept your password in the terminal. Set up an SSH key (search “GitHub SSH key”) or use a personal access token.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 GITIGNORE -->
+  <section class="chapter" id="ignore">
+    <div class="ch-head"><span class="ch-num">Chapter 9</span><h2>.gitignore: what NOT to snapshot</h2></div>
+    <div class="strip">
+      <div class="panel">
+        <div class="bubble"><span class="who snap">Snap</span>I'm the bouncer. Your code gets in. Big data, environments, and secrets stay outside.</div>
+        <svg class="art" viewBox="0 0 300 170" role="img" aria-label="Snap acts as a bouncer, letting analysis.py in and stopping the venv folder, a large data folder, and the .env secrets file">
+          <rect width="300" height="170" fill="url(#dots)"/>
+          <g font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#15131a">
+            <rect x="8" y="20" width="84" height="26" fill="#ffffff" stroke="#15131a" stroke-width="2"/><text x="16" y="37">.venv/</text>
+            <rect x="8" y="58" width="84" height="26" fill="#ffffff" stroke="#15131a" stroke-width="2"/><text x="16" y="75">data/ 2.3GB</text>
+            <rect x="8" y="96" width="84" height="26" fill="#ffffff" stroke="#15131a" stroke-width="2"/><text x="16" y="113">.env 🔑</text>
+          </g>
+          <g stroke="#e5484d" stroke-width="4" stroke-linecap="round">
+            <path d="M74 24 L88 42 M88 24 L74 42"/><path d="M74 62 L88 80 M88 62 L74 80"/><path d="M74 100 L88 118 M88 100 L74 118"/>
+          </g>
+          <use href="#snap" x="104" y="40" width="100" height="110"/>
+          <rect x="228" y="20" width="10" height="140" fill="#2d3a5a" stroke="#15131a" stroke-width="2"/>
+          <rect x="214" y="70" width="80" height="26" fill="#ffffff" stroke="#15131a" stroke-width="2"/>
+          <text x="220" y="87" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#15131a">analysis.py</text>
+          <text x="276" y="116" font-family="Big Shoulders, Impact, sans-serif" font-size="26" fill="#2fbf6c" stroke="#15131a" stroke-width="1">✓</text>
+          <path d="M100 160 H210" stroke="#e83e8c" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="panel">
+        <span class="caption">Make a file called .gitignore</span>
+<pre class="term"><span class="c"># .gitignore — in the project root</span>
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+data/
+*.csv
+.env
+.DS_Store</pre>
+        <p class="note">Each line is a pattern. Commit the <code>.gitignore</code> itself so teammates get it too.</p>
+        <div class="warn">Never commit passwords, tokens or API keys. Once pushed, assume they are public, even if you delete them later.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 NOTEBOOKS -->
+  <section class="chapter" id="notebooks">
+    <div class="ch-head"><span class="ch-num">Chapter 10</span><h2>Notebooks in Git</h2></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">You changed one number…</span>
+        <div class="bubble"><span class="who sam">Sam</span>I changed one learning rate and re-ran my notebook. Why does <code>git diff</code> show 900 changed lines?</div>
+        <svg class="art" viewBox="0 0 300 150" role="img" aria-label="A notebook file bursting into a long jumble of JSON text and encoded image data">
+          <rect width="300" height="150" fill="url(#dots)"/>
+          <rect x="16" y="22" width="92" height="110" rx="6" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+          <path d="M16 40 H108" stroke="#15131a" stroke-width="2.5"/>
+          <circle cx="27" cy="31" r="3" fill="#e5484d"/><circle cx="37" cy="31" r="3" fill="#ffd23f"/><circle cx="47" cy="31" r="3" fill="#2fbf6c"/>
+          <g fill="#eef7fc" stroke="#15131a" stroke-width="2"><rect x="26" y="50" width="72" height="16" rx="3"/><rect x="26" y="74" width="72" height="16" rx="3"/><rect x="26" y="98" width="72" height="24" rx="3"/></g>
+          <path d="M34 118 L46 108 L58 113 L72 102 L88 104" fill="none" stroke="#e83e8c" stroke-width="2.5"/>
+          <use href="#burst" x="96" y="38" width="70" height="70" fill="#ffd23f"/>
+          <text x="131" y="78" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="16" fill="#15131a">{ }</text>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#15131a">
+            <text x="170" y="40">"execution_count": 7,</text>
+            <text x="170" y="56">"outputs": [ {</text>
+            <text x="170" y="72">"image/png":</text>
+            <text x="170" y="88" fill="#b52d6c">"iVBORw0KGgoAAAA</text>
+            <text x="170" y="102" fill="#b52d6c">NSUhEUgAAAoAAAAH</text>
+            <text x="170" y="116" fill="#b52d6c">gCAYAAAA…"</text>
+          </g>
+        </svg>
+      </div>
+      <div class="panel">
+        <span class="caption">What's really inside an .ipynb</span>
+        <div class="bubble r"><span class="who snap">Snap</span>A notebook is a JSON text file. Besides your code, it stores every output, every plot as a huge block of encoded text, and the run number of each cell. Re-running changes all of them.</div>
+<pre class="term">  "cell_type": "code",
+<span class="bad">- "execution_count": 3,</span>
+<span class="ok">+ "execution_count": 7,</span>
+<span class="bad">- "source": ["lr = 0.01"],</span>
+<span class="ok">+ "source": ["lr = 0.001"],</span>    <span class="c">← your change</span>
+  "outputs": [{"data": {"image/png":
+<span class="bad">- "iVBORw0KGgoAAAANSUhEUgAA… (40 000 chars)"</span>
+<span class="ok">+ "iVBORw0KGgoAAAANSUhEUgAB… (41 000 chars)"</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Why that hurts</span>
+        <ol class="habits">
+          <li><strong>Unreadable diffs.</strong> Your one real change drowns in output noise.</li>
+          <li><strong>Painful merges.</strong> Two people re-run the same notebook: conflicts inside JSON.</li>
+          <li><strong>A bloated repo.</strong> Every committed plot stays in the history forever.</li>
+          <li><strong>Leaks.</strong> Outputs can show data samples, file paths or tokens you never meant to publish.</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <span class="caption">Fix 1 · Clear outputs before you commit</span>
+        <p>In Jupyter: <strong>Edit → Clear Outputs of All Cells</strong>, save, then commit. Or from the terminal:</p>
+<pre class="term"><span class="p">$ </span>jupyter nbconvert --clear-output \
+      --inplace analysis.ipynb
+<span class="p">$ </span>git add analysis.ipynb</pre>
+        <p class="note">Simple, but easy to forget. Fix 2 makes it automatic.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Fix 2 · Let Git do it: nbstripout</span>
+<pre class="term"><span class="p">$ </span>pip install nbstripout
+<span class="p">$ </span>cd my-project
+<span class="p">$ </span>nbstripout --install
+<span class="c"># from now on Git commits notebooks
+# without outputs; your file keeps them</span></pre>
+        <p class="note">Run <code>nbstripout --install</code> once in each repository, on each computer you commit from.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Fix 3 · Readable notebook diffs: nbdime</span>
+<pre class="term"><span class="p">$ </span>pip install nbdime
+<span class="p">$ </span>nbdime config-git --enable --global
+<span class="p">$ </span>git diff        <span class="c"># now cell by cell</span></pre>
+        <p class="note">nbdime shows what changed per cell (code, then outputs) instead of raw JSON, and also helps with merging notebooks.</p>
+      </div>
+      <div class="panel wide yellow">
+        <span class="caption">Habits for notebooks in a repo</span>
+        <ol class="habits">
+          <li><strong>Keep the real code in <code>.py</code> files.</strong> Notebooks import it and show results; plain Python diffs and merges cleanly. <a class="xref" href="works-on-my-machine.html#to-script">Issue #2 · Ch. 13</a></li>
+          <li><strong>One notebook, one person.</strong> Avoid editing the same notebook in parallel on two branches.</li>
+          <li><strong>Save the figures you need as files</strong> (<code>plt.savefig("figures/loss.png")</code>) instead of relying on notebook output.</li>
+          <li><strong>Ignore the clutter:</strong> <code>.ipynb_checkpoints/</code> belongs in <code>.gitignore</code> (Chapter 9).</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 HABITS -->
+  <section class="chapter" id="habits">
+    <div class="ch-head"><span class="ch-num">Chapter 11</span><h2>Habits of Git pros</h2></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Snap's rules</span>
+        <ol class="habits">
+          <li><strong>Commit small and often.</strong> One idea per commit. Several a day is normal.</li>
+          <li><strong><code>git status</code> is your best friend.</strong> Run it before every add and commit.</li>
+          <li><strong>Pull before you start, push when you stop.</strong></li>
+          <li><strong>Only commit code that runs</strong> on <code>main</code>. Experiments go on branches.</li>
+          <li><strong>Read the message Git prints.</strong> It usually tells you the next command.</li>
+        </ol>
+      </div>
+      <div class="panel">
+        <span class="caption">Commit messages</span>
+        <div class="good-bad">
+          <div>
+            <h3 class="bad-t">Future you: “huh?”</h3>
+            <ul><li>stuff</li><li>asdfgh</li><li>changes</li><li>final fix (for real)</li></ul>
+          </div>
+          <div>
+            <h3 class="good-t">Future you: “ah!”</h3>
+            <ul><li>Add CSV loader for survey data</li><li>Fix train/test leakage in split</li><li>Tune learning rate to 1e-3</li><li>Remove unused plotting code</li></ul>
+          </div>
+        </div>
+        <p class="note">Start with a verb, like an instruction: “Add…”, “Fix…”, “Remove…”. Finish the sentence “This commit will…”.</p>
+      </div>
+      <div class="panel">
+        <div class="bubble"><span class="who sam">Sam</span>So I can try anything, and if it goes wrong I just go back?</div>
+        <div class="bubble r"><span class="who snap">Snap</span>As long as you committed first. Now go break things!</div>
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="Sam and Snap high-five">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <use href="#burst" x="110" y="0" width="80" height="80" fill="#ffd23f"/>
+          <g transform="translate(40 4) scale(.88)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M41 60 Q50 69 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+            <path d="M76 90 L108 50" stroke="#e83e8c" stroke-width="10" stroke-linecap="round"/>
+            <circle cx="110" cy="46" r="8" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+          </g>
+          <use href="#snap" x="160" y="30" width="100" height="110"/>
+          <text x="150" y="46" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="20" fill="#15131a">SLAP!</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHEAT SHEET -->
+  <section class="cheat" id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat-grid">
+      <div class="cheat-group">
+        <h3>Start</h3>
+        <div class="cmd"><code>git init</code><span>turn this folder into a repo</span></div>
+        <div class="cmd"><code>git clone &lt;url&gt;</code><span>copy an online repo</span></div>
+        <div class="cmd"><code>git config --global user.name "…"</code><span>set your name (once)</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Snapshot</h3>
+        <div class="cmd"><code>git status</code><span>what changed? what's staged?</span></div>
+        <div class="cmd"><code>git add &lt;file&gt;</code><span>stage a file (<code>.</code> = everything)</span></div>
+        <div class="cmd"><code>git commit -m "…"</code><span>save the snapshot</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Look back</h3>
+        <div class="cmd"><code>git log --oneline</code><span>list snapshots</span></div>
+        <div class="cmd"><code>git diff</code><span>unstaged changes</span></div>
+        <div class="cmd"><code>git restore &lt;file&gt;</code><span>discard edits to a file</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Branch</h3>
+        <div class="cmd"><code>git switch -c &lt;name&gt;</code><span>new branch + switch to it</span></div>
+        <div class="cmd"><code>git switch main</code><span>go back to main</span></div>
+        <div class="cmd"><code>git merge &lt;name&gt;</code><span>bring a branch into the current one</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Share</h3>
+        <div class="cmd"><code>git push</code><span>upload your commits</span></div>
+        <div class="cmd"><code>git pull</code><span>download new commits</span></div>
+        <div class="cmd"><code>git remote -v</code><span>where does this repo push to?</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Help!</h3>
+        <div class="cmd"><code>git help &lt;command&gt;</code><span>the manual page</span></div>
+        <div class="cmd"><code>git merge --abort</code><span>cancel a messy merge</span></div>
+        <div class="cmd"><code>git revert &lt;id&gt;</code><span>safely undo a shared commit</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Notebooks</h3>
+        <div class="cmd"><code>nbstripout --install</code><span>commit notebooks without outputs</span></div>
+        <div class="cmd"><code>jupyter nbconvert --clear-output --inplace nb.ipynb</code><span>clear outputs by hand</span></div>
+        <div class="cmd"><code>nbdime config-git --enable --global</code><span>cell-by-cell diffs</span></div>
+      </div>
+    </div>
+  </section>
+
+  <p class="end">The end… of your <code>final_v7.py</code> era. Next: <a class="xref" href="works-on-my-machine.html">Issue #2 · Works on my machine</a></p>
+</main>
+</body>
+</html>

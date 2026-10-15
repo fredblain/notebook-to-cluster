@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0}
+img,svg{max-width:100%}
+[hidden]{display:none!important}
+kbd{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.82em;font-weight:700;background:#fff;color:#15131a;border:2px solid #15131a;border-bottom-width:4px;border-radius:6px;padding:0 .4em;white-space:nowrap}
+</style>
+<title>Windows &amp; WSL</title>
+<style>
+@font-face{font-family:"Big Shoulders";src:url("fonts/BigShoulders-Bold.ttf") format("truetype");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+
+/* Issue #2 of the Git Good comic series. Layout: a comic book. Chapters are rows of bordered panels on a halftone page; speech bubbles sit above each drawing. One deliberate light "printed page" look. */
+:root{
+  --paper:#eef3f8;
+  --panel:#ffffff;
+  --ink:#15131a;
+  --cyan:#2bb3e8;
+  --magenta:#e83e8c;
+  --yellow:#ffd23f;
+  --green:#2fbf6c;
+  --red:#e5484d;
+  --muted:#5b5f6b;
+  --term:#17151d;
+  --term-fg:#ece9f4;
+  --f-display:"Big Shoulders","Impact","Arial Narrow Bold",sans-serif;
+  --f-body:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:radial-gradient(rgba(43,179,232,.22) 1.2px, transparent 1.4px);
+  background-size:9px 9px;
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:17px;
+  line-height:1.45;
+}
+.page{max-width:1060px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;letter-spacing:.03em;margin:0;text-wrap:balance}
+code{font-family:var(--f-mono);font-size:.88em;background:#fff3c4;border:1.5px solid var(--ink);border-radius:5px;padding:0 .3em;white-space:nowrap}
+
+/* cover */
+.cover{background:var(--panel);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);overflow:hidden}
+.cover-text{padding:28px 28px 24px;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.issue{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--yellow);align-self:flex-start;padding:4px 10px}
+.cover h1{font-size:clamp(3.8rem,11vw,7.2rem);line-height:.9;color:var(--yellow);-webkit-text-stroke:3px var(--ink);text-shadow:5px 5px 0 var(--magenta),9px 9px 0 var(--ink)}
+.cover p{margin:0;font-size:1.12rem;max-width:34ch}
+.cover-art{background:var(--cyan);border-left:4px solid var(--ink);display:flex;align-items:flex-end;justify-content:center;min-height:260px}
+.cover-art svg{width:100%;height:auto;display:block}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.toc a{font-family:var(--f-display);letter-spacing:.04em;font-size:1rem;color:var(--ink);text-decoration:none;background:#fff;border:2px solid var(--ink);padding:2px 8px;box-shadow:2px 2px 0 var(--ink)}
+.toc a:hover,.toc a:focus-visible{background:var(--yellow);outline:none}
+
+/* chapters */
+.chapter{display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
+.ch-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ch-num{font-family:var(--f-display);font-size:1.05rem;letter-spacing:.06em;background:var(--magenta);color:#fff;border:3px solid var(--ink);padding:2px 10px;transform:rotate(-3deg);box-shadow:3px 3px 0 var(--ink)}
+.ch-head h2{font-size:clamp(2rem,5vw,2.9rem);line-height:1;-webkit-text-stroke:1px var(--ink)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.panel{background:var(--panel);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel.wide{grid-column:1/-1}
+.panel.yellow{background:#fff6cf}
+.panel svg.art{width:100%;height:auto;display:block;margin-top:auto}
+.caption{background:var(--yellow);border:2px solid var(--ink);font-weight:700;padding:3px 9px;align-self:flex-start;text-transform:uppercase;font-size:.78rem;letter-spacing:.06em;line-height:1.3}
+.panel p{margin:0}
+.note{font-size:.95rem;color:var(--muted)}
+.note strong{color:var(--ink)}
+
+/* speech bubbles */
+.bubble{background:#fff;border:2.5px solid var(--ink);border-radius:20px;padding:9px 14px;position:relative;line-height:1.35;margin-bottom:12px}
+.bubble::before,.bubble::after{content:"";position:absolute;width:0;height:0;border-style:solid}
+.bubble::before{bottom:-15px;left:30px;border-width:15px 9px 0 9px;border-color:var(--ink) transparent transparent transparent}
+.bubble::after{bottom:-10px;left:32.5px;border-width:10px 6.5px 0 6.5px;border-color:#fff transparent transparent transparent}
+.bubble.r::before{left:auto;right:30px}
+.bubble.r::after{left:auto;right:32.5px}
+.bubble.c::before{left:calc(50% - 9px)}
+.bubble.c::after{left:calc(50% - 6.5px)}
+.bubble.plain{margin-bottom:0}
+.bubble.plain::before,.bubble.plain::after{display:none}
+.who{display:inline-block;font-family:var(--f-display);letter-spacing:.06em;font-size:.85rem;padding:0 6px;border:1.5px solid var(--ink);margin-right:6px;transform:translateY(-1px)}
+.who.snap{background:var(--yellow)}
+.who.sam{background:var(--magenta);color:#fff}
+.bubble.shout{font-weight:700;background:#fff}
+
+/* terminal */
+.term{background:var(--term);color:var(--term-fg);font-family:var(--f-mono);font-size:.82rem;line-height:1.6;border:3px solid var(--ink);border-radius:8px;padding:12px 14px;overflow-x:auto;white-space:pre;margin:0;tab-size:4}
+.term .p{color:var(--yellow);user-select:none}
+.term .c{color:#8d8a99}
+.term .ok{color:#5fe39a}
+.term .bad{color:#ff7b80}
+.term .hl{color:#7fd3f5}
+.term .y{color:#ffe17a}
+
+/* steps & chips */
+.loop{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip{font-family:var(--f-mono);font-weight:700;font-size:.85rem;background:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:4px 12px;box-shadow:2px 2px 0 var(--ink)}
+.chip.y{background:var(--yellow)}
+.chip.c{background:#bfe9fa}
+.chip.m{background:#f9c7de}
+.arrow{font-family:var(--f-display);font-size:1.3rem;line-height:1}
+.zones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+.zones h3{font-size:1.15rem}
+.zones p{font-size:.88rem;color:var(--muted)}
+
+/* tables */
+.oops{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);border:2.5px solid var(--ink);background:#fff}
+.oops > div{padding:9px 12px;border-bottom:2px dashed #c9cdd6;min-width:0}
+.oops > div:nth-last-child(-n+2){border-bottom:0}
+.oops .h{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-size:1.05rem;border-bottom:0}
+.oops code{white-space:normal;word-break:break-word}
+.warn{background:var(--red);color:#fff;border:2.5px solid var(--ink);padding:8px 12px;font-weight:700;box-shadow:3px 3px 0 var(--ink)}
+.warn code{color:var(--ink)}
+.good-bad{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.good-bad ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.good-bad li{font-family:var(--f-mono);font-size:.82rem;background:#fff;border:2px solid var(--ink);padding:4px 8px;min-width:0;overflow-wrap:anywhere}
+.good-bad h3{font-size:1.2rem;margin-bottom:6px}
+.bad-t{color:var(--red)}
+.good-t{color:var(--green)}
+.habits{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+.habits li::marker{color:var(--magenta);font-weight:700}
+
+/* cheat sheet */
+.cheat{background:var(--yellow);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px;display:flex;flex-direction:column;gap:14px}
+.cheat h2{font-size:clamp(2rem,5vw,2.8rem);line-height:1}
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.cheat-group{background:#fff;border:2.5px solid var(--ink);padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cheat-group h3{font-size:1.1rem;color:var(--magenta)}
+.cmd{display:flex;flex-direction:column;gap:1px}
+.cmd code{white-space:normal;word-break:break-word;align-self:flex-start;background:#eef7fc}
+.cmd span{font-size:.88rem;color:var(--muted)}
+.end{text-align:center;font-family:var(--f-display);font-size:1.4rem;letter-spacing:.05em}
+
+@media (max-width:700px){
+  .cover{grid-template-columns:1fr}
+  .cover-art{border-left:0;border-top:4px solid var(--ink);min-height:0}
+  .oops{grid-template-columns:1fr}
+  .oops > div:nth-child(2n+1):not(.h){border-bottom:0;padding-bottom:2px;font-weight:700}
+  .oops .h:nth-child(2){display:none}
+  .good-bad{grid-template-columns:1fr}
+  body{font-size:16px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .flash{animation:flash 2.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+  @keyframes flash{0%,80%,100%{opacity:1;transform:scale(1)}88%{opacity:.6;transform:scale(1.12)}}
+}
+
+/* ---- issue 2 additions ---- */
+.ch-head .part-tag{font-family:var(--f-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-left:auto;align-self:center}
+.toc-part{flex-basis:100%;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.cover p.prev-issue{font-size:.95rem;max-width:none}
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+.xref:hover,.xref:focus-visible{background:var(--yellow);outline:none}
+.tree{background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:8px;padding:12px 14px;font-family:var(--f-mono);font-size:.8rem;line-height:1.6;overflow-x:auto;white-space:pre;margin:0}
+.tree .c{color:#1d7fa8}
+.tree b{color:#c22d72}
+.tree.small{font-size:.76rem}
+.scroll-x{overflow-x:auto}
+table.cmp{border-collapse:collapse;width:100%;min-width:620px;background:#fff;border:2.5px solid var(--ink);font-size:.95rem}
+.cmp th{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-weight:400;text-align:left;padding:8px 10px;font-size:1.05rem}
+.cmp td{padding:9px 10px;border-top:2px dashed #c9cdd6;vertical-align:top}
+.cmp code{white-space:normal;word-break:break-word}
+.beasts td:first-child{width:34%}
+.mark{display:inline-flex;align-items:center;justify-content:center;flex:none;width:1.45em;height:1.45em;border-radius:50%;font-family:var(--f-display);font-size:.95em;line-height:1;border:2px solid var(--ink);color:var(--ink);margin-right:6px;vertical-align:middle}
+.term .mark{border-color:#fff;font-size:.85em}
+.m1{background:var(--yellow)}.m2{background:var(--cyan)}.m3{background:#f9c7de}
+.tb-legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tb-legend li{display:flex;gap:4px;align-items:flex-start}
+.msg{border:2.5px solid var(--ink);border-radius:14px;padding:12px 14px;white-space:pre-wrap;line-height:1.45;box-shadow:3px 3px 0 var(--ink);min-width:0;overflow-wrap:anywhere}
+.msg code{white-space:normal;word-break:break-word}
+.bad-msg{background:#ffe1e2}
+.good-msg{background:#e3f8ec}
+
+.chip{white-space:nowrap}
+@media (min-width:900px){.panel.span2{grid-column:span 2}}
+.habits.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 28px;padding-left:1.3em}
+.panel.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);align-items:center;column-gap:20px}
+.panel.row > .caption{grid-column:1/-1}
+.panel.row svg.art{margin-top:0}
+@media (max-width:640px){.panel.row{grid-template-columns:1fr}}
+
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start}
+.duo p{margin:0}
+.nb{background:#ffffff;color:var(--ink);border:3px solid var(--ink);border-left:8px solid var(--cyan);border-radius:6px;padding:12px 14px;font-family:var(--f-mono);font-size:.8rem;line-height:1.6;overflow-x:auto;white-space:pre;margin:0}
+.nb .in{color:#1d7fa8;font-weight:700}
+.nb .out{color:#c22d72;font-weight:700}
+
+.triage td:first-child{width:16%;white-space:nowrap}
+.verdicts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.verdict{border:2.5px solid var(--ink);padding:9px 12px;box-shadow:3px 3px 0 var(--ink);display:flex;flex-direction:column;gap:2px;font-size:.95rem}
+.verdict strong{font-family:var(--f-display);font-weight:400;letter-spacing:.05em;font-size:1.15rem}
+.verdict.g{background:#d3f5e1}.verdict.y{background:#fff1b8}.verdict.r{background:#ffd9da}
+
+/* ---- appendix W additions ---- */
+.term .pc{color:#7fd3f5;user-select:none}
+.term .ps{color:#7fd3f5;user-select:none}
+.oslist{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:10px}
+.pathcard{border:3px solid var(--ink);padding:14px 16px;box-shadow:4px 4px 0 var(--ink);display:flex;flex-direction:column;gap:10px;min-width:0}
+.pathcard.win{background:#e9f7ff}.pathcard.nix{background:#fff3c4}
+.pathcard h3{font-size:1.7rem;line-height:1}
+.pathcard ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+.bigpath{font-family:var(--f-mono);font-weight:700;font-size:clamp(.95rem,2.4vw,1.25rem);background:var(--term);color:var(--term-fg);padding:8px 12px;border-radius:6px;margin:0;overflow-wrap:anywhere}
+.phrase td:first-child{color:var(--muted)}
+.phrase td:nth-child(2) code{background:#e9f7ff}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.check{background:#fff;border:2.5px solid var(--ink);padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.check h3{font-size:1.5rem;line-height:1}
+.check p{margin:0}
+.check .mark{width:1.8em;height:1.8em;font-size:1.1rem}
+.verdict code{align-self:flex-start;white-space:normal;overflow-wrap:anywhere}
+.refs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.ref{display:flex;flex-direction:column;gap:3px;background:#fff;border:2.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:10px 12px;color:var(--ink);text-decoration:none;min-width:0}
+.ref:hover,.ref:focus-visible{background:var(--yellow);outline:none}
+.ref .src{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:#b52d6c}
+.ref strong{font-size:1.02rem;line-height:1.25}
+.ref .url{font-family:var(--f-mono);font-size:.74rem;color:var(--muted);overflow-wrap:anywhere}
+.ref .url::after{content:" ↗"}
+.cmp th code{background:transparent;border-color:var(--yellow);color:var(--yellow)}
+.warn code{white-space:normal;overflow-wrap:anywhere}
+
+/* ---- offline series navigation ---- */
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+a.xref:hover,a.xref:focus-visible{background:var(--yellow);outline:none}
+.cover p.prev-issue,.cover p.formats{font-size:.95rem;max-width:none;margin:0}
+.series-bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.series-bar .lbl{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.xref.home{background:var(--yellow)}
+.xref.fmt{background:#f9c7de}
+</style>
+</head>
+<body>
+<!-- shared drawings -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#15131a" opacity=".16"/></pattern>
+    <pattern id="dotsW" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#ffffff" opacity=".35"/></pattern>
+
+    <symbol id="sam" viewBox="0 0 100 150">
+      <rect x="36" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <rect x="53" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <path d="M20 122 Q18 80 50 75 Q82 80 80 122 Z" fill="#e83e8c" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M44 80 L43 98 M56 80 L57 98" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="50" cy="46" r="26" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+      <path d="M24 46 Q20 16 50 16 Q82 16 76 46 Q72 31 60 33 Q52 23 40 32 Q30 33 24 46 Z" fill="#15131a"/>
+      <circle cx="41" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="59" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="34" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+      <circle cx="66" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+    </symbol>
+
+    <symbol id="snap" viewBox="0 0 100 110">
+      <path d="M38 82 L36 101 M62 82 L64 101" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <ellipse cx="33" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <ellipse cx="67" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <path d="M14 52 L5 40 M86 52 L95 40" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <circle cx="5" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="95" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="28" y="14" width="22" height="16" rx="4" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="62" y="17" width="14" height="11" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="14" y="26" width="72" height="58" rx="12" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="50" cy="52" r="20" fill="#15131a"/>
+      <circle cx="50" cy="52" r="14" fill="#2bb3e8"/>
+      <circle cx="50" cy="52" r="6" fill="#15131a"/>
+      <circle cx="44" cy="46" r="4" fill="#ffffff"/>
+      <path d="M42 76 Q50 81 58 76" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="burst" viewBox="-50 -50 100 100">
+      <polygon points="50,0 27.7,11.5 35.4,35.4 11.5,27.7 0,50 -11.5,27.7 -35.4,35.4 -27.7,11.5 -50,0 -27.7,-11.5 -35.4,-35.4 -11.5,-27.7 0,-50 11.5,-27.7 35.4,-35.4 27.7,-11.5" stroke="#15131a" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="polaroid" viewBox="0 0 60 70">
+      <rect x="1.5" y="1.5" width="57" height="67" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="7" y="7" width="46" height="40" fill="#bfe9fa" stroke="#15131a" stroke-width="2"/>
+      <path d="M7 47 L22 28 L32 39 L39 31 L53 47 Z" fill="#2fbf6c" stroke="#15131a" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="42" cy="17" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="2"/>
+    </symbol>
+
+    <symbol id="file" viewBox="0 0 40 50">
+      <path d="M2 2 H28 L38 12 V48 H2 Z" fill="#ffffff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M28 2 V12 H38" fill="none" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M9 22 H31 M9 29 H27 M9 36 H31" stroke="#9aa0ad" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="hat" viewBox="0 0 100 40">
+      <path d="M22 34 Q22 4 50 4 Q78 4 78 34 Z" fill="#a07c55" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M34 9 L36 32 M50 4 V33 M66 9 L64 32 M24 22 H76" stroke="#6b5034" stroke-width="2" fill="none"/>
+      <ellipse cx="50" cy="34" rx="36" ry="5.5" fill="#8a6a4a" stroke="#15131a" stroke-width="3"/>
+    </symbol>
+    <symbol id="magnifier" viewBox="0 0 60 60">
+      <path d="M36 36 L54 54" stroke="#15131a" stroke-width="11" stroke-linecap="round"/>
+      <path d="M36 36 L54 54" stroke="#2d3a5a" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="24" cy="24" r="16" fill="#bfe9fa" fill-opacity=".7" stroke="#15131a" stroke-width="4"/>
+      <path d="M15 20 Q17 13 24 12" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="jar" viewBox="0 0 110 130">
+      <path d="M14 22 H96 V112 Q96 126 82 126 H28 Q14 126 14 112 Z" fill="#e9f7ff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M24 34 V100" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <rect x="18" y="5" width="74" height="17" rx="4" fill="#9aa0ad" stroke="#15131a" stroke-width="3"/>
+    </symbol>
+    <symbol id="bug" viewBox="0 0 84 70">
+      <path d="M24 40 L8 32 M22 48 L5 52 M26 56 L12 66 M60 40 L76 32 M62 48 L79 52 M58 56 L72 66" stroke="#15131a" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M37 12 Q32 2 24 4 M47 12 Q52 2 60 4" stroke="#15131a" stroke-width="2.5" fill="none"/>
+      <circle cx="24" cy="4" r="3" fill="#15131a"/><circle cx="60" cy="4" r="3" fill="#15131a"/>
+      <ellipse cx="42" cy="46" rx="22" ry="18" stroke="#15131a" stroke-width="3"/>
+      <path d="M42 30 V63" stroke="#15131a" stroke-width="2" opacity=".5"/>
+      <circle cx="42" cy="22" r="12" stroke="#15131a" stroke-width="3"/>
+      <circle cx="37" cy="20" r="4.2" fill="#ffffff" stroke="#15131a" stroke-width="1.5"/>
+      <circle cx="47" cy="20" r="4.2" fill="#ffffff" stroke="#15131a" stroke-width="1.5"/>
+      <circle cx="38" cy="21" r="1.8" fill="#15131a"/><circle cx="46" cy="21" r="1.8" fill="#15131a"/>
+      <path d="M32 14 L40 17 M52 14 L44 17" stroke="#15131a" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M37 28 L40 26 L42 28 L44 26 L47 28" fill="none" stroke="#15131a" stroke-width="1.8" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="page">
+
+  <!-- COVER -->
+  <section class="cover">
+    <div class="cover-text">
+      <span class="issue">Appendix · For Windows users</span>
+      <h1>Windows<br>&amp; WSL</h1>
+      <p>Servers, clusters, tutorials and most READMEs speak Linux. Windows speaks a slightly different language: other paths, other commands, even other line endings. This appendix explains the differences, then shows how to get a real Linux terminal on your Windows laptop with WSL.</p>
+      <nav class="toc" aria-label="Chapters">
+        <span class="toc-part">Part 1 · Two worlds</span>
+        <a href="#why">1 · Why it matters</a>
+        <a href="#paths">2 · Paths</a>
+        <a href="#commands">3 · Commands</a>
+        <a href="#invisible">4 · Invisible differences</a>
+        <span class="toc-part">Part 2 · WSL</span>
+        <a href="#what">5 · What is WSL?</a>
+        <a href="#compat">6 · Compatible?</a>
+        <a href="#install">7 · Install</a>
+        <a href="#living">8 · Living in WSL</a>
+        <a href="#nowsl">9 · No WSL?</a>
+        <a href="#errors">10 · Error bestiary</a>
+        <a href="#reading">11 · Official docs</a>
+        <a href="#cheat">Cheat sheet</a>
+      </nav>
+      <div class="series-bar"><span class="lbl">Series</span><a class="xref home" href="index.html">⌂ Home</a><a class="xref" href="hello-terminal.html">Issue #0 · Hello, Terminal</a><a class="xref" href="git-good.html">Issue #1 · Git Good</a><a class="xref" href="works-on-my-machine.html">Issue #2 · Works on my machine</a><a class="xref" href="share-the-gpu.html">Issue #3 · Share the GPU</a><a class="xref fmt" href="windows-and-wsl-slides.html">▶ View as slides</a></div>
+    </div>
+    <div class="cover-art">
+      <svg viewBox="0 0 420 300" role="img" aria-label="Sam between two terminal windows, one with a C drive prompt and one with a Linux prompt, joined by a bridge">
+        <rect width="420" height="300" fill="url(#dotsW)"/>
+        <use href="#burst" x="110" y="40" width="200" height="200" fill="#ffd23f"/>
+        <rect x="16" y="30" width="170" height="104" rx="8" fill="#17151d" stroke="#15131a" stroke-width="4"/>
+        <rect x="16" y="30" width="170" height="22" rx="8" fill="#9aa0ad" stroke="#15131a" stroke-width="4"/>
+        <text x="28" y="84" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#7fd3f5">PS C:\Users\sam&gt;</text>
+        <text x="28" y="108" font-family="JetBrains Mono, monospace" font-size="13" fill="#ece9f4">dir</text>
+        <rect x="234" y="30" width="170" height="104" rx="8" fill="#17151d" stroke="#15131a" stroke-width="4"/>
+        <rect x="234" y="30" width="170" height="22" rx="8" fill="#e83e8c" stroke="#15131a" stroke-width="4"/>
+        <text x="246" y="84" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#ffd23f">sam@laptop:~$</text>
+        <text x="246" y="108" font-family="JetBrains Mono, monospace" font-size="13" fill="#ece9f4">ls</text>
+        <path d="M186 96 C206 70 214 70 234 96" fill="none" stroke="#15131a" stroke-width="5"/>
+        <text x="210" y="126" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="20" fill="#15131a">WSL</text>
+        <g transform="translate(150 150) scale(.95)">
+          <use href="#sam" width="100" height="150"/>
+          <path d="M41 60 Q50 69 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <use href="#snap" x="290" y="180" width="100" height="110"/>
+        <rect x="0" y="292" width="420" height="8" fill="#15131a"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 1 WHY -->
+  <section class="chapter" id="why">
+    <div class="ch-head"><span class="ch-num">Chapter 1</span><h2>Why it matters</h2><span class="part-tag">Part 1 · Two worlds</span></div>
+    <div class="strip">
+      <div class="panel">
+        <div class="bubble"><span class="who sam">Sam</span>The README says <code>source .venv/bin/activate</code>. My laptop says “not recognized”. Is my laptop broken?</div>
+        <svg class="art" viewBox="0 0 300 140" role="img" aria-label="Sam confused in front of a red error message">
+          <rect width="300" height="140" fill="url(#dots)"/>
+          <g transform="translate(26 6) scale(.85)">
+            <use href="#sam" width="100" height="150"/>
+            <path d="M42 64 Q50 58 58 64" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <rect x="130" y="30" width="156" height="74" rx="6" fill="#17151d" stroke="#15131a" stroke-width="3"/>
+          <text x="140" y="56" font-family="JetBrains Mono, monospace" font-size="10" fill="#ff7b80">'source' is not</text>
+          <text x="140" y="72" font-family="JetBrains Mono, monospace" font-size="10" fill="#ff7b80">recognized as the name</text>
+          <text x="140" y="88" font-family="JetBrains Mono, monospace" font-size="10" fill="#ff7b80">of a cmdlet…</text>
+        </svg>
+      </div>
+      <div class="panel">
+        <div class="bubble r"><span class="who snap">Snap</span>Not broken, just bilingual! Linux and macOS are both <strong>Unix</strong>-style systems and share one language. Windows has its own. Research code, servers and clusters almost always speak Unix.</div>
+        <p class="note">So the README is fine and your laptop is fine. They just use different dialects. This appendix is the phrasebook.</p>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Your options on Windows</span>
+        <div class="scroll-x">
+        <table class="cmp">
+          <thead><tr><th>Option</th><th>What you get</th><th>Good for</th></tr></thead>
+          <tbody>
+            <tr><td><span class="chip y">WSL</span></td><td>A real Linux (Ubuntu) running next to Windows</td><td><strong>Recommended.</strong> Everything in Issues #0–#3 works as written</td></tr>
+            <tr><td><span class="chip c">Git Bash</span></td><td>A bash terminal with Git and SSH, from Git for Windows</td><td>Git and connecting to a server when WSL isn't possible</td></tr>
+            <tr><td><span class="chip m">PowerShell</span></td><td>Windows' own terminal; includes an <code>ssh</code> client</td><td>Logging in to a server and doing the Linux work there</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 PATHS -->
+  <section class="chapter" id="paths">
+    <div class="ch-head"><span class="ch-num">Chapter 2</span><h2>Paths: two ways to say “here”</h2><span class="part-tag">Part 1 · Two worlds</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="duo">
+          <div class="pathcard win">
+            <h3>Windows</h3>
+            <p class="bigpath">C:\Users\sam\thesis\data.csv</p>
+            <ul>
+              <li>Starts with a <strong>drive letter</strong> (<code>C:</code>, <code>D:</code>…): one tree per drive</li>
+              <li>Separator: backslash <code>\</code></li>
+              <li>Home folder: <code>C:\Users\sam</code>, also <code>%USERPROFILE%</code> or <code>$env:USERPROFILE</code></li>
+              <li><code>Data.csv</code> and <code>data.csv</code> are the <strong>same</strong> file</li>
+            </ul>
+          </div>
+          <div class="pathcard nix">
+            <h3>Linux / macOS</h3>
+            <p class="bigpath">/home/sam/thesis/data.csv</p>
+            <ul>
+              <li>One single tree that starts at <code>/</code> (root); no drive letters</li>
+              <li>Separator: forward slash <code>/</code></li>
+              <li>Home folder: <code>/home/sam</code> (macOS: <code>/Users/sam</code>), also <code>~</code> or <code>$HOME</code></li>
+              <li><code>Data.csv</code> and <code>data.csv</code> are <strong>different</strong> files</li>
+            </ul>
+          </div>
+        </div>
+        <p class="note">Folder trees, <code>.</code> and <code>..</code>, absolute vs relative paths: <a class="xref" href="hello-terminal.html#paths">Issue #0 · Ch. 4</a></p>
+      </div>
+      <div class="panel span2">
+        <span class="caption">Write paths that work on both</span>
+<pre class="nb"><span class="in">Python</span>
+<span class="bad"># breaks on Linux, the cluster, your teammate's Mac</span>
+df = pd.read_csv("C:\\Users\\sam\\thesis\\data\\raw.csv")
+
+<span class="ok"># works everywhere</span>
+from pathlib import Path
+DATA = Path("data")                 # relative to the project folder
+df = pd.read_csv(DATA / "raw.csv")  # pathlib picks the right separator</pre>
+        <p class="note">Rule of thumb: no drive letters and no backslashes in code you share. Use <code>pathlib</code> (or forward slashes, which Python on Windows also accepts) and relative paths.</p>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">The case trap</span>
+        <div class="bubble plain"><span class="who snap">Snap</span>On Windows, <code>open("Data/Raw.CSV")</code> finds <code>data/raw.csv</code>. On the cluster it doesn't. Match the capitals exactly, and you'll never meet this bug.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 COMMANDS -->
+  <section class="chapter" id="commands">
+    <div class="ch-head"><span class="ch-num">Chapter 3</span><h2>Same idea, different words</h2><span class="part-tag">Part 1 · Two worlds</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <span class="caption">Phrasebook</span>
+        <div class="scroll-x">
+        <table class="cmp phrase">
+          <thead><tr><th>To…</th><th>Windows (cmd / PowerShell)</th><th>Linux / macOS / WSL</th></tr></thead>
+          <tbody>
+            <tr><td>list files</td><td><code>dir</code></td><td><code>ls</code></td></tr>
+            <tr><td>change folder</td><td><code>cd</code></td><td><code>cd</code></td></tr>
+            <tr><td>show current folder</td><td><code>cd</code> (cmd) · <code>pwd</code> (PowerShell)</td><td><code>pwd</code></td></tr>
+            <tr><td>copy · move · delete</td><td><code>copy</code> · <code>move</code> · <code>del</code></td><td><code>cp</code> · <code>mv</code> · <code>rm</code></td></tr>
+            <tr><td>print a file</td><td><code>type</code></td><td><code>cat</code></td></tr>
+            <tr><td>clear the screen</td><td><code>cls</code></td><td><code>clear</code></td></tr>
+            <tr><td>where is this program?</td><td><code>where python</code></td><td><code>which python3</code></td></tr>
+            <tr><td>show a variable</td><td><code>echo %PATH%</code> · <code>$env:Path</code></td><td><code>echo $PATH</code></td></tr>
+            <tr><td>activate a venv</td><td><code>.venv\Scripts\activate</code></td><td><code>source .venv/bin/activate</code></td></tr>
+            <tr><td>run a script</td><td><code>.\run.ps1</code> · <code>run.bat</code></td><td><code>./run.sh</code> · <code>bash run.sh</code></td></tr>
+            <tr><td>start Python</td><td><code>python</code> or <code>py</code></td><td><code>python3</code> (sometimes <code>python</code>)</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="note">PowerShell accepts a few Unix names as shortcuts (<code>ls</code>, <code>cat</code>, <code>pwd</code>), but their options differ: <code>ls -la</code> fails there. Inside WSL, use the right-hand column. <a class="xref" href="works-on-my-machine.html#recipes">Issue #2 · Ch. 6: venv recipes</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 INVISIBLE -->
+  <section class="chapter" id="invisible">
+    <div class="ch-head"><span class="ch-num">Chapter 4</span><h2>Invisible differences</h2><span class="part-tag">Part 1 · Two worlds</span></div>
+    <div class="strip">
+      <div class="panel span2">
+        <span class="caption">Line endings: the ghost character</span>
+        <div class="bubble"><span class="who snap">Snap</span>Every line of text ends with an invisible marker. Windows uses two characters (<code>\r\n</code>, “CRLF”), Linux uses one (<code>\n</code>, “LF”). Usually nobody notices… until a script written on Windows runs on Linux.</div>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>bash train.sh
+<span class="bad">train.sh: line 2: $'\r': command not found</span>
+<span class="pc">gpu4edu:~$ </span>./train.sh
+<span class="bad">/bin/bash^M: bad interpreter: No such file or directory</span></pre>
+        <p class="note">That <code>\r</code> and that <code>^M</code> are the ghost: a Windows line ending inside a Linux script.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Bust the ghost</span>
+<pre class="term"><span class="c"># one file, on Linux / WSL</span>
+<span class="p">$ </span>sudo apt install dos2unix
+<span class="p">$ </span>dos2unix train.sh</pre>
+<pre class="tree small"><b># .gitattributes (in the repo)</b>
+* text=auto
+*.sh text eol=lf</pre>
+        <p class="note">Also set your editor to save with <strong>LF</strong> line endings. The <code>.gitattributes</code> file makes Git store and check out text files consistently for everyone.</p>
+      </div>
+      <div class="panel wide">
+        <span class="caption">More small differences</span>
+        <div class="scroll-x">
+        <table class="cmp">
+          <thead><tr><th></th><th>Windows</th><th>Linux / macOS</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Running a file</strong></td><td>Decided by the extension (<code>.exe</code>, <code>.bat</code>)</td><td>Needs the “executable” permission: <code>chmod +x run.sh</code></td></tr>
+            <tr><td><strong>Forbidden in file names</strong></td><td><code>\ / : * ? " &lt; &gt; |</code>, and names like <code>CON</code> or <code>NUL</code></td><td>Only <code>/</code>. But a file called <code>a:b.txt</code> made on Linux can't be copied to Windows</td></tr>
+            <tr><td><strong>Hidden files</strong></td><td>A file attribute</td><td>Any name starting with a dot: <code>.gitignore</code>, <code>.ssh</code></td></tr>
+            <tr><td><strong>Installing software</strong></td><td>Installers, Microsoft Store, <code>winget</code></td><td>Package managers: <code>apt</code> (Ubuntu), <code>brew</code> (macOS)</td></tr>
+            <tr><td><strong>Administrator</strong></td><td>“Run as administrator”</td><td><code>sudo</code> before a command</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="note">Safest habit for shared projects: lowercase names, no spaces, no special characters: <code>raw_data_2026.csv</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 WHAT -->
+  <section class="chapter" id="what">
+    <div class="ch-head"><span class="ch-num">Chapter 5</span><h2>What is WSL?</h2><span class="part-tag">Part 2 · WSL</span></div>
+    <div class="strip">
+      <div class="panel span2">
+        <div class="bubble"><span class="who snap">Snap</span>The <strong>Windows Subsystem for Linux</strong> runs a real Linux, usually Ubuntu, right next to Windows. It isn't a translator or an imitation: it's actual Linux with its own files, its own users and its own software.</div>
+        <div class="scroll-x">
+        <svg class="art" viewBox="0 0 640 220" role="img" aria-label="A large Windows box containing a smaller Linux box. Windows drives appear inside Linux under /mnt/c; Linux files appear in Windows Explorer under backslash backslash wsl dollar." style="min-width:520px">
+          <rect width="640" height="220" fill="url(#dots)"/>
+          <rect x="16" y="20" width="608" height="186" rx="10" fill="#e9f7ff" stroke="#15131a" stroke-width="3"/>
+          <text x="34" y="46" font-family="Big Shoulders, Impact, sans-serif" font-size="22" fill="#15131a">WINDOWS</text>
+          <rect x="40" y="62" width="200" height="120" rx="8" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+          <text x="140" y="88" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#15131a">C:\Users\sam</text>
+          <text x="140" y="112" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">Explorer, Office,</text>
+          <text x="140" y="128" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">your Windows apps</text>
+          <rect x="380" y="52" width="224" height="140" rx="8" fill="#f9c7de" stroke="#15131a" stroke-width="3"/>
+          <text x="492" y="78" text-anchor="middle" font-family="Big Shoulders, Impact, sans-serif" font-size="20" fill="#15131a">LINUX (UBUNTU)</text>
+          <text x="492" y="102" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="700" fill="#15131a">/home/sam</text>
+          <text x="492" y="126" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">bash, git, python3, ssh,</text>
+          <text x="492" y="142" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-size="12" fill="#5b5f6b">conda… your projects</text>
+          <path d="M244 94 H374" stroke="#e83e8c" stroke-width="4"/>
+          <path d="M366 86 L380 94 L366 102 Z" fill="#e83e8c"/>
+          <text x="310" y="86" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#b52d6c">/mnt/c</text>
+          <path d="M376 150 H246" stroke="#1d8fbe" stroke-width="4"/>
+          <path d="M254 142 L240 150 L254 158 Z" fill="#1d8fbe"/>
+          <text x="310" y="172" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#1d8fbe">\\wsl$</text>
+        </svg>
+        </div>
+        <p class="note">From Linux, your C: drive is at <code>/mnt/c</code>. From Windows Explorer, type <code>\\wsl$</code> in the address bar to see your Linux files. New installs use <strong>WSL 2</strong>, which runs Linux in a lightweight virtual machine.</p>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">Why it's the best option</span>
+        <ol class="habits">
+          <li>Commands from READMEs, tutorials and these issues work as written.</li>
+          <li>It behaves like the server you'll run on, so fewer surprises later.</li>
+          <li>Linux package managers: <code>sudo apt install</code> almost anything.</li>
+          <li>With an NVIDIA GPU, even CUDA works inside WSL 2.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 COMPAT -->
+  <section class="chapter" id="compat">
+    <div class="ch-head"><span class="ch-num">Chapter 6</span><h2>Can my laptop run it?</h2><span class="part-tag">Part 2 · WSL</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <span class="caption">Three checks before you install</span>
+        <div class="checks">
+          <div class="check">
+            <span class="mark m1">1</span>
+            <h3>Windows version</h3>
+            <p>Windows 11, or Windows 10 version 2004 or newer (build 19041+).</p>
+            <p class="note">Check: press <kbd>Win</kbd>+<kbd>R</kbd>, type <code>winver</code>, Enter.</p>
+          </div>
+          <div class="check">
+            <span class="mark m2">2</span>
+            <h3>Virtualization on</h3>
+            <p>Your processor's virtualization feature must be enabled.</p>
+            <p class="note">Check: Task Manager (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd>) → Performance → CPU → “Virtualization: Enabled”. If it says Disabled, it's switched on in the BIOS/UEFI settings; how depends on your laptop brand.</p>
+          </div>
+          <div class="check">
+            <span class="mark m3">3</span>
+            <h3>Allowed to install</h3>
+            <p>You need administrator rights on the laptop.</p>
+            <p class="note">University or company-managed laptops may block this, or block WSL networking. Ask your IT service desk first.</p>
+          </div>
+        </div>
+        <p class="note">Very old processors (around the Intel Core 2 Duo era) can't run WSL 2 at all. Older Windows 10 versions need the manual install steps in Microsoft's documentation (Chapter 11).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 INSTALL -->
+  <section class="chapter" id="install">
+    <div class="ch-head"><span class="ch-num">Chapter 7</span><h2>Install WSL</h2><span class="part-tag">Part 2 · WSL</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Step 1 · One command</span>
+        <p>Right-click <strong>PowerShell</strong> in the Start menu, choose <strong>Run as administrator</strong>, then:</p>
+<pre class="term"><span class="ps">PS C:\WINDOWS\system32&gt; </span>wsl --install</pre>
+        <p class="note">This switches on the Windows features WSL needs and installs Ubuntu. When it's done, <strong>restart</strong> your computer.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Step 2 · Create your Linux user</span>
+        <p>After the restart, Ubuntu opens (or start it from the Start menu). The first launch unpacks files, then asks for:</p>
+<pre class="term">Enter new UNIX username: <span class="y">sam</span>
+New password: <span class="c">(nothing appears while typing: normal!)</span>
+Retype new password:
+<span class="ok">sam@laptop:~$</span></pre>
+        <p class="note">This Linux username and password are separate from your Windows login. You'll need the password for <code>sudo</code>.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Step 3 · Update and check</span>
+<pre class="term"><span class="p">sam@laptop:~$ </span>sudo apt update &amp;&amp; sudo apt upgrade</pre>
+        <p class="note">Windows doesn't update your Linux for you: run this now and then.</p>
+<pre class="term"><span class="ps">PS&gt; </span>wsl -l -v
+  NAME      STATE      VERSION
+<span class="ok">* Ubuntu    Running    2</span></pre>
+        <p class="note">VERSION <code>2</code> is what you want.</p>
+      </div>
+      <div class="panel wide yellow">
+        <span class="caption">If step 1 doesn't go as planned</span>
+        <div class="oops">
+          <div class="h">You see</div><div class="h">Try</div>
+          <div>The WSL help text instead of an install</div><div>WSL is already partly installed. List the distributions with <code>wsl --list --online</code>, then <code>wsl --install -d Ubuntu</code>.</div>
+          <div>Install stuck at 0.0%</div><div><code>wsl --install --web-download -d Ubuntu</code> downloads it another way.</div>
+          <div>Error <code>0x80370102</code></div><div>Virtualization is off: see Chapter 6, check 2. Also switch on the Windows feature “Virtual Machine Platform”, then restart.</div>
+        </div>
+        <p class="note">Tip: install <strong>Windows Terminal</strong> from the Microsoft Store (already included in Windows 11). It holds PowerShell and Ubuntu in tabs side by side.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 LIVING -->
+  <section class="chapter" id="living">
+    <div class="ch-head"><span class="ch-num">Chapter 8</span><h2>Living in WSL</h2><span class="part-tag">Part 2 · WSL</span></div>
+    <div class="strip">
+      <div class="panel span2">
+        <span class="caption">Rule #1: keep projects on the Linux side</span>
+        <div class="duo">
+          <div class="verdict g"><strong>Fast</strong><code>/home/sam/thesis</code><span>(<code>~/thesis</code> in Ubuntu)</span></div>
+          <div class="verdict r"><strong>Slow</strong><code>/mnt/c/Users/sam/thesis</code><span>Windows files, reached from Linux</span></div>
+        </div>
+        <p class="note">Working across the two file systems is much slower: <code>pip install</code>, <code>git status</code> and training data loaders all crawl. Clone your repos inside your Linux home folder.</p>
+<pre class="term"><span class="p">sam@laptop:~$ </span>mkdir -p ~/projects &amp;&amp; cd ~/projects
+<span class="p">sam@laptop:~/projects$ </span>git clone git@github.com:sam/thesis.git
+<span class="p">sam@laptop:~/projects$ </span>explorer.exe .     <span class="c"># open this folder in Windows Explorer</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Install your tools inside Ubuntu</span>
+<pre class="term"><span class="p">$ </span>sudo apt install git python3 \
+    python3-venv python3-pip</pre>
+        <p class="note">Linux has its own copies of everything. Git, Python and conda installed on Windows don't count inside WSL.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Two of everything</span>
+        <div class="bubble plain"><span class="who snap">Snap</span>Windows and WSL are two separate homes. Each has its own <strong>Git settings</strong> (<code>git config --global …</code>) and its own <strong>SSH keys</strong> (<code>C:\Users\sam\.ssh</code> vs <code>~/.ssh</code>). Set them up once inside WSL.</div>
+        <p class="note">SSH keys: <a class="xref" href="share-the-gpu.html#keys">Issue #3 · Ch. 2</a> · Git setup: <a class="xref" href="git-good.html#setup">Issue #1 · Ch. 2</a></p>
+      </div>
+      <div class="panel">
+        <span class="caption">Handy from PowerShell</span>
+<pre class="term"><span class="ps">PS&gt; </span>wsl              <span class="c"># open Linux here</span>
+<span class="ps">PS&gt; </span>wsl --shutdown   <span class="c"># stop it (frees memory)</span>
+<span class="ps">PS&gt; </span>wsl --update     <span class="c"># update WSL itself</span></pre>
+      </div>
+      <div class="panel">
+        <span class="caption">Got an NVIDIA GPU?</span>
+        <p>CUDA works inside WSL 2. Install the normal NVIDIA driver <strong>on Windows</strong> only. Don't install a Linux display driver inside WSL: NVIDIA's guide explains why.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Your editor</span>
+        <p>Many editors on Windows can open a folder that lives inside WSL directly; look for “WSL” in your editor's documentation. Terminal editors such as <code>nano</code> and <code>vim</code> run inside Ubuntu as usual.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 NO WSL -->
+  <section class="chapter" id="nowsl">
+    <div class="ch-head"><span class="ch-num">Chapter 9</span><h2>No WSL? Plan B</h2><span class="part-tag">Part 2 · WSL</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Git Bash</span>
+        <p>Comes with <strong>Git for Windows</strong>: a bash terminal with <code>git</code>, <code>ssh</code>, <code>ls</code>, <code>cat</code> and friends. Enough for Issue #0, Issue #1 and connecting to a server.</p>
+        <p class="note">It isn't a full Linux: no <code>apt</code>, and some tools are missing. Paths look like <code>/c/Users/sam</code>.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">PowerShell + ssh</span>
+        <p>Windows 10 (1809+) and 11 include an OpenSSH client. If <code>ssh</code> isn't recognized, add “OpenSSH Client” under Settings → Optional features.</p>
+<pre class="term"><span class="ps">PS C:\Users\sam&gt; </span>ssh u123456@server.example.org</pre>
+        <p class="note">Then do the Linux part on the server itself.</p>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">Mix and match</span>
+        <div class="bubble plain"><span class="who snap">Snap</span>Plenty of people write code in Windows apps, keep it in Git, and run it on a Linux server. Just remember Chapters 2–4: forward slashes, matching capitals, LF line endings.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 ERRORS -->
+  <section class="chapter" id="errors">
+    <div class="ch-head"><span class="ch-num">Chapter 10</span><h2>Windows error bestiary</h2><span class="part-tag">Part 2 · WSL</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="scroll-x">
+        <table class="cmp beasts">
+          <thead><tr><th>You see</th><th>It usually means</th><th>Try</th></tr></thead>
+          <tbody>
+            <tr><td><code>'source' is not recognized…</code> (or <code>ls -la</code> fails)</td><td>You typed a Linux command in PowerShell or cmd</td><td>Use the Windows version (Chapter 3), or run it inside WSL</td></tr>
+            <tr><td><code>$'\r': command not found</code> · <code>bad interpreter: /bin/bash^M</code></td><td>Windows line endings in a Linux script</td><td><code>dos2unix script.sh</code>; save with LF; add a <code>.gitattributes</code> (Chapter 4)</td></tr>
+            <tr><td><code>git status</code> lists every file as modified, with no visible changes</td><td>Line endings changed between Windows and WSL</td><td>Work on a repo from one side only; add a <code>.gitattributes</code></td></tr>
+            <tr><td>Everything in WSL is very slow</td><td>The project lives under <code>/mnt/c/…</code></td><td>Move or re-clone it to <code>~/</code> (Chapter 8)</td></tr>
+            <tr><td><code>FileNotFoundError</code> on the server, fine on your laptop</td><td>Capitals don't match, or a hard-coded <code>C:\…</code> path</td><td>Match case exactly; use <code>pathlib</code> and relative paths (Chapter 2)</td></tr>
+            <tr><td><code>Permission denied (publickey)</code> from WSL, but it works in PowerShell</td><td>Your SSH key lives on the Windows side only</td><td>Make or copy a key into <code>~/.ssh</code> in WSL (Issue #3, Ch. 2)</td></tr>
+            <tr><td><code>python: command not found</code> in Ubuntu</td><td>Ubuntu calls it <code>python3</code></td><td>Type <code>python3</code>, or <code>sudo apt install python-is-python3</code></td></tr>
+            <tr><td>Forgot your Linux password</td><td>It's separate from your Windows password</td><td>In PowerShell: <code>wsl -u root</code>, then <code>passwd sam</code> (your Linux username)</td></tr>
+            <tr><td>Error <code>0x80370102</code> when installing</td><td>Virtualization is switched off</td><td>Chapter 6, check 2, and the “Virtual Machine Platform” feature</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 READING -->
+  <section class="chapter" id="reading">
+    <div class="ch-head"><span class="ch-num">Chapter 11</span><h2>Official documentation</h2><span class="part-tag">Further reading</span></div>
+    <div class="strip">
+      <div class="panel wide">
+        <div class="bubble c"><span class="who snap">Snap</span>Windows and WSL change with updates. When a screen looks different from this appendix, trust these pages: they're maintained by the people who make the software.</div>
+        <div class="refs">
+          <a class="ref" href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank" rel="noopener"><span class="src">Microsoft</span><strong>How to install Linux on Windows with WSL</strong><span class="url">learn.microsoft.com/en-us/windows/wsl/install</span></a>
+          <a class="ref" href="https://learn.microsoft.com/en-us/windows/wsl/setup/environment" target="_blank" rel="noopener"><span class="src">Microsoft</span><strong>Set up a WSL development environment</strong><span class="url">learn.microsoft.com/en-us/windows/wsl/setup/environment</span></a>
+          <a class="ref" href="https://learn.microsoft.com/en-us/windows/wsl/filesystems" target="_blank" rel="noopener"><span class="src">Microsoft</span><strong>Working across Windows and Linux file systems</strong><span class="url">learn.microsoft.com/en-us/windows/wsl/filesystems</span></a>
+          <a class="ref" href="https://learn.microsoft.com/en-us/windows/wsl/basic-commands" target="_blank" rel="noopener"><span class="src">Microsoft</span><strong>Basic commands for WSL</strong><span class="url">learn.microsoft.com/en-us/windows/wsl/basic-commands</span></a>
+          <a class="ref" href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-git" target="_blank" rel="noopener"><span class="src">Microsoft</span><strong>Get started using Git on WSL</strong><span class="url">learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-git</span></a>
+          <a class="ref" href="https://learn.microsoft.com/en-us/windows/wsl/troubleshooting" target="_blank" rel="noopener"><span class="src">Microsoft</span><strong>Troubleshooting WSL</strong><span class="url">learn.microsoft.com/en-us/windows/wsl/troubleshooting</span></a>
+          <a class="ref" href="https://learn.microsoft.com/en-us/windows/terminal/get-started" target="_blank" rel="noopener"><span class="src">Microsoft</span><strong>Get started with Windows Terminal</strong><span class="url">learn.microsoft.com/en-us/windows/terminal/get-started</span></a>
+          <a class="ref" href="https://documentation.ubuntu.com/wsl/stable/howto/install-ubuntu-wsl2/" target="_blank" rel="noopener"><span class="src">Canonical (Ubuntu)</span><strong>Install Ubuntu on WSL 2</strong><span class="url">documentation.ubuntu.com/wsl</span></a>
+          <a class="ref" href="https://docs.nvidia.com/cuda/wsl-user-guide/index.html" target="_blank" rel="noopener"><span class="src">NVIDIA</span><strong>CUDA on WSL User Guide</strong><span class="url">docs.nvidia.com/cuda/wsl-user-guide</span></a>
+          <a class="ref" href="https://gitforwindows.org/" target="_blank" rel="noopener"><span class="src">Git for Windows</span><strong>Git for Windows and Git Bash</strong><span class="url">gitforwindows.org</span></a>
+          <a class="ref" href="https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse" target="_blank" rel="noopener"><span class="src">Microsoft</span><strong>Get started with OpenSSH for Windows</strong><span class="url">learn.microsoft.com/…/openssh_install_firstuse</span></a>
+        </div>
+        <p class="note">These are the only links in this guide that leave the folder; they need an internet connection. Checked October 2026.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHEAT SHEET -->
+  <section class="cheat" id="cheat">
+    <h2>Cheat sheet</h2>
+    <div class="cheat-grid">
+      <div class="cheat-group">
+        <h3>Install (PowerShell, admin)</h3>
+        <div class="cmd"><code>wsl --install</code><span>WSL + Ubuntu, then restart</span></div>
+        <div class="cmd"><code>wsl -l -v</code><span>installed distros and version</span></div>
+        <div class="cmd"><code>wsl --update</code><span>update WSL</span></div>
+        <div class="cmd"><code>wsl --shutdown</code><span>stop all Linux instances</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>First time in Ubuntu</h3>
+        <div class="cmd"><code>sudo apt update &amp;&amp; sudo apt upgrade</code><span>update Linux</span></div>
+        <div class="cmd"><code>sudo apt install git python3-venv</code><span>your tools, Linux side</span></div>
+        <div class="cmd"><code>cd ~ &amp;&amp; mkdir projects</code><span>projects live here, not /mnt/c</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Between the two</h3>
+        <div class="cmd"><code>/mnt/c/Users/sam</code><span>your Windows files, from Linux</span></div>
+        <div class="cmd"><code>\\wsl$</code><span>your Linux files, in Explorer</span></div>
+        <div class="cmd"><code>explorer.exe .</code><span>open this folder in Explorer</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Translate</h3>
+        <div class="cmd"><code>dir → ls</code><span>list</span></div>
+        <div class="cmd"><code>type → cat</code><span>print a file</span></div>
+        <div class="cmd"><code>where → which</code><span>find a program</span></div>
+        <div class="cmd"><code>\ → /</code><span>path separator</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Portable habits</h3>
+        <div class="cmd"><code>pathlib.Path</code><span>no hard-coded C:\ paths</span></div>
+        <div class="cmd"><code>raw_data.csv</code><span>lowercase, no spaces</span></div>
+        <div class="cmd"><code>*.sh text eol=lf</code><span>in .gitattributes</span></div>
+      </div>
+      <div class="cheat-group">
+        <h3>Ghost busters</h3>
+        <div class="cmd"><code>dos2unix file.sh</code><span>fix CRLF line endings</span></div>
+        <div class="cmd"><code>wsl -u root</code><span>reset a forgotten Linux password</span></div>
+        <div class="cmd"><code>python3</code><span>not <code>python</code>, in Ubuntu</span></div>
+      </div>
+    </div>
+    <p class="end">Now your laptop speaks both. Back to <a class="xref" href="hello-terminal.html">Issue #0</a></p>
+  </section>
+</main>
+</body>
+</html>

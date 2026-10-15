@@ -1,0 +1,29 @@
+From Notebook to Cluster
+Copyright (c) 2026 Frédéric Blain
+
+This repository contains material under three licences.
+
+1. CONTENT
+   The text, illustrations, characters and page design of the guide
+   (the .html files and README.md) are licensed under the
+   Creative Commons Attribution 4.0 International License (CC BY 4.0).
+
+   Summary: https://creativecommons.org/licenses/by/4.0/
+   Full legal text: see LICENSE-CONTENT
+
+   Suggested attribution:
+   "From Notebook to Cluster" by Frédéric Blain,
+   https://github.com/fredblain/notebook-to-cluster,
+   licensed under CC BY 4.0.
+
+2. CODE
+   The CSS and JavaScript contained in the .html files (layout, slide
+   navigation) are licensed under the MIT License. See LICENSE-CODE.
+
+3. FONTS
+   The font files in fonts/ are licensed under the SIL Open Font License,
+   Version 1.1, and remain the copyright of their respective authors.
+   See the *-OFL.txt files in fonts/.
+
+Product and service names mentioned in the guide are trademarks of their
+respective owners.

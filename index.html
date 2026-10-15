@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0}
+img,svg{max-width:100%}
+[hidden]{display:none!important}
+kbd{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.82em;font-weight:700;background:#fff;color:#15131a;border:2px solid #15131a;border-bottom-width:4px;border-radius:6px;padding:0 .4em;white-space:nowrap}
+
+.callout{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px 20px;background:#e9f7ff;border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:16px 18px}
+.callout-tag{font-family:var(--f-display);font-size:1.4rem;letter-spacing:.05em;background:var(--ink);color:var(--yellow);padding:4px 12px;transform:rotate(-3deg)}
+.callout h2{font-size:1.9rem;line-height:1}
+.callout p{margin:6px 0 0;max-width:62ch}
+.callout .actions{display:flex;gap:10px;flex-wrap:wrap}
+@media (max-width:760px){.callout{grid-template-columns:1fr}.callout-tag{justify-self:start}}
+</style>
+<title>From Notebook to Cluster</title>
+<style>
+@font-face{font-family:"Big Shoulders";src:url("fonts/BigShoulders-Bold.ttf") format("truetype");font-weight:400 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/JetBrainsMono-Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+
+/* Issue #2 of the Git Good comic series. Layout: a comic book. Chapters are rows of bordered panels on a halftone page; speech bubbles sit above each drawing. One deliberate light "printed page" look. */
+:root{
+  --paper:#eef3f8;
+  --panel:#ffffff;
+  --ink:#15131a;
+  --cyan:#2bb3e8;
+  --magenta:#e83e8c;
+  --yellow:#ffd23f;
+  --green:#2fbf6c;
+  --red:#e5484d;
+  --muted:#5b5f6b;
+  --term:#17151d;
+  --term-fg:#ece9f4;
+  --f-display:"Big Shoulders","Impact","Arial Narrow Bold",sans-serif;
+  --f-body:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:radial-gradient(rgba(43,179,232,.22) 1.2px, transparent 1.4px);
+  background-size:9px 9px;
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:17px;
+  line-height:1.45;
+}
+.page{max-width:1060px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;letter-spacing:.03em;margin:0;text-wrap:balance}
+code{font-family:var(--f-mono);font-size:.88em;background:#fff3c4;border:1.5px solid var(--ink);border-radius:5px;padding:0 .3em;white-space:nowrap}
+
+/* cover */
+.cover{background:var(--panel);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);overflow:hidden}
+.cover-text{padding:28px 28px 24px;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.issue{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--yellow);align-self:flex-start;padding:4px 10px}
+.cover h1{font-size:clamp(3.8rem,11vw,7.2rem);line-height:.9;color:var(--yellow);-webkit-text-stroke:3px var(--ink);text-shadow:5px 5px 0 var(--magenta),9px 9px 0 var(--ink)}
+.cover p{margin:0;font-size:1.12rem;max-width:34ch}
+.cover-art{background:var(--cyan);border-left:4px solid var(--ink);display:flex;align-items:flex-end;justify-content:center;min-height:260px}
+.cover-art svg{width:100%;height:auto;display:block}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.toc a{font-family:var(--f-display);letter-spacing:.04em;font-size:1rem;color:var(--ink);text-decoration:none;background:#fff;border:2px solid var(--ink);padding:2px 8px;box-shadow:2px 2px 0 var(--ink)}
+.toc a:hover,.toc a:focus-visible{background:var(--yellow);outline:none}
+
+/* chapters */
+.chapter{display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
+.ch-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ch-num{font-family:var(--f-display);font-size:1.05rem;letter-spacing:.06em;background:var(--magenta);color:#fff;border:3px solid var(--ink);padding:2px 10px;transform:rotate(-3deg);box-shadow:3px 3px 0 var(--ink)}
+.ch-head h2{font-size:clamp(2rem,5vw,2.9rem);line-height:1;-webkit-text-stroke:1px var(--ink)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.panel{background:var(--panel);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel.wide{grid-column:1/-1}
+.panel.yellow{background:#fff6cf}
+.panel svg.art{width:100%;height:auto;display:block;margin-top:auto}
+.caption{background:var(--yellow);border:2px solid var(--ink);font-weight:700;padding:3px 9px;align-self:flex-start;text-transform:uppercase;font-size:.78rem;letter-spacing:.06em;line-height:1.3}
+.panel p{margin:0}
+.note{font-size:.95rem;color:var(--muted)}
+.note strong{color:var(--ink)}
+
+/* speech bubbles */
+.bubble{background:#fff;border:2.5px solid var(--ink);border-radius:20px;padding:9px 14px;position:relative;line-height:1.35;margin-bottom:12px}
+.bubble::before,.bubble::after{content:"";position:absolute;width:0;height:0;border-style:solid}
+.bubble::before{bottom:-15px;left:30px;border-width:15px 9px 0 9px;border-color:var(--ink) transparent transparent transparent}
+.bubble::after{bottom:-10px;left:32.5px;border-width:10px 6.5px 0 6.5px;border-color:#fff transparent transparent transparent}
+.bubble.r::before{left:auto;right:30px}
+.bubble.r::after{left:auto;right:32.5px}
+.bubble.c::before{left:calc(50% - 9px)}
+.bubble.c::after{left:calc(50% - 6.5px)}
+.bubble.plain{margin-bottom:0}
+.bubble.plain::before,.bubble.plain::after{display:none}
+.who{display:inline-block;font-family:var(--f-display);letter-spacing:.06em;font-size:.85rem;padding:0 6px;border:1.5px solid var(--ink);margin-right:6px;transform:translateY(-1px)}
+.who.snap{background:var(--yellow)}
+.who.sam{background:var(--magenta);color:#fff}
+.bubble.shout{font-weight:700;background:#fff}
+
+/* terminal */
+.term{background:var(--term);color:var(--term-fg);font-family:var(--f-mono);font-size:.82rem;line-height:1.6;border:3px solid var(--ink);border-radius:8px;padding:12px 14px;overflow-x:auto;white-space:pre;margin:0;tab-size:4}
+.term .p{color:var(--yellow);user-select:none}
+.term .c{color:#8d8a99}
+.term .ok{color:#5fe39a}
+.term .bad{color:#ff7b80}
+.term .hl{color:#7fd3f5}
+.term .y{color:#ffe17a}
+
+/* steps & chips */
+.loop{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip{font-family:var(--f-mono);font-weight:700;font-size:.85rem;background:#fff;border:2.5px solid var(--ink);border-radius:999px;padding:4px 12px;box-shadow:2px 2px 0 var(--ink)}
+.chip.y{background:var(--yellow)}
+.chip.c{background:#bfe9fa}
+.chip.m{background:#f9c7de}
+.arrow{font-family:var(--f-display);font-size:1.3rem;line-height:1}
+.zones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+.zones h3{font-size:1.15rem}
+.zones p{font-size:.88rem;color:var(--muted)}
+
+/* tables */
+.oops{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);border:2.5px solid var(--ink);background:#fff}
+.oops > div{padding:9px 12px;border-bottom:2px dashed #c9cdd6;min-width:0}
+.oops > div:nth-last-child(-n+2){border-bottom:0}
+.oops .h{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-size:1.05rem;border-bottom:0}
+.oops code{white-space:normal;word-break:break-word}
+.warn{background:var(--red);color:#fff;border:2.5px solid var(--ink);padding:8px 12px;font-weight:700;box-shadow:3px 3px 0 var(--ink)}
+.warn code{color:var(--ink)}
+.good-bad{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.good-bad ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.good-bad li{font-family:var(--f-mono);font-size:.82rem;background:#fff;border:2px solid var(--ink);padding:4px 8px;min-width:0;overflow-wrap:anywhere}
+.good-bad h3{font-size:1.2rem;margin-bottom:6px}
+.bad-t{color:var(--red)}
+.good-t{color:var(--green)}
+.habits{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+.habits li::marker{color:var(--magenta);font-weight:700}
+
+/* cheat sheet */
+.cheat{background:var(--yellow);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);padding:20px;display:flex;flex-direction:column;gap:14px}
+.cheat h2{font-size:clamp(2rem,5vw,2.8rem);line-height:1}
+.cheat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.cheat-group{background:#fff;border:2.5px solid var(--ink);padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.cheat-group h3{font-size:1.1rem;color:var(--magenta)}
+.cmd{display:flex;flex-direction:column;gap:1px}
+.cmd code{white-space:normal;word-break:break-word;align-self:flex-start;background:#eef7fc}
+.cmd span{font-size:.88rem;color:var(--muted)}
+.end{text-align:center;font-family:var(--f-display);font-size:1.4rem;letter-spacing:.05em}
+
+@media (max-width:700px){
+  .cover{grid-template-columns:1fr}
+  .cover-art{border-left:0;border-top:4px solid var(--ink);min-height:0}
+  .oops{grid-template-columns:1fr}
+  .oops > div:nth-child(2n+1):not(.h){border-bottom:0;padding-bottom:2px;font-weight:700}
+  .oops .h:nth-child(2){display:none}
+  .good-bad{grid-template-columns:1fr}
+  body{font-size:16px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .flash{animation:flash 2.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+  @keyframes flash{0%,80%,100%{opacity:1;transform:scale(1)}88%{opacity:.6;transform:scale(1.12)}}
+}
+
+/* ---- issue 2 additions ---- */
+.ch-head .part-tag{font-family:var(--f-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-left:auto;align-self:center}
+.toc-part{flex-basis:100%;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.cover p.prev-issue{font-size:.95rem;max-width:none}
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+.xref:hover,.xref:focus-visible{background:var(--yellow);outline:none}
+.tree{background:#fff;color:var(--ink);border:3px solid var(--ink);border-radius:8px;padding:12px 14px;font-family:var(--f-mono);font-size:.8rem;line-height:1.6;overflow-x:auto;white-space:pre;margin:0}
+.tree .c{color:#1d7fa8}
+.tree b{color:#c22d72}
+.tree.small{font-size:.76rem}
+.scroll-x{overflow-x:auto}
+table.cmp{border-collapse:collapse;width:100%;min-width:620px;background:#fff;border:2.5px solid var(--ink);font-size:.95rem}
+.cmp th{background:var(--ink);color:var(--yellow);font-family:var(--f-display);letter-spacing:.05em;font-weight:400;text-align:left;padding:8px 10px;font-size:1.05rem}
+.cmp td{padding:9px 10px;border-top:2px dashed #c9cdd6;vertical-align:top}
+.cmp code{white-space:normal;word-break:break-word}
+.beasts td:first-child{width:34%}
+.mark{display:inline-flex;align-items:center;justify-content:center;flex:none;width:1.45em;height:1.45em;border-radius:50%;font-family:var(--f-display);font-size:.95em;line-height:1;border:2px solid var(--ink);color:var(--ink);margin-right:6px;vertical-align:middle}
+.term .mark{border-color:#fff;font-size:.85em}
+.m1{background:var(--yellow)}.m2{background:var(--cyan)}.m3{background:#f9c7de}
+.tb-legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tb-legend li{display:flex;gap:4px;align-items:flex-start}
+.msg{border:2.5px solid var(--ink);border-radius:14px;padding:12px 14px;white-space:pre-wrap;line-height:1.45;box-shadow:3px 3px 0 var(--ink);min-width:0;overflow-wrap:anywhere}
+.msg code{white-space:normal;word-break:break-word}
+.bad-msg{background:#ffe1e2}
+.good-msg{background:#e3f8ec}
+
+.chip{white-space:nowrap}
+@media (min-width:900px){.panel.span2{grid-column:span 2}}
+.habits.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 28px;padding-left:1.3em}
+.panel.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);align-items:center;column-gap:20px}
+.panel.row > .caption{grid-column:1/-1}
+.panel.row svg.art{margin-top:0}
+@media (max-width:640px){.panel.row{grid-template-columns:1fr}}
+
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start}
+.duo p{margin:0}
+.nb{background:#ffffff;color:var(--ink);border:3px solid var(--ink);border-left:8px solid var(--cyan);border-radius:6px;padding:12px 14px;font-family:var(--f-mono);font-size:.8rem;line-height:1.6;overflow-x:auto;white-space:pre;margin:0}
+.nb .in{color:#1d7fa8;font-weight:700}
+.nb .out{color:#c22d72;font-weight:700}
+
+.triage td:first-child{width:16%;white-space:nowrap}
+.verdicts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.verdict{border:2.5px solid var(--ink);padding:9px 12px;box-shadow:3px 3px 0 var(--ink);display:flex;flex-direction:column;gap:2px;font-size:.95rem}
+.verdict strong{font-family:var(--f-display);font-weight:400;letter-spacing:.05em;font-size:1.15rem}
+.verdict.g{background:#d3f5e1}.verdict.y{background:#fff1b8}.verdict.r{background:#ffd9da}
+
+/* ---- offline series navigation ---- */
+.xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
+a.xref:hover,a.xref:focus-visible{background:var(--yellow);outline:none}
+.cover p.prev-issue,.cover p.formats{font-size:.95rem;max-width:none;margin:0}
+.series-bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.series-bar .lbl{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.xref.home{background:var(--yellow)}
+.xref.fmt{background:#f9c7de}
+
+/* ---- index page ---- */
+.masthead{background:var(--panel);border:4px solid var(--ink);box-shadow:8px 8px 0 var(--ink);display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);overflow:hidden}
+.masthead .txt{padding:26px 28px;display:flex;flex-direction:column;gap:12px;justify-content:center}
+.masthead h1{font-size:clamp(3.2rem,9vw,6rem);line-height:.9;color:var(--yellow);-webkit-text-stroke:3px var(--ink);text-shadow:5px 5px 0 var(--magenta),9px 9px 0 var(--ink)}
+.masthead p{margin:0;max-width:44ch;font-size:1.08rem}
+.masthead .art{background:var(--cyan);border-left:4px solid var(--ink);display:flex;align-items:flex-end}
+.masthead .art svg{width:100%;height:auto;display:block}
+.issues{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+@media (max-width:1000px){.issues{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.issues{grid-template-columns:1fr}}
+.b3{background:#d3f5e1}
+.issue-card{background:var(--panel);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--ink);display:flex;flex-direction:column;min-width:0}
+.issue-card .band{border-bottom:3px solid var(--ink);padding:12px 16px;display:flex;align-items:baseline;gap:12px}
+.issue-card .num{font-family:var(--f-display);font-size:3rem;line-height:.9;color:#fff;-webkit-text-stroke:2px var(--ink);text-shadow:3px 3px 0 var(--ink)}
+.issue-card h2{font-size:1.75rem;line-height:1}
+.issue-card .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;flex:1}
+.issue-card p{margin:0}
+.issue-card ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:3px;font-size:.95rem;color:var(--muted)}
+.issue-card .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:4px}
+.btn{font-family:var(--f-display);font-size:1.2rem;letter-spacing:.05em;color:var(--ink);text-decoration:none;border:3px solid var(--ink);padding:4px 14px;box-shadow:3px 3px 0 var(--ink);background:#fff}
+.btn.primary{background:var(--yellow)}
+.btn:hover,.btn:focus-visible{background:var(--magenta);color:#fff;outline:none}
+.b0{background:#bfe9fa}.b1{background:#f9c7de}.b2{background:#fff1b8}
+.howto{background:#fff6cf;border:3px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.howto h2{font-size:1.6rem}
+.howto ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.howto li::marker{color:var(--magenta);font-weight:700}
+.foot{font-size:.85rem;color:var(--muted);text-align:center}
+@media (max-width:700px){.masthead{grid-template-columns:1fr}.masthead .art{border-left:0;border-top:4px solid var(--ink)}}
+</style>
+</head>
+<body>
+<!-- shared drawings -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#15131a" opacity=".16"/></pattern>
+    <pattern id="dotsW" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#ffffff" opacity=".35"/></pattern>
+
+    <symbol id="sam" viewBox="0 0 100 150">
+      <rect x="36" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <rect x="53" y="114" width="11" height="32" rx="3" fill="#2d3a5a" stroke="#15131a" stroke-width="3"/>
+      <path d="M20 122 Q18 80 50 75 Q82 80 80 122 Z" fill="#e83e8c" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M44 80 L43 98 M56 80 L57 98" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="50" cy="46" r="26" fill="#f2c29b" stroke="#15131a" stroke-width="3"/>
+      <path d="M24 46 Q20 16 50 16 Q82 16 76 46 Q72 31 60 33 Q52 23 40 32 Q30 33 24 46 Z" fill="#15131a"/>
+      <circle cx="41" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="59" cy="50" r="3.2" fill="#15131a"/>
+      <circle cx="34" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+      <circle cx="66" cy="58" r="3.6" fill="#f59fb0" opacity=".75"/>
+    </symbol>
+
+    <symbol id="snap" viewBox="0 0 100 110">
+      <path d="M38 82 L36 101 M62 82 L64 101" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <ellipse cx="33" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <ellipse cx="67" cy="103" rx="8" ry="4" fill="#15131a"/>
+      <path d="M14 52 L5 40 M86 52 L95 40" stroke="#15131a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <circle cx="5" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="95" cy="37" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="28" y="14" width="22" height="16" rx="4" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <rect x="62" y="17" width="14" height="11" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="14" y="26" width="72" height="58" rx="12" fill="#ffd23f" stroke="#15131a" stroke-width="3"/>
+      <circle cx="50" cy="52" r="20" fill="#15131a"/>
+      <circle cx="50" cy="52" r="14" fill="#2bb3e8"/>
+      <circle cx="50" cy="52" r="6" fill="#15131a"/>
+      <circle cx="44" cy="46" r="4" fill="#ffffff"/>
+      <path d="M42 76 Q50 81 58 76" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="burst" viewBox="-50 -50 100 100">
+      <polygon points="50,0 27.7,11.5 35.4,35.4 11.5,27.7 0,50 -11.5,27.7 -35.4,35.4 -27.7,11.5 -50,0 -27.7,-11.5 -35.4,-35.4 -11.5,-27.7 0,-50 11.5,-27.7 35.4,-35.4 27.7,-11.5" stroke="#15131a" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+
+    <symbol id="polaroid" viewBox="0 0 60 70">
+      <rect x="1.5" y="1.5" width="57" height="67" rx="2" fill="#ffffff" stroke="#15131a" stroke-width="3"/>
+      <rect x="7" y="7" width="46" height="40" fill="#bfe9fa" stroke="#15131a" stroke-width="2"/>
+      <path d="M7 47 L22 28 L32 39 L39 31 L53 47 Z" fill="#2fbf6c" stroke="#15131a" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="42" cy="17" r="5" fill="#ffd23f" stroke="#15131a" stroke-width="2"/>
+    </symbol>
+
+    <symbol id="file" viewBox="0 0 40 50">
+      <path d="M2 2 H28 L38 12 V48 H2 Z" fill="#ffffff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M28 2 V12 H38" fill="none" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M9 22 H31 M9 29 H27 M9 36 H31" stroke="#9aa0ad" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+
+    <symbol id="hat" viewBox="0 0 100 40">
+      <path d="M22 34 Q22 4 50 4 Q78 4 78 34 Z" fill="#a07c55" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M34 9 L36 32 M50 4 V33 M66 9 L64 32 M24 22 H76" stroke="#6b5034" stroke-width="2" fill="none"/>
+      <ellipse cx="50" cy="34" rx="36" ry="5.5" fill="#8a6a4a" stroke="#15131a" stroke-width="3"/>
+    </symbol>
+    <symbol id="magnifier" viewBox="0 0 60 60">
+      <path d="M36 36 L54 54" stroke="#15131a" stroke-width="11" stroke-linecap="round"/>
+      <path d="M36 36 L54 54" stroke="#2d3a5a" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="24" cy="24" r="16" fill="#bfe9fa" fill-opacity=".7" stroke="#15131a" stroke-width="4"/>
+      <path d="M15 20 Q17 13 24 12" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="jar" viewBox="0 0 110 130">
+      <path d="M14 22 H96 V112 Q96 126 82 126 H28 Q14 126 14 112 Z" fill="#e9f7ff" stroke="#15131a" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M24 34 V100" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <rect x="18" y="5" width="74" height="17" rx="4" fill="#9aa0ad" stroke="#15131a" stroke-width="3"/>
+    </symbol>
+    <symbol id="bug" viewBox="0 0 84 70">
+      <path d="M24 40 L8 32 M22 48 L5 52 M26 56 L12 66 M60 40 L76 32 M62 48 L79 52 M58 56 L72 66" stroke="#15131a" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M37 12 Q32 2 24 4 M47 12 Q52 2 60 4" stroke="#15131a" stroke-width="2.5" fill="none"/>
+      <circle cx="24" cy="4" r="3" fill="#15131a"/><circle cx="60" cy="4" r="3" fill="#15131a"/>
+      <ellipse cx="42" cy="46" rx="22" ry="18" stroke="#15131a" stroke-width="3"/>
+      <path d="M42 30 V63" stroke="#15131a" stroke-width="2" opacity=".5"/>
+      <circle cx="42" cy="22" r="12" stroke="#15131a" stroke-width="3"/>
+      <circle cx="37" cy="20" r="4.2" fill="#ffffff" stroke="#15131a" stroke-width="1.5"/>
+      <circle cx="47" cy="20" r="4.2" fill="#ffffff" stroke="#15131a" stroke-width="1.5"/>
+      <circle cx="38" cy="21" r="1.8" fill="#15131a"/><circle cx="46" cy="21" r="1.8" fill="#15131a"/>
+      <path d="M32 14 L40 17 M52 14 L44 17" stroke="#15131a" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M37 28 L40 26 L42 28 L44 26 L47 28" fill="none" stroke="#15131a" stroke-width="1.8" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main class="page">
+  <section class="masthead">
+    <div class="txt">
+      <span class="issue">An illustrated guide to research computing</span>
+      <h1>From Notebook<br>to Cluster</h1>
+      <p>Four short illustrated issues, plus an appendix for Windows users, for getting from “there's code on GitHub” to “it runs on a shared GPU server.” Read them in order, or jump to the one you need. Each issue comes as one long page or as slides.</p>
+    </div>
+    <div class="art">
+      <svg viewBox="0 0 420 260" role="img" aria-label="Sam and Snap with a terminal, a photo and a magnifying glass">
+        <rect width="420" height="260" fill="url(#dotsW)"/>
+        <use href="#burst" x="140" y="10" width="230" height="230" fill="#ffd23f"/>
+        <g transform="rotate(-10 60 50)"><use href="#polaroid" x="34" y="20" width="50" height="58"/></g>
+        <g transform="rotate(12 360 40)"><use href="#file" x="340" y="16" width="40" height="50"/></g>
+        <g transform="translate(60 74) scale(1.2)">
+          <use href="#sam" width="100" height="150"/>
+          <path d="M41 60 Q50 69 59 60" fill="none" stroke="#15131a" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <g transform="translate(220 112) scale(1.25)">
+          <use href="#snap" width="100" height="110"/>
+          <use href="#hat" width="100" height="40" y="-22"/>
+        </g>
+        <use href="#magnifier" x="340" y="130" width="64" height="64"/>
+        <rect x="0" y="252" width="420" height="8" fill="#15131a"/>
+      </svg>
+    </div>
+  </section>
+
+  <section class="issues" aria-label="Issues">
+    <article class="issue-card">
+      <div class="band b0"><span class="num">#0</span><h2>Hello, Terminal</h2></div>
+      <div class="body">
+        <p>The black window with the blinking cursor, explained. Start here if you have only ever used Jupyter.</p>
+        <ul><li>The prompt, commands, flags</li><li>Paths: where am I?</li><li>Files, pipes, keyboard shortcuts</li><li>Customising your prompt, common errors</li></ul>
+        <div class="actions"><a class="btn primary" href="hello-terminal.html">Read</a><a class="btn" href="hello-terminal-slides.html">Slides ▶</a></div>
+      </div>
+    </article>
+    <article class="issue-card">
+      <div class="band b1"><span class="num">#1</span><h2>Git Good</h2></div>
+      <div class="body">
+        <p>Version control with snapshots. No more <code>final_v3_REAL.py</code>.</p>
+        <ul><li>Staging and commits</li><li>Looking back and undoing</li><li>Branches and merge conflicts</li><li>GitHub, <code>.gitignore</code>, notebooks in Git</li></ul>
+        <div class="actions"><a class="btn primary" href="git-good.html">Read</a><a class="btn" href="git-good-slides.html">Slides ▶</a></div>
+      </div>
+    </article>
+    <article class="issue-card">
+      <div class="band b2"><span class="num">#2</span><h2>Works on my machine</h2></div>
+      <div class="body">
+        <p>You found a paper with code during your literature review. Now what?</p>
+        <ul><li>Is this repo worth your time?</li><li>Reading a research codebase</li><li>Python environments: venv, uv, conda</li><li>Running and debugging someone else's code</li><li>Turning your notebook into a script</li></ul>
+        <div class="actions"><a class="btn primary" href="works-on-my-machine.html">Read</a><a class="btn" href="works-on-my-machine-slides.html">Slides ▶</a></div>
+      </div>
+    </article>
+    <article class="issue-card">
+      <div class="band b3"><span class="num">#3</span><h2>Share the GPU</h2></div>
+      <div class="body">
+        <p>Running jobs on a shared GPU server (GPU4EDU as the example), and being a good neighbour while you do.</p>
+        <ul><li>SSH keys and syncing code with Git</li><li>Slurm, screen and a run-folder Makefile</li><li>htop, nvidia-smi, squeue (and CO₂)</li><li>Cleaning up and house rules</li></ul>
+        <div class="actions"><a class="btn primary" href="share-the-gpu.html">Read</a><a class="btn" href="share-the-gpu-slides.html">Slides ▶</a></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="callout" aria-label="Appendix for Windows users">
+    <div class="callout-tag">Appendix</div>
+    <div class="callout-body">
+      <h2>On Windows? Windows &amp; WSL</h2>
+      <p>Paths, commands and line endings that differ from Linux and macOS, and how to install a real Linux terminal with WSL. Best read right after Issue #0.</p>
+    </div>
+    <div class="actions"><a class="btn primary" href="windows-and-wsl.html">Read</a><a class="btn" href="windows-and-wsl-slides.html">Slides ▶</a></div>
+  </section>
+
+  <section class="howto">
+    <h2>Using the slides</h2>
+    <ol>
+      <li>Next and previous slide: <kbd>→</kbd> <kbd>←</kbd>, <kbd>PageDown</kbd> <kbd>PageUp</kbd>, or swipe on a phone.</li>
+      <li>First or last slide: <kbd>Home</kbd> <kbd>End</kbd>. The dots at the bottom jump to any chapter.</li>
+      <li>Every page works offline: keep all files and the <code>fonts</code> folder together. Only the official-documentation links in the Windows appendix go online.</li>
+    </ol>
+  </section>
+
+  <p class="foot">Designed and edited by <a href="https://fredblain.github.io" target="_blank">Frédéric Blain</a>, with drafting assistance from Claude (Anthropic).<br>Content licensed under CC BY 4.0, code under the MIT License (see <code>LICENSE</code>). Fonts: Big Shoulders, Bricolage Grotesque and JetBrains Mono, under the SIL Open Font License (see the <code>fonts</code> folder).</p>
+</main>
+</body>
+</html>
