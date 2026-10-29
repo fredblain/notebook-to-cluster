@@ -14,7 +14,7 @@ Many students learn to program in notebooks. Then a thesis or project asks them 
 | Appendix | **Windows & WSL** | How Windows differs from Linux/macOS (paths, commands, line endings) and how to install and use WSL |
 | 1 | **Git Good** | Snapshots, staging and commits, undoing, branches, merge conflicts, GitHub, `.gitignore`, notebooks in Git |
 | 2 | **Works on my machine** | Deciding whether a paper's code is worth your time, reading a research codebase, Python environments (venv, uv, conda), running and debugging someone else's code, turning your own notebook into a script |
-| 3 | **Share the GPU** | SSH keys, syncing code with Git, Slurm, `screen`, a Makefile for experiment folders, `htop`, `nvidia-smi`, `squeue`, measuring CO₂ (optional), cleaning up, house rules |
+| 3 | **Share the GPU** | SSH keys, syncing code with Git, Slurm, job arrays, `screen`, a Makefile for experiment folders, `htop`, `nvidia-smi`, `squeue`, measuring CO₂ (optional), cleaning up, house rules |
 
 Every issue comes in two formats with the same content: **one long page** to read or search, and **slides** to present in class. Each issue ends with a one-page cheat sheet.
 

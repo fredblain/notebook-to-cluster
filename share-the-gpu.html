@@ -201,6 +201,8 @@ table.cmp{border-collapse:collapse;width:100%;min-width:620px;background:#fff;bo
 .verdict{border:2.5px solid var(--ink);padding:9px 12px;box-shadow:3px 3px 0 var(--ink);display:flex;flex-direction:column;gap:2px;font-size:.95rem}
 .verdict strong{font-family:var(--f-display);font-weight:400;letter-spacing:.05em;font-size:1.15rem}
 .verdict.g{background:#d3f5e1}.verdict.y{background:#fff1b8}.verdict.r{background:#ffd9da}
+.sub{font-size:1.35rem;line-height:1}
+.tree .mk{background:#ffe1e2}
 /* ---- issue 3 additions ---- */
 .term .pc{color:#7fd3f5;user-select:none}
 .term.htop{font-size:.78rem}
@@ -219,6 +221,14 @@ table.cmp{border-collapse:collapse;width:100%;min-width:620px;background:#fff;bo
 .cmp th code{background:transparent;border-color:var(--yellow);color:var(--yellow)}
 .panel.top svg.art{margin-top:0}
 .warn code{white-space:normal;overflow-wrap:anywhere}
+/* ---- reference cards (job arrays) ---- */
+.refs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.ref{display:flex;flex-direction:column;gap:3px;background:#fff;border:2.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:10px 12px;color:var(--ink);text-decoration:none;min-width:0}
+.ref:hover,.ref:focus-visible{background:var(--yellow);outline:none}
+.ref .src{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:#b52d6c}
+.ref strong{font-size:1.02rem;line-height:1.25}
+.ref .url{font-family:var(--f-mono);font-size:.74rem;color:var(--muted);overflow-wrap:anywhere}
+.ref .url::after{content:" \2197"}
 
 /* ---- offline series navigation ---- */
 .xref{display:inline-block;font-family:var(--f-display);letter-spacing:.04em;font-size:.95rem;line-height:1.35;color:var(--ink);text-decoration:none;background:#bfe9fa;border:2px solid var(--ink);padding:0 7px;box-shadow:2px 2px 0 var(--ink);margin:2px 4px 2px 0;white-space:nowrap}
@@ -345,17 +355,18 @@ a.xref:hover,a.xref:focus-visible{background:var(--yellow);outline:none}
         <a href="#sync">3 · Git sync</a>
         <span class="toc-part">Part 2 · Run</span>
         <a href="#slurm">4 · Slurm</a>
-        <a href="#screen">5 · screen</a>
-        <a href="#make">6 · Makefile</a>
+        <a href="#arrays">5 · Job arrays</a>
+        <a href="#screen">6 · screen</a>
+        <a href="#make">7 · Makefile</a>
         <span class="toc-part">Part 3 · Watch</span>
-        <a href="#htop">7 · htop</a>
-        <a href="#smi">8 · nvidia-smi</a>
-        <a href="#queue">9 · Queue &amp; logs</a>
-        <a href="#carbon">10 · Bonus: CO₂</a>
+        <a href="#htop">8 · htop</a>
+        <a href="#smi">9 · nvidia-smi</a>
+        <a href="#queue">10 · Queue &amp; logs</a>
+        <a href="#carbon">11 · Bonus: CO₂</a>
         <span class="toc-part">Part 4 · Be a good neighbour</span>
-        <a href="#clean">11 · Clean up</a>
-        <a href="#rules">12 · House rules</a>
-        <a href="#bestiary">13 · Error bestiary</a>
+        <a href="#clean">12 · Clean up</a>
+        <a href="#rules">13 · House rules</a>
+        <a href="#bestiary">14 · Error bestiary</a>
         <a href="#cheat">Cheat sheet</a>
       </nav>
       <div class="series-bar"><span class="lbl">Series</span><a class="xref home" href="index.html">⌂ Home</a><a class="xref" href="hello-terminal.html">Issue #0 · Hello, Terminal</a><a class="xref" href="windows-and-wsl.html">Appendix · Windows &amp; WSL</a><a class="xref" href="git-good.html">Issue #1 · Git Good</a><a class="xref" href="works-on-my-machine.html">Issue #2 · Works on my machine</a><a class="xref fmt" href="share-the-gpu-slides.html">▶ View as slides</a></div>
@@ -737,9 +748,180 @@ echo "Finished at $(date)"</pre>
     </div>
   </section>
 
-  <!-- 5 SCREEN -->
+  <!-- 5 ARRAYS -->
+  <section class="chapter" id="arrays">
+    <div class="ch-head"><span class="ch-num">Chapter 5</span><h2>Many runs: job arrays</h2><span class="part-tag">Part 2 · Run</span></div>
+    <div class="strip">
+      <div class="panel">
+        <span class="caption">Five seeds, five scripts?</span>
+        <div class="bubble"><span class="who sam">Sam</span>My supervisor wants the same model trained with five random seeds. Do I copy <code>job.sh</code> five times and submit each one?</div>
+        <div class="bubble r plain-tail"><span class="who snap">Snap</span>No: one script, one <code>sbatch</code>, five tickets. Slurm calls that a <strong>job array</strong>.</div>
+      </div>
+      <div class="panel">
+        <span class="caption">One job, numbered tasks</span>
+        <svg class="art" viewBox="0 0 300 160" role="img" aria-label="The ticket dispenser hands out one ticket, 123460, which splits into five numbered tickets from 123460_0 to 123460_4">
+          <rect width="300" height="160" fill="url(#dots)"/>
+          <rect x="14" y="30" width="62" height="90" rx="9" fill="#e5484d" stroke="#15131a" stroke-width="3"/>
+          <rect x="25" y="44" width="40" height="24" rx="4" fill="#ffffff" stroke="#15131a" stroke-width="2.5"/>
+          <rect x="84" y="62" width="64" height="30" fill="#ffd23f" stroke="#15131a" stroke-width="2.5"/>
+          <text x="116" y="83" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="11" fill="#15131a">123460</text>
+          <path d="M148 77 L176 22 M148 77 L176 50 M148 77 L176 78 M148 77 L176 106 M148 77 L176 134" stroke="#15131a" stroke-width="2" fill="none"/>
+          <g stroke="#15131a" stroke-width="2.5" fill="#ffffff">
+            <rect x="176" y="10" width="110" height="24"/><rect x="176" y="38" width="110" height="24"/><rect x="176" y="66" width="110" height="24" fill="#bfe9fa"/><rect x="176" y="94" width="110" height="24" fill="#bfe9fa"/><rect x="176" y="122" width="110" height="24" fill="#bfe9fa"/>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="11" fill="#15131a">
+            <text x="186" y="27">123460_<tspan font-weight="700" fill="#b52d6c">0</tspan>  R</text>
+            <text x="186" y="55">123460_<tspan font-weight="700" fill="#b52d6c">1</tspan>  R</text>
+            <text x="186" y="83">123460_<tspan font-weight="700" fill="#b52d6c">2</tspan>  PD</text>
+            <text x="186" y="111">123460_<tspan font-weight="700" fill="#b52d6c">3</tspan>  PD</text>
+            <text x="186" y="139">123460_<tspan font-weight="700" fill="#b52d6c">4</tspan>  PD</text>
+          </g>
+        </svg>
+        <p class="note">Every task runs the same script, with its own number: <code>$SLURM_ARRAY_TASK_ID</code>. Your script uses that number to pick a seed, a config or a data file.</p>
+      </div>
+      <div class="panel yellow">
+        <span class="caption">Good for</span>
+        <ol class="habits">
+          <li><strong>Repeats:</strong> the same run with several seeds.</li>
+          <li><strong>Small sweeps:</strong> a handful of configs or learning rates.</li>
+          <li><strong>Many inputs:</strong> one data file, language pair or fold per task.</li>
+        </ol>
+        <p class="note">The tasks must be <strong>independent</strong>: no task may need another task's output.</p>
+      </div>
+
+      <div class="panel wide">
+        <span class="caption">Step 1 · The array script, line by line</span>
+        <div class="duo">
+<pre class="tree small"><b>#!/bin/bash</b>
+#SBATCH --job-name=seeds
+#SBATCH --partition=GPU
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=16G
+#SBATCH --time=02:00:00
+#SBATCH --array=0-4%2                 <span class="mark m1">1</span>
+#SBATCH --output=logs/%x-%A_%a.out    <span class="mark m2">2</span>
+#SBATCH --error=logs/%x-%A_%a.err
+
+set -e
+. /usr/local/anaconda3/etc/profile.d/conda.sh
+conda activate thesis
+
+SEED=$SLURM_ARRAY_TASK_ID             <span class="mark m3">3</span>
+OUT=results/seed-$SEED                <span class="mark m1">4</span>
+mkdir -p "$OUT"
+
+echo "Task $SEED started on $(hostname) at $(date)"
+python train.py --config configs/baseline.yaml \
+                --seed "$SEED" --out "$OUT"
+echo "Finished at $(date)"</pre>
+          <ol class="tb-legend">
+            <li><span class="mark m1">1</span><span><strong><code>--array=0-4</code></strong> creates five tasks, numbered 0 to 4. <strong><code>%2</code></strong> lets at most two of them run at the same time; the others wait their turn.</span></li>
+            <li><span class="mark m2">2</span><span><strong><code>%A</code></strong> becomes the array's job ID and <strong><code>%a</code></strong> the task number, so each task writes its own log: <code>seeds-123460_3.out</code>. With plain <code>%j</code>, you couldn't tell which log belongs to which seed.</span></li>
+            <li><span class="mark m3">3</span><span><strong><code>$SLURM_ARRAY_TASK_ID</code></strong> is the only thing that differs between tasks. Here it becomes the seed.</span></li>
+            <li><span class="mark m1">4</span><span><strong>One output folder per task.</strong> Five tasks that all save to <code>model.pt</code> overwrite each other, and you keep whichever finished last.</span></li>
+          </ol>
+        </div>
+        <div class="warn"><code>--gres=gpu:1</code> is <strong>per task</strong>. Without the <code>%2</code>, <code>--array=0-4</code> can take five GPUs at once. On a shared server, that may be all of them.</div>
+<pre class="term"><span class="pc">gpu4edu:~/thesis$ </span>mkdir -p logs
+<span class="pc">gpu4edu:~/thesis$ </span>sbatch array.sh
+<span class="ok">Submitted batch job 123460</span></pre>
+      </div>
+
+      <div class="panel span2">
+        <span class="caption">Step 2 · Choosing the numbers</span>
+        <div class="scroll-x">
+        <table class="cmp">
+          <thead><tr><th><code style="white-space:nowrap">--array=</code></th><th>Task numbers</th><th>Typical use</th></tr></thead>
+          <tbody>
+            <tr><td><code>0-4</code></td><td>0, 1, 2, 3, 4</td><td>Five seeds</td></tr>
+            <tr><td><code>1,3,7</code></td><td>1, 3, 7</td><td>Re-run only the tasks that failed</td></tr>
+            <tr><td><code>0-20:5</code></td><td>0, 5, 10, 15, 20</td><td>Steps of 5 (for example a range of sizes)</td></tr>
+            <tr><td><code>0-9%3</code></td><td>0 to 9, at most 3 running at a time</td><td>Any array on a shared server</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="note">An option given to <code>sbatch</code> on the command line overrides the <code>#SBATCH</code> line, so <code>sbatch --array=1,3 array.sh</code> re-runs just tasks 1 and 3 without editing the script.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Step 3 · Different configs</span>
+<pre class="tree small"><b>#SBATCH --array=0-2%2</b>
+
+CONFIGS=(baseline lr-small lr-large)
+EXP=${CONFIGS[$SLURM_ARRAY_TASK_ID]}
+
+python train.py \
+  --config "configs/$EXP.yaml" \
+  --out "results/$EXP"</pre>
+        <p class="note">A bash list starts counting at 0, like the task numbers. Three configs means <code>--array=0-2</code>: keep the two in step when you add one.</p>
+      </div>
+
+      <div class="panel span2">
+        <span class="caption">Step 4 · Watch and cancel</span>
+<pre class="term"><span class="pc">gpu4edu:~$ </span>squeue --me
+       JOBID PARTITION  NAME     USER ST  TIME NODES NODELIST(REASON)
+<span class="y">123460_[2-4]       GPU seeds u123456 PD  0:00     1 (JobArrayTaskLimit)</span>
+<span class="ok">    123460_0       GPU seeds u123456  R  3:12     1 cerulean</span>
+<span class="ok">    123460_1       GPU seeds u123456  R  3:12     1 cerulean</span></pre>
+        <div class="oops">
+          <div class="h">Command</div><div class="h">Does</div>
+          <div><code>squeue --me -r</code></div><div>One line per task, also for waiting tasks.</div>
+          <div><code>scancel 123460_3</code></div><div>Cancels task 3 only.</div>
+          <div><code>scancel "123460_[2-4]"</code></div><div>Cancels tasks 2 to 4. Keep the quotes: zsh otherwise reads the brackets as a file pattern and stops with <code>no matches found</code>.</div>
+          <div><code>scancel 123460</code></div><div>Cancels the whole array: running and waiting tasks.</div>
+        </div>
+        <p class="note"><code>(JobArrayTaskLimit)</code> means the tasks are waiting because of your own <code>%2</code>, not because the server is full.</p>
+      </div>
+      <div class="panel">
+        <span class="caption">Logs per task</span>
+<pre class="term"><span class="pc">gpu4edu:~/thesis$ </span>ls logs/
+<span class="hl">seeds-123460_0.err
+seeds-123460_0.out
+seeds-123460_1.err
+seeds-123460_1.out</span>  <span class="c"># …and so on</span>
+<span class="pc">gpu4edu:~/thesis$ </span>grep -il error logs/*.err
+<span class="bad">logs/seeds-123460_1.err</span></pre>
+        <p class="note">One failed task doesn't stop the others. Find it, fix it, then resubmit only that one: <code>sbatch --array=1 array.sh</code>.</p>
+      </div>
+
+      <div class="panel wide">
+        <div class="dodont">
+          <div class="do">
+            <h3>Do</h3>
+            <ul>
+              <li><strong>Test one task first:</strong> <code>sbatch --array=0 array.sh</code>, with a short <code>--time</code>.</li>
+              <li><strong>Always set a <code>%</code> limit.</strong> Two is a polite default on a small shared server.</li>
+              <li><strong>Give every task its own output folder</strong> and its own log (<code>%A_%a</code>).</li>
+              <li><strong>Cancel the whole array</strong> as soon as you spot a bug in task 0. The other tasks have the same bug.</li>
+            </ul>
+          </div>
+          <div class="dont">
+            <h3>Don't</h3>
+            <ul>
+              <li><strong>Submit a 200-run grid search</strong> to a teaching server. Pick the few settings that matter.</li>
+              <li><strong>Use an array for a chain</strong> (prepare data → train → evaluate). Tasks run in any order.</li>
+              <li><strong>Use tiny tasks of a few seconds.</strong> Each task waits in the queue and loads your model again; loop inside one job instead.</li>
+              <li><strong>Use an array to get round a per-user limit.</strong> It is still your jobs, and admins see it that way.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="note">Servers set their own limits on array size and on how many jobs one person may run. On GPU4EDU, as for every rule in this issue, the server's own documentation comes first.</p>
+      </div>
+
+      <div class="panel wide">
+        <span class="caption">Official documentation</span>
+        <div class="bubble c"><span class="who snap">Snap</span>Slurm's own pages list every option. Your cluster may run an older Slurm version, so if something on these pages doesn't work, ask your server's support channel.</div>
+        <div class="refs">
+          <a class="ref" href="https://slurm.schedmd.com/job_array.html" target="_blank" rel="noopener"><span class="src">SchedMD (Slurm)</span><strong>Job Array Support</strong><span class="url">slurm.schedmd.com/job_array.html</span></a>
+          <a class="ref" href="https://slurm.schedmd.com/sbatch.html#OPT_array" target="_blank" rel="noopener"><span class="src">SchedMD (Slurm)</span><strong>sbatch manual: the --array option</strong><span class="url">slurm.schedmd.com/sbatch.html</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 SCREEN -->
   <section class="chapter" id="screen">
-    <div class="ch-head"><span class="ch-num">Chapter 5</span><h2>Stay connected: screen</h2><span class="part-tag">Part 2 · Run</span></div>
+    <div class="ch-head"><span class="ch-num">Chapter 6</span><h2>Stay connected: screen</h2><span class="part-tag">Part 2 · Run</span></div>
     <div class="strip">
       <div class="panel">
         <span class="caption">The problem</span>
@@ -784,9 +966,9 @@ echo "Finished at $(date)"</pre>
     </div>
   </section>
 
-  <!-- 6 MAKE -->
+  <!-- 7 MAKE -->
   <section class="chapter" id="make">
-    <div class="ch-head"><span class="ch-num">Chapter 6</span><h2>Organise runs with a Makefile</h2><span class="part-tag">Part 2 · Run</span></div>
+    <div class="ch-head"><span class="ch-num">Chapter 7</span><h2>Organise runs with a Makefile</h2><span class="part-tag">Part 2 · Run</span></div>
     <div class="strip">
       <div class="panel">
         <span class="caption">Three weeks later…</span>
@@ -863,9 +1045,9 @@ python train.py --config "$RUN_DIR/config.yaml" \
     </div>
   </section>
 
-  <!-- 7 HTOP -->
+  <!-- 8 HTOP -->
   <section class="chapter" id="htop">
-    <div class="ch-head"><span class="ch-num">Chapter 7</span><h2>htop: what's running here?</h2><span class="part-tag">Part 3 · Watch</span></div>
+    <div class="ch-head"><span class="ch-num">Chapter 8</span><h2>htop: what's running here?</h2><span class="part-tag">Part 3 · Watch</span></div>
     <div class="strip">
       <div class="panel span2">
         <span class="caption">The login node's dashboard</span>
@@ -912,9 +1094,9 @@ python train.py --config "$RUN_DIR/config.yaml" \
     </div>
   </section>
 
-  <!-- 8 SMI -->
+  <!-- 9 SMI -->
   <section class="chapter" id="smi">
-    <div class="ch-head"><span class="ch-num">Chapter 8</span><h2>nvidia-smi: is my GPU actually working?</h2><span class="part-tag">Part 3 · Watch</span></div>
+    <div class="ch-head"><span class="ch-num">Chapter 9</span><h2>nvidia-smi: is my GPU actually working?</h2><span class="part-tag">Part 3 · Watch</span></div>
     <div class="strip">
       <div class="panel">
         <span class="caption">Ask from inside your job</span>
@@ -939,7 +1121,7 @@ python train.py --config "$RUN_DIR/config.yaml" \
         <ol class="tb-legend">
           <li><span class="mark m1">1</span><span><strong>GPU-Util:</strong> how busy the GPU is. Training should be high most of the time.</span></li>
           <li><span class="mark m2">2</span><span><strong>Memory:</strong> how much of the A40's 48 GB your model and batches take.</span></li>
-          <li><span class="mark m3">3</span><span><strong>Power:</strong> what it draws right now. Busy GPUs draw far more than idle ones (Chapter 10 turns this into CO₂).</span></li>
+          <li><span class="mark m3">3</span><span><strong>Power:</strong> what it draws right now. Busy GPUs draw far more than idle ones (Chapter 11 turns this into CO₂).</span></li>
           <li><span class="mark m1">4</span><span><strong>Processes:</strong> your program, and how much memory it holds.</span></li>
         </ol>
       </div>
@@ -965,9 +1147,9 @@ python train.py --config "$RUN_DIR/config.yaml" \
     </div>
   </section>
 
-  <!-- 9 QUEUE -->
+  <!-- 10 QUEUE -->
   <section class="chapter" id="queue">
-    <div class="ch-head"><span class="ch-num">Chapter 9</span><h2>Watch the queue &amp; the logs</h2><span class="part-tag">Part 3 · Watch</span></div>
+    <div class="ch-head"><span class="ch-num">Chapter 10</span><h2>Watch the queue &amp; the logs</h2><span class="part-tag">Part 3 · Watch</span></div>
     <div class="strip">
       <div class="panel span2">
         <span class="caption">squeue: where is my job?</span>
@@ -1036,9 +1218,9 @@ python train.py --config "$RUN_DIR/config.yaml" \
     </div>
   </section>
 
-  <!-- 10 CARBON -->
+  <!-- 11 CARBON -->
   <section class="chapter" id="carbon">
-    <div class="ch-head"><span class="ch-num">Chapter 10</span><h2>Bonus: what did that cost the planet?</h2><span class="part-tag">Part 3 · Watch · optional</span></div>
+    <div class="ch-head"><span class="ch-num">Chapter 11</span><h2>Bonus: what did that cost the planet?</h2><span class="part-tag">Part 3 · Watch · optional</span></div>
     <div class="strip">
       <div class="panel">
         <span class="caption">Optional, but worth it</span>
@@ -1085,9 +1267,9 @@ CarbonTracker: Average carbon intensity during training was
     </div>
   </section>
 
-  <!-- 11 CLEAN -->
+  <!-- 12 CLEAN -->
   <section class="chapter" id="clean">
-    <div class="ch-head"><span class="ch-num">Chapter 11</span><h2>Leave it cleaner than you found it</h2><span class="part-tag">Part 4 · Be a good neighbour</span></div>
+    <div class="ch-head"><span class="ch-num">Chapter 12</span><h2>Leave it cleaner than you found it</h2><span class="part-tag">Part 4 · Be a good neighbour</span></div>
     <div class="strip">
       <div class="panel">
         <div class="bubble"><span class="who snap">Snap</span>Shared disk, shared GPUs, shared login node. What you leave behind is in everyone's way. Two minutes at the end of each session keeps it tidy.</div>
@@ -1139,9 +1321,9 @@ CarbonTracker: Average carbon intensity during training was
     </div>
   </section>
 
-  <!-- 12 RULES -->
+  <!-- 13 RULES -->
   <section class="chapter" id="rules">
-    <div class="ch-head"><span class="ch-num">Chapter 12</span><h2>House rules</h2><span class="part-tag">Part 4 · Be a good neighbour</span></div>
+    <div class="ch-head"><span class="ch-num">Chapter 13</span><h2>House rules</h2><span class="part-tag">Part 4 · Be a good neighbour</span></div>
     <div class="strip">
       <div class="panel wide">
         <div class="bubble c"><span class="who snap">Snap</span>A shared server is set up for a specific group and purpose: GPU4EDU, for example, is for students in the courses that use it. Everyone shares the same few GPUs, often in the same deadline week. These habits keep it fair.</div>
@@ -1176,9 +1358,9 @@ CarbonTracker: Average carbon intensity during training was
     </div>
   </section>
 
-  <!-- 13 BESTIARY -->
+  <!-- 14 BESTIARY -->
   <section class="chapter" id="bestiary">
-    <div class="ch-head"><span class="ch-num">Chapter 13</span><h2>Cluster error bestiary</h2><span class="part-tag">Part 4 · Be a good neighbour</span></div>
+    <div class="ch-head"><span class="ch-num">Chapter 14</span><h2>Cluster error bestiary</h2><span class="part-tag">Part 4 · Be a good neighbour</span></div>
     <div class="strip">
       <div class="panel top">
         <svg class="art" viewBox="0 0 300 140" role="img" aria-label="Three cartoon bugs labelled permission denied, pending forever, and time limit">
@@ -1208,7 +1390,7 @@ CarbonTracker: Average carbon intensity during training was
             <tr><td>Job disappears at once, no log file</td><td>The <code>--output</code> folder doesn't exist, or a path is wrong</td><td><code>mkdir -p logs</code>; check paths relative to where you ran <code>sbatch</code></td></tr>
             <tr><td><code>PD (Resources)</code> for a long time</td><td>All GPUs are busy</td><td>Wait; don't resubmit copies; a shorter <code>--time</code> can help it fit in a gap</td></tr>
             <tr><td><code>CANCELLED … DUE TO TIME LIMIT</code></td><td>The job needed longer than <code>--time</code></td><td>Raise <code>--time</code> a little; save checkpoints so you can resume</td></tr>
-            <tr><td><code>Disk quota exceeded</code> / <code>No space left on device</code></td><td>Your home folder is full</td><td>Chapter 11: <code>du -sh</code>, clean caches, delete old checkpoints</td></tr>
+            <tr><td><code>Disk quota exceeded</code> / <code>No space left on device</code></td><td>Your home folder is full</td><td>Chapter 12: <code>du -sh</code>, clean caches, delete old checkpoints</td></tr>
             <tr><td><code>sacct: error: … accounting storage is disabled</code></td><td>Expected on servers without job accounting, like GPU4EDU</td><td>Use the timestamps your job script echoes</td></tr>
             <tr><td><code>Makefile:…: *** missing separator.  Stop.</code></td><td>Spaces instead of a Tab in a recipe</td><td>Replace the indent with one Tab</td></tr>
           </tbody>
@@ -1259,6 +1441,9 @@ CarbonTracker: Average carbon intensity during training was
         <div class="cmd"><code>sbatch job.sh</code><span>queue a job</span></div>
         <div class="cmd"><code>squeue --me</code><span>my jobs</span></div>
         <div class="cmd"><code>scancel &lt;jobid&gt;</code><span>cancel one</span></div>
+        <div class="cmd"><code>#SBATCH --array=0-4%2</code><span>job array: 5 tasks, at most 2 at a time</span></div>
+        <div class="cmd"><code>$SLURM_ARRAY_TASK_ID</code><span>this task's number</span></div>
+        <div class="cmd"><code>scancel &lt;jobid&gt;_&lt;task&gt;</code><span>cancel one task of an array</span></div>
         <div class="cmd"><code>sinfo -p GPU</code><span>how busy is the partition?</span></div>
         <div class="cmd"><code>srun -p GPU --gres=gpu:1 --pty bash -l</code><span>interactive, then <code>exit</code>!</span></div>
       </div>
